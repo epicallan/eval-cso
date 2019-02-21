@@ -1,0 +1,36 @@
+<<: !include "../hpack/module.yaml"
+
+name: ex-reader
+
+library:
+  <<: *lib-common
+  dependencies:
+    - aeson
+    - aeson-options
+    - bytestring
+    - co-log
+    - microlens-platform
+    - monad-logger
+    - persistent
+    - persistent-postgresql
+    - persistent-template
+    - servant-server
+    - text
+    - time
+    - unliftio-core
+    - warp
+    - wai
+    - wai-extra
+    - resource-pool
+
+executables:
+  ex-reader :
+    <<: *exec-common
+    source-dirs: app
+    dependencies:
+      - ex-reader
+      - persistent-postgresql
+      - servant-server
+      - unliftio-core
+      - wai
+      - warp

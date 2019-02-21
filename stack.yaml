@@ -1,0 +1,22 @@
+resolver: lts-12.24
+
+packages:
+  - eval-cso
+
+extra-deps:
+  - base-noprelude-4.11.1.0
+  - aeson-options-0.1.0
+  - co-log-0.2.0
+  # co-log dependecies
+  - co-log-core-0.1.1
+  - contravariant-1.5
+  - typerep-map-0.3.0
+  - primitive-0.6.4.0
+  ## Lootbox is not on Hackage
+  - git: https://github.com/serokell/lootbox
+    commit: 4862d6332791256f0d3c1f9caf1bba8cf38a7851 # master
+    subdirs:
+      - code/prelude
+
+ghc-options:
+  "$locals": -fhide-source-paths
