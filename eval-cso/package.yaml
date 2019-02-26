@@ -1,6 +1,6 @@
 <<: !include "../hpack/module.yaml"
 
-name: ex-reader
+name: eval-cso
 
 library:
   <<: *lib-common
@@ -9,26 +9,29 @@ library:
     - aeson-options
     - bytestring
     - co-log
+    - cryptonite
     - microlens-platform
     - monad-logger
+    - monad-time
     - persistent
     - persistent-postgresql
     - persistent-template
     - servant-server
+    - servant-auth
+    - servant-auth-server
     - text
     - time
     - unliftio-core
     - warp
     - wai
     - wai-extra
-    - resource-pool
 
 executables:
-  ex-reader :
+  eval-cso :
     <<: *exec-common
     source-dirs: app
     dependencies:
-      - ex-reader
+      - eval-cso
       - persistent-postgresql
       - servant-server
       - unliftio-core

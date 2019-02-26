@@ -1,34 +1,154 @@
 module User.Controller
-       ( getUserByEmail
-       , createUser
+       ( getUserByName
+       , updateUser
        , listUsers
+       , loginUser
+       , signupUser
+       , registerUser
+       , setPassword
        ) where
+import Control.Monad.Time (MonadTime, currentTime)
+import Servant
+import Servant.Auth.Server
 
-import Servant (err400)
-
-import Common.Types (Id)
-import Common.Errors (eitherSError)
-import Model (User)
+import Common.Types (Id(..), Name(..))
+import Common.Errors (eitherSError, throwSError)
+import Foundation (HasConfig)
+import Model (User (..))
+import User.Password
+  (validatePassword, hashPassword)
 import User.Storage.Types (UserStorage(..))
-import User.Types (Email(..))
+import User.Types
+  ( Email(..), Login, Signup(..), Role(..), UserErrors(..)
+  , ServantAuthHeaders, lEmail, lPassword, Edits(..), Password (..)
+  , UserResponse (..), HasUserAttrs, role, name, email, password
+  )
+
+getUserByName
+  :: forall m .(MonadThrow m)
+  => UserStorage m
+  -> Text
+  -> m UserResponse
+getUserByName us username = do
+  eUser <- usGetUserByName us $ Name username
+  eitherSError err400 $ second toUserResponse eUser
+
+setPassword
+  :: (MonadThrow m, HasConfig r, MonadReader r m)
+  => UserStorage m
+  -> Int64
+  -> Text
+  -> m Id
+setPassword us userId pwd =
+  let uid = Id userId
+  in hashPassword (Password pwd) >>= usSetPassword us uid >> pure uid
+
+registerUser
+  :: (HasConfig r, MonadReader r m, MonadTime m, MonadThrow m)
+  => UserStorage m
+  -> User
+  -> Edits
+  -> m Id
+registerUser us logedInUser attrs = do
+  let uemail = userEmail logedInUser
+  let defaultPassword = Password "make a random string with name as seed"
+  let createU = createUser us attrs defaultPassword
+
+  dbUser <- getUserByEmail us uemail
+
+  case userRole dbUser of
+    Admin -> createU
+    Evaluator -> if attrs ^. role == Member
+                    then createU
+                    else throwUserNotAuthorized uemail
+    _   -> throwUserNotAuthorized uemail
+
+updateUser
+  :: (MonadThrow m)
+  => UserStorage m
+  -> User
+  -> Int64
+  -> Edits
+  -> m UserResponse
+updateUser us logedInUser uid edits = do
+  let userId = Id uid
+  user <- eitherSError err401 =<< usGetUserById us userId
+  let update = toUserResponse <$> usUpdateUser us userId edits
+  if | userName user == userName logedInUser -> update
+     | userRole logedInUser == Admin -> update
+     | userRole logedInUser == Evaluator  && userRole user == Member -> update
+     | otherwise -> throwUserNotAuthorized (userEmail logedInUser)
+
+listUsers
+  :: Functor m
+  => UserStorage m
+  -> m [UserResponse]
+listUsers us = fmap toUserResponse <$> usAllUsers us
+
+-- on signup everyone is a regular member, admin gives out roles
+signupUser
+  :: (HasConfig r, MonadReader r m, MonadTime m)
+  => UserStorage m
+  -> Signup
+  -> m Id
+signupUser us attrs = createUser us attrs $ attrs ^. password
+
+loginUser
+  :: (MonadThrow m, MonadIO m)
+  => UserStorage m
+  -> CookieSettings
+  -> JWTSettings
+  -> Login
+  -> m ServantAuthHeaders
+loginUser us cs jws loginData = do
+   let uemail = loginData ^. lEmail
+   dbUser <- getUserByEmail us uemail
+   validUser <- if validatePassword (loginData ^. lPassword) (userPassword dbUser)
+                   then pure dbUser
+                   else throwSError err401 (IncorrectPassword uemail)
+   mApplyCookies <- liftIO $ acceptLogin cs jws validUser
+   case mApplyCookies of
+     Nothing -> throwSError err400 (CookieSetupError uemail)
+     Just applyCookies -> pure $ applyCookies NoContent
+
+---------------------------------------
+ -- Utilities
+---------------------------------------
+createUser
+  :: (HasUserAttrs attrs,  MonadTime m, HasConfig r, MonadReader r m)
+  => UserStorage m
+  -> attrs
+  -> Password
+  -> m Id
+createUser us userAttrs pwd = do
+  hpwd <- hashPassword pwd
+  utcTime <- currentTime
+  usCreateUser us $
+    User { userRole = userAttrs ^. role
+         , userName = userAttrs ^. name
+         , userEmail = userAttrs ^. email -- TODO: add active
+         , userPassword = hpwd
+         , userCreatedAt = utcTime
+         , userUpdatedAt = utcTime
+         }
+
+throwUserNotAuthorized :: MonadThrow m => Email -> m a
+throwUserNotAuthorized uemail  =
+  throwSError err400 $ UserIsNotAuthrized uemail
 
 getUserByEmail
   :: forall m .(MonadThrow m)
   => UserStorage m
-  -> Text
+  -> Email
   -> m User
-getUserByEmail us email = do
-  eUser <- usGetUserByEmail us $ Email email
-  eitherSError err400 eUser
+getUserByEmail us uemail =
+   usGetUserByEmail us uemail >>=  eitherSError err400
 
-createUser
-  :: UserStorage m
-  -> User
-  -> m Id
-createUser = usCreateUser
-
-listUsers
-  :: UserStorage m
-  -> m [User]
-listUsers = usAllUsers
-
+toUserResponse :: User -> UserResponse
+toUserResponse User{..} =
+  UserResponse { urName = userName
+               , urEmail = userEmail
+               , urRole = userRole
+               , urCreatedAt = userCreatedAt
+               , urUpdatedAt = userUpdatedAt
+               }

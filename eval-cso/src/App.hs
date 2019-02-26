@@ -1,19 +1,17 @@
-module Init
-        ( runApp
-        ) where
+module App (runApp) where
 
 import Network.Wai.Handler.Warp (run)
 
 -- import qualified Data.Pool                   as Pool
 
 import Api (app)
-import Config (Env, HasConfig(..), initEnv)
+import Foundation (Env, HasConfig(..), initEnv)
 
 runApp :: IO ()
 runApp = bracket initEnv shutdownApp startApp
     where
         startApp :: HasConfig Env => Env -> IO ()
-        startApp env = run (env ^. cPort) (app env)
+        startApp env = app env >>= run (env ^. cPort)
 
 
 -- | Takes care of cleaning up 'Config' resources

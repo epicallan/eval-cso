@@ -1,22 +1,30 @@
 module User.Storage.Core
         ( userStorage
         ) where
+import Prelude hiding (get)
 
+import Data.Time (getCurrentTime)
 import Database.Persist.Postgresql
-  (Entity(..), fromSqlKey, insert, selectFirst, selectList, (==.))
+  ( Entity(..), fromSqlKey, insert, selectFirst, selectList, (==.), (=.), get
+  , updateGet, toSqlKey, update
+  )
 
 import Common.Types (Id(..))
-import Config (HasPool)
-import Model (EntityField(UserEmail), User, runInDb)
+import Foundation (HasPool)
+import Model (EntityField(..), User, runInDb)
 
 import User.Storage.Types (UserStorage(..))
-import User.Types (UserStorageErrors(..))
+import User.Types (UserErrors(..), Edits(..))
 
 userStorage :: (MonadIO m, MonadReader r m, HasPool r) => UserStorage m
 userStorage = UserStorage
   { usCreateUser = \user -> do
       newUserKey <- runInDb $ insert user
       pure . Id $ fromSqlKey newUserKey
+
+  , usSetPassword = \uid hpwd -> do
+      let userKey = toSqlKey $ unId uid
+      runInDb $ update userKey [UserPassword =. hpwd]
 
   , usAllUsers = do
       users :: [Entity User] <- runInDb (selectList [] [])
@@ -27,6 +35,28 @@ userStorage = UserStorage
        pure $ case mUser of
          Nothing -> Left $ UserEmailNotFound email
          Just (Entity _ user) -> Right user
+
+   , usGetUserByName = \ name ->  do
+       mUser :: (Maybe (Entity User)) <- runInDb $ selectFirst [UserName ==. name] []
+       pure $ case mUser of
+         Nothing -> Left $ UserNameNotFound name
+         Just (Entity _ user) -> Right user
+
+   , usGetUserById = \uid -> do
+       let userKey = toSqlKey $ unId uid
+       mUser :: (Maybe User)<- runInDb $ get userKey
+       pure $ maybe (Left $ UserNotFound uid) Right mUser
+
+   , usUpdateUser = \ uid Edits{..} -> do
+       let userKey = toSqlKey $ unId uid
+       utcTime <- liftIO getCurrentTime
+       runInDb $ updateGet userKey
+                    [ UserName =. _editsName
+                    , UserEmail =. _editsEmail
+                    , UserRole =. _editsRole
+                    , UserUpdatedAt =. utcTime
+                    ]
+
   }
 
 -- TODO: userStorageTest

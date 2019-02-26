@@ -1,5 +1,4 @@
--- TODO: rename Config to App
-module Config
+module Foundation
        ( initEnv
        , Config (..)
        , AppT (..)
@@ -10,8 +9,8 @@ module Config
        , HasPool (..)
        , HasConfig (..)
        ) where
-
 import Control.Monad.Logger (runStdoutLoggingT)
+import Control.Monad.Time (MonadTime)
 import qualified Data.ByteString.Char8 as BS
 import Database.Persist.Postgresql (ConnectionString, createPostgresqlPool)
 import Database.Persist.Sql (ConnectionPool)
@@ -21,7 +20,7 @@ import Control.Monad.IO.Unlift (MonadUnliftIO)
 import Network.Wai.Handler.Warp (Port)
 import System.Environment (lookupEnv)
 import System.IO.Error (userError)
-
+import Servant.Auth.Server (ThrowAll(..))
 
 -- | Right now, we're distinguishing between three environments
 data Environment
@@ -37,6 +36,7 @@ data Config = Config
     { _cAppName :: Text
     , _cEnv     :: Environment
     , _cPort    :: Port
+    , _cSalt    :: Text
     }
 
 data Env = Env
@@ -57,23 +57,32 @@ instance HasPool Env where
   pool = ePool
 
 newtype AppT m a = AppT { runApp :: ReaderT Env m a }
-    deriving (Functor, Applicative, Monad, MonadIO, MonadReader Env, MonadThrow)
+    deriving (Functor, Applicative, Monad, MonadIO
+             , MonadReader Env, MonadThrow, MonadCatch
+             , MonadTrans
+             )
 
 type App = AppT IO
 
-type AppEffs r m =
+type AppEffs r m = -- TODO: maybe delete
   ( HasConfig r
   , HasPool r
   , MonadReader r m
   , MonadIO m
   , MonadThrow m
+  , MonadCatch m
+  , MonadTime m
   )
+
+instance MonadThrow m => ThrowAll (AppT m a) where
+  throwAll = throwM
 
 acquireConfig :: (MonadUnliftIO m, MonadThrow m) => m Config
 acquireConfig = do
     _cPort  <- lookupSetting "EX_PORT" (pure 8081)
     _cEnv   <- lookupSetting "EX_ENV" (pure Development)
     let _cAppName = "App Name"
+    let _cSalt = "super-secret"
     pure Config{..}
 
 initEnv :: (MonadThrow m, MonadUnliftIO m) => m Env

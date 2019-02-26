@@ -2,7 +2,7 @@ module Main
         ( main
         ) where
 
-import Init (runApp)
+import App (runApp)
 
 main :: IO ()
 main = runApp
