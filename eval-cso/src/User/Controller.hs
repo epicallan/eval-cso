@@ -20,8 +20,8 @@ import User.Password
 import User.Storage.Types (UserStorage(..))
 import User.Types
   ( Email(..), Login, Signup(..), Role(..), UserErrors(..)
-  , ServantAuthHeaders, lEmail, lPassword, Edits(..), Password (..)
-  , UserResponse (..), HasUserAttrs, role, name, email, password
+  , ServantAuthHeaders, Edits(..), Password (..), UserResponse (..)
+  , HasUserAttrs, role, name, email, password
   )
 
 getUserByName
@@ -36,12 +36,17 @@ getUserByName us username = do
 setPassword
   :: (MonadThrow m, HasConfig r, MonadReader r m)
   => UserStorage m
+  -> User
   -> Int64
   -> Text
   -> m Id
-setPassword us userId pwd =
+setPassword us logedInUser userId pwd = do
   let uid = Id userId
-  in hashPassword (Password pwd) >>= usSetPassword us uid >> pure uid
+  let mkPassword = hashPassword (Password pwd) >>= usSetPassword us uid
+
+  userForPassword <- usGetUserById us uid >>= eitherSError err400
+  runProtectedAction mkPassword logedInUser $ userRole userForPassword
+  pure uid
 
 registerUser
   :: (HasConfig r, MonadReader r m, MonadTime m, MonadThrow m)
@@ -49,19 +54,10 @@ registerUser
   -> User
   -> Edits
   -> m Id
-registerUser us logedInUser attrs = do
-  let uemail = userEmail logedInUser
+registerUser us logedInUser attrs =
   let defaultPassword = Password "make a random string with name as seed"
-  let createU = createUser us attrs defaultPassword
-
-  dbUser <- getUserByEmail us uemail
-
-  case userRole dbUser of
-    Admin -> createU
-    Evaluator -> if attrs ^. role == Member
-                    then createU
-                    else throwUserNotAuthorized uemail
-    _   -> throwUserNotAuthorized uemail
+      createU = createUser us attrs defaultPassword
+  in runProtectedAction createU logedInUser $ attrs ^. role
 
 updateUser
   :: (MonadThrow m)
@@ -75,9 +71,7 @@ updateUser us logedInUser uid edits = do
   user <- eitherSError err401 =<< usGetUserById us userId
   let update = toUserResponse <$> usUpdateUser us userId edits
   if | userName user == userName logedInUser -> update
-     | userRole logedInUser == Admin -> update
-     | userRole logedInUser == Evaluator  && userRole user == Member -> update
-     | otherwise -> throwUserNotAuthorized (userEmail logedInUser)
+     | otherwise -> runProtectedAction update logedInUser $ userRole user
 
 listUsers
   :: Functor m
@@ -101,9 +95,9 @@ loginUser
   -> Login
   -> m ServantAuthHeaders
 loginUser us cs jws loginData = do
-   let uemail = loginData ^. lEmail
-   dbUser <- getUserByEmail us uemail
-   validUser <- if validatePassword (loginData ^. lPassword) (userPassword dbUser)
+   let uemail = loginData ^. email
+   dbUser <- usGetUserByEmail us uemail >>=  eitherSError err400
+   validUser <- if validatePassword (loginData ^. password) (userPassword dbUser)
                    then pure dbUser
                    else throwSError err401 (IncorrectPassword uemail)
    mApplyCookies <- liftIO $ acceptLogin cs jws validUser
@@ -136,13 +130,20 @@ throwUserNotAuthorized :: MonadThrow m => Email -> m a
 throwUserNotAuthorized uemail  =
   throwSError err400 $ UserIsNotAuthrized uemail
 
-getUserByEmail
-  :: forall m .(MonadThrow m)
-  => UserStorage m
-  -> Email
-  -> m User
-getUserByEmail us uemail =
-   usGetUserByEmail us uemail >>=  eitherSError err400
+runProtectedAction
+  :: (MonadThrow m)
+  => m a
+  -> User
+  -> Role -- ^ role of the user who consumes the action
+  -> m a
+runProtectedAction action logedInUser urole = do
+  let uemail = userEmail logedInUser
+  case userRole logedInUser of
+    Admin -> action
+    Evaluator -> if urole == Member
+                    then action
+                    else throwUserNotAuthorized uemail
+    _   -> throwUserNotAuthorized uemail
 
 toUserResponse :: User -> UserResponse
 toUserResponse User{..} =
@@ -152,3 +153,4 @@ toUserResponse User{..} =
                , urCreatedAt = userCreatedAt
                , urUpdatedAt = userUpdatedAt
                }
+

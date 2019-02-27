@@ -1,6 +1,5 @@
 module User.Password
-       (
-         Password (..)
+       ( Password (..)
        , PasswordHash (..)
        , hashPassword
        , validatePassword

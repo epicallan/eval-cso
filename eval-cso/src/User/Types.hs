@@ -1,7 +1,6 @@
 module User.Types
         ( Email (..)
-        , HasActive, HasEmail, HasRole
-        , HasUserAttrs, HasPassword
+        , HasEmail, HasRole, HasUserAttrs, HasPassword
         , Login (..)
         , Signup (..)
         , Password (..)
@@ -11,8 +10,7 @@ module User.Types
         , UserErrors(..)
         , Edits(..)
         , UserResponse (..)
-        , lEmail, lPassword
-        , role, name, email, active, password
+        , role, name, email, password
         ) where
 
 import Data.Aeson.TH (Options(..), deriveJSON)
@@ -20,7 +18,7 @@ import Data.Aeson.Options as AO (defaultOptions)
 import Database.Persist.Sql (PersistField)
 import Database.Persist.TH (derivePersistField)
 import Data.Time (UTCTime)
-import Lens.Micro.Platform (makeLenses, makeFields)
+import Lens.Micro.Platform (makeFields)
 
 import Servant
 import Servant.Auth.Server
@@ -62,11 +60,11 @@ newtype PasswordPlain = PasswordPlain {unPasswordPlain :: Text}
   deriving (Eq, Show, PersistField)
 
 data Login = Login
-  { _lEmail :: Email
-  , _lPassword :: Password
+  { _loginEmail :: Email
+  , _loginPassword :: Password
   }
 
-makeLenses ''Login
+makeFields ''Login
 $(deriveJSON AO.defaultOptions ''Login)
 
 data Signup = Signup
@@ -74,16 +72,14 @@ data Signup = Signup
  , _signupEmail :: Email
  , _signupPassword :: Password
  }
+
 $(deriveJSON AO.defaultOptions ''Signup)
 makeFields ''Signup
-
-type Active = Bool
 
 data Edits = Edits
  { _editsName :: Name
  , _editsEmail :: Email
  , _editsRole :: Role
- , _editsActive :: Active
  }
 
 $(deriveJSON AO.defaultOptions ''Edits)
@@ -103,13 +99,8 @@ type HasUserAttrs a =
   ( HasName a Name
   , HasEmail a Email
   , HasRole a Role
-  , HasActive a Active
   )
 
 instance HasRole Signup Role where
   role f signup = fmap (const signup) (f Member)
-
-instance HasActive Signup Active where
-  active f signup = fmap (const signup) (f True)
-
 

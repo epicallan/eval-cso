@@ -2,7 +2,7 @@ sudo: true
 language: haskell
 
 git:
-  depth: 5
+  depth: 2
 
 cache:
   directories:

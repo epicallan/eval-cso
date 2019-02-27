@@ -50,10 +50,10 @@ protected
   -> ServerT ProtectedUserApi App
 protected (Authenticated user) =
          listUsers userStorage
-    :<|> registerUser userStorage user 
+    :<|> registerUser userStorage user
     :<|> updateUser userStorage user
     :<|> getUserByName userStorage
-    :<|> setPassword userStorage
+    :<|> setPassword userStorage user
 
 protected _ = throwAll err401
 
