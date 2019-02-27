@@ -10,7 +10,7 @@ import Foundation (Env, HasConfig(..), initEnv)
 runApp :: IO ()
 runApp = bracket initEnv shutdownApp startApp
     where
-        startApp :: HasConfig Env => Env -> IO ()
+        startApp :: Env -> IO ()
         startApp env = app env >>= run (env ^. cPort)
 
 
