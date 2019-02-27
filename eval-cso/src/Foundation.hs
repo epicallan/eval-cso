@@ -3,14 +3,12 @@ module Foundation
        , Config (..)
        , AppT (..)
        , App
-       , AppEffs
        , Env (..)
        , Environment (..)
        , HasPool (..)
        , HasConfig (..)
        ) where
 import Control.Monad.Logger (runStdoutLoggingT)
-import Control.Monad.Time (MonadTime)
 import qualified Data.ByteString.Char8 as BS
 import Database.Persist.Postgresql (ConnectionString, createPostgresqlPool)
 import Database.Persist.Sql (ConnectionPool)
@@ -64,19 +62,10 @@ newtype AppT m a = AppT { runApp :: ReaderT Env m a }
 
 type App = AppT IO
 
-type AppEffs r m = -- TODO: maybe delete
-  ( HasConfig r
-  , HasPool r
-  , MonadReader r m
-  , MonadIO m
-  , MonadThrow m
-  , MonadCatch m
-  , MonadTime m
-  )
-
 instance MonadThrow m => ThrowAll (AppT m a) where
   throwAll = throwM
 
+-- TODO: get this all config from a secrets config file
 acquireConfig :: (MonadUnliftIO m, MonadThrow m) => m Config
 acquireConfig = do
     _cPort  <- lookupSetting "EX_PORT" (pure 8081)

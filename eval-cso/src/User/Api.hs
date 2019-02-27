@@ -12,7 +12,7 @@ import Foundation (App)
 import Model (User)
 import User.Controller
   ( updateUser, getUserByName, listUsers, loginUser
-  , signupUser, setPassword, registerUser
+  , signupUser, setPassword, generateUser
   )
 import User.Storage.Core (userStorage)
 import User.Types (Login, Signup, ServantAuthHeaders, Edits, UserResponse)
@@ -50,7 +50,7 @@ protected
   -> ServerT ProtectedUserApi App
 protected (Authenticated user) =
          listUsers userStorage
-    :<|> registerUser userStorage user
+    :<|> generateUser userStorage user
     :<|> updateUser userStorage user
     :<|> getUserByName userStorage
     :<|> setPassword userStorage user
