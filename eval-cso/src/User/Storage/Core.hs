@@ -45,7 +45,7 @@ userStorage = UserStorage
    , usGetUserById = \uid -> do
        let userKey = toSqlKey $ unId uid
        mUser :: (Maybe User)<- runInDb $ get userKey
-       pure $ maybe (Left $ UserNotFound uid) Right mUser
+       pure $ maybeToRight (UserNotFound uid) mUser
 
    , usUpdateUser = \ uid Edits{..} -> do
        let userKey = toSqlKey $ unId uid

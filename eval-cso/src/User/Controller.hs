@@ -4,7 +4,7 @@ module User.Controller
        , listUsers
        , loginUser
        , signupUser
-       , registerUser
+       , generateUser
        , setPassword
        ) where
 import Control.Monad.Time (MonadTime, currentTime)
@@ -48,14 +48,14 @@ setPassword us logedInUser userId pwd = do
   runProtectedAction mkPassword logedInUser $ userRole userForPassword
   pure uid
 
-registerUser
+generateUser
   :: (HasConfig r, MonadReader r m, MonadTime m, MonadThrow m)
   => UserStorage m
   -> User
   -> Edits
   -> m Id
-registerUser us logedInUser attrs =
-  let defaultPassword = Password "make a random string with name as seed"
+generateUser us logedInUser attrs =
+  let defaultPassword = Password "TODO: make a random string with name as seed"
       createU = createUser us attrs defaultPassword
   in runProtectedAction createU logedInUser $ attrs ^. role
 
@@ -120,7 +120,7 @@ createUser us userAttrs pwd = do
   usCreateUser us $
     User { userRole = userAttrs ^. role
          , userName = userAttrs ^. name
-         , userEmail = userAttrs ^. email -- TODO: add active
+         , userEmail = userAttrs ^. email
          , userPassword = hpwd
          , userCreatedAt = utcTime
          , userUpdatedAt = utcTime

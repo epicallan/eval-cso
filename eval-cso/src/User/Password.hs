@@ -1,3 +1,4 @@
+{-# LANGUAGE TypeApplications #-}
 module User.Password
        ( Password (..)
        , PasswordHash (..)
