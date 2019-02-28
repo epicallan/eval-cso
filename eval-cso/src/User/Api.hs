@@ -11,7 +11,7 @@ import Common.Types (Id)
 import Foundation (App)
 import Model (User)
 import User.Controller
-  ( updateUser, getUserByName, listUsers, loginUser
+  ( updateUser, getUserById, listUsers, loginUser
   , signupUser, setPassword, generateUser
   )
 import User.Storage.Core (userStorage)
@@ -30,7 +30,7 @@ type ProtectedUserApi =
          Get '[JSON] [UserResponse]
     :<|> ReqBody '[JSON] Edits :> Post '[JSON] Id
     :<|> Capture "id" Int64 :> ReqBody '[JSON] Edits :> Put '[JSON] UserResponse
-    :<|> Capture "name" Text :> Get '[JSON] UserResponse
+    :<|> Capture "id" Int64 :> Get '[JSON] UserResponse
     :<|> Capture "id" Int64 :> Capture "password" Text :> Patch '[JSON] Id
 
 
@@ -52,7 +52,7 @@ protected (Authenticated user) =
          listUsers userStorage
     :<|> generateUser userStorage user
     :<|> updateUser userStorage user
-    :<|> getUserByName userStorage
+    :<|> getUserById userStorage
     :<|> setPassword userStorage user
 
 protected _ = throwAll err401
@@ -65,3 +65,4 @@ userServer
   -> JWTSettings
   -> ServerT (UserApi auths) App
 userServer cs jwts = protected :<|> unprotected cs jwts :<|> signupApi
+

@@ -138,3 +138,4 @@ makePool env = do
     let poolSize = getPoolSize env
     connStr      <- getConnStr env
     runStdoutLoggingT $ createPostgresqlPool connStr poolSize
+

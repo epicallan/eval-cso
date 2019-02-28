@@ -6,7 +6,7 @@ import Prelude hiding (get)
 import Data.Time (getCurrentTime)
 import Database.Persist.Postgresql
   ( Entity(..), fromSqlKey, insert, selectFirst, selectList, (==.), (=.), get
-  , updateGet, toSqlKey, update
+  , updateGet, update
   )
 
 import Common.Types (Id(..))
@@ -22,9 +22,7 @@ userStorage = UserStorage
       newUserKey <- runInDb $ insert user
       pure . Id $ fromSqlKey newUserKey
 
-  , usSetPassword = \uid hpwd -> do
-      let userKey = toSqlKey $ unId uid
-      runInDb $ update userKey [UserPassword =. hpwd]
+  , usSetPassword = \userId hpwd -> runInDb $ update userId [UserPassword =. hpwd]
 
   , usAllUsers = do
       users :: [Entity User] <- runInDb (selectList [] [])
@@ -42,15 +40,13 @@ userStorage = UserStorage
          Nothing -> Left $ UserNameNotFound name
          Just (Entity _ user) -> Right user
 
-   , usGetUserById = \uid -> do
-       let userKey = toSqlKey $ unId uid
-       mUser :: (Maybe User)<- runInDb $ get userKey
-       pure $ maybeToRight (UserNotFound uid) mUser
+   , usGetUserById = \userId -> do
+       mUser :: (Maybe User)<- runInDb $ get userId
+       pure $ maybeToRight (UserNotFound . Id $ fromSqlKey userId) mUser
 
-   , usUpdateUser = \ uid Edits{..} -> do
-       let userKey = toSqlKey $ unId uid
+   , usUpdateUser = \ userId Edits{..} -> do
        utcTime <- liftIO getCurrentTime
-       runInDb $ updateGet userKey
+       runInDb $ updateGet userId
                     [ UserName =. _editsName
                     , UserEmail =. _editsEmail
                     , UserRole =. _editsRole

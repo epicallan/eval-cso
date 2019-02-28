@@ -1,10 +1,13 @@
 {-# LANGUAGE EmptyDataDecls, QuasiQuotes #-}
 
 module Model
-  ( -- auto generated persistent Field types e.g UserName
-    EntityField (..)
+  ( Agent (..)
+  , AgentId
+  , EntityField (..)  -- auto generated persistent Field types e.g UserName
   , Branch
   , BranchId
+  , Service
+  , ServiceId
   , User (..)
   , UserId
 
@@ -31,28 +34,44 @@ share
     name           Name           sqltype=text
     email          U.Email        sqltype=text
     role           U.Role         sqltype=text
-    password       U.PasswordHash   sqltype=text
+    password       U.PasswordHash sqltype=text
     createdAt      UTCTime  sqltype=timestamptz sql=created_at default=CURRENT_TIMESTAMP
     updatedAt      UTCTime  sqltype=timestamptz sql=updated_at default=CURRENT_TIMESTAMP
-    UniqueEmail    email
-    UniqueName     name
+    UniqueUser     email name password
+    deriving Show
+
+  Agent sql=agents
+    userId         UserId
+    supervisorId   UserId
+    services       [ServiceId]
+    branch         BranchId
+    createdAt      UTCTime    sqltype=timestamptz sql=created_at default=CURRENT_TIMESTAMP
+    updatedAt      UTCTime    sqltype=timestamptz sql=updated_at default=CURRENT_TIMESTAMP
+    UniqueAgent    userId
     deriving Show
 
   Branch sql=branch
-    name        Text sqltype=text
+    name        Name sqltype=text
     createdAt   UTCTime  sqltype=timestamptz sql=created_at default=CURRENT_TIMESTAMP
     updatedAt   UTCTime  sqltype=timestamptz sql=updated_at default=CURRENT_TIMESTAMP
-   deriving Show
+    UniqueBranch name
+    deriving Show
 
+  Service sql=services
+    name        Name   sqltype=text
+    createdAt   UTCTime  sqltype=timestamptz sql=created_at default=CURRENT_TIMESTAMP
+    updatedAt   UTCTime  sqltype=timestamptz sql=updated_at default=CURRENT_TIMESTAMP
+    UniqueService name
+    deriving Show
   |]
 
-$(deriveJSON defaultOptions ''Branch)
 $(deriveJSON defaultOptions ''User)
+$(deriveJSON defaultOptions ''Branch)
+$(deriveJSON defaultOptions ''Service)
+$(deriveJSON defaultOptions ''Agent)
 
 instance ToJWT User
 instance FromJWT User
-
--- makeLensesWith camelCaseFields ''User
 
 -- we should be able to run multiple migrations
 doMigrations :: SqlPersistT IO ()

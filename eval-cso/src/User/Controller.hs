@@ -1,5 +1,5 @@
 module User.Controller
-       ( getUserByName
+       ( getUserById
        , updateUser
        , listUsers
        , loginUser
@@ -8,10 +8,11 @@ module User.Controller
        , setPassword
        ) where
 import Control.Monad.Time (MonadTime, currentTime)
+import Database.Persist.Postgresql (toSqlKey)
 import Servant
 import Servant.Auth.Server
 
-import Common.Types (Id(..), Name(..))
+import Common.Types (Id(..))
 import Common.Errors (eitherSError, throwSError)
 import Foundation (HasConfig)
 import Model (User (..))
@@ -24,13 +25,13 @@ import User.Types
   , HasUserAttrs, role, name, email, password
   )
 
-getUserByName
+getUserById
   :: forall m .(MonadThrow m)
   => UserStorage m
-  -> Text
+  -> Int64
   -> m UserResponse
-getUserByName us username = do
-  eUser <- usGetUserByName us $ Name username
+getUserById us userId = do
+  eUser <- usGetUserById us (toSqlKey userId)
   eitherSError err400 $ second toUserResponse eUser
 
 setPassword
@@ -40,13 +41,13 @@ setPassword
   -> Int64
   -> Text
   -> m Id
-setPassword us logedInUser userId pwd = do
-  let uid = Id userId
-  let mkPassword = hashPassword (Password pwd) >>= usSetPassword us uid
+setPassword us logedInUser uid pwd = do
+  let userId = toSqlKey uid
+  let mkPassword = hashPassword (Password pwd) >>= usSetPassword us userId
 
-  userForPassword <- usGetUserById us uid >>= eitherSError err400
+  userForPassword <- usGetUserById us userId >>= eitherSError err400
   runProtectedAction mkPassword logedInUser $ userRole userForPassword
-  pure uid
+  pure $ Id uid
 
 generateUser
   :: (HasConfig r, MonadReader r m, MonadTime m, MonadThrow m)
@@ -67,7 +68,7 @@ updateUser
   -> Edits
   -> m UserResponse
 updateUser us logedInUser uid edits = do
-  let userId = Id uid
+  let userId = toSqlKey uid
   user <- eitherSError err401 =<< usGetUserById us userId
   let update = toUserResponse <$> usUpdateUser us userId edits
   if | userName user == userName logedInUser -> update
