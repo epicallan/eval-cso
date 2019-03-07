@@ -12,7 +12,6 @@ throwSError
   -> m a
 throwSError sError ex = throwM $ sError {errBody = show ex}
 
-
 eitherSError
   :: (MonadThrow m, Exception e)
   => ServantErr

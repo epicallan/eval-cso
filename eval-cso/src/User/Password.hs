@@ -6,13 +6,13 @@ module User.Password
        , validatePassword
        ) where
 
-import Data.Aeson.TH (Options(..), deriveJSON)
+import qualified Crypto.KDF.BCrypt as BCrypt
 import Data.Aeson.Options as AO (defaultOptions)
+import Data.Aeson.TH (Options(..), deriveJSON)
 import Data.ByteString (ByteString)
 import Database.Persist.Sql (PersistField)
-import qualified Crypto.KDF.BCrypt as BCrypt
 
-import Foundation (HasConfig (..))
+import Foundation (HasConfig(..))
 
 newtype PasswordHash = PasswordHash { unPasswordHash :: Text }
   deriving (Eq, Show, PersistField)

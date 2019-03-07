@@ -1,6 +1,6 @@
 module User.Types
         ( Email (..)
-        , HasEmail, HasRole, HasUserAttrs, HasPassword
+        , HasEmail, HasRole, HasName, HasUserAttrs, HasPassword
         , Login (..)
         , Signup (..)
         , Password (..)
@@ -8,23 +8,23 @@ module User.Types
         , Role (..)
         , ServantAuthHeaders
         , UserErrors(..)
-        , Edits(..)
+        , UserEdits(..)
         , UserResponse (..)
         , role, name, email, password
         ) where
 
-import Data.Aeson.TH (Options(..), deriveJSON)
 import Data.Aeson.Options as AO (defaultOptions)
+import Data.Aeson.TH (Options(..), deriveJSON)
+import Data.Time (UTCTime)
 import Database.Persist.Sql (PersistField)
 import Database.Persist.TH (derivePersistField)
-import Data.Time (UTCTime)
 import Lens.Micro.Platform (makeFields)
 
 import Servant
 import Servant.Auth.Server
 
+import Common.Types (Id, Name)
 import User.Password (Password(..), PasswordHash(..))
-import Common.Types (Name, Id)
 
 type ServantAuthHeaders = Headers '[ Header "Set-Cookie" SetCookie
                                    , Header "Set-Cookie" SetCookie
@@ -76,14 +76,14 @@ data Signup = Signup
 $(deriveJSON AO.defaultOptions ''Signup)
 makeFields ''Signup
 
-data Edits = Edits
- { _editsName :: Name
- , _editsEmail :: Email
- , _editsRole :: Role
+data UserEdits = UserEdits
+ { _userEditsName :: Name
+ , _userEditsEmail :: Email
+ , _userEditsRole :: Role
  }
 
-$(deriveJSON AO.defaultOptions ''Edits)
-makeFields ''Edits
+$(deriveJSON AO.defaultOptions ''UserEdits)
+makeFields ''UserEdits
 
 data UserResponse = UserResponse
   { urName :: Name

@@ -7,10 +7,10 @@ import Servant.Auth.Server
 
 import Foundation (AppT(..), App, Env)
 import User.Api (UserApi, userServer)
+import Agent.Api (AgentApi, agentServer)
 
 -- API specification
-type Api auths = "api" :> UserApi auths
-  -- :<|> "article"  :> ArticleApi
+type Api auths = "api" :> UserApi auths :<|> AgentApi auths
 
 api :: Proxy (Api '[JWT])
 api = Proxy
@@ -20,7 +20,7 @@ appServerT
   :: CookieSettings
   -> JWTSettings
   -> ServerT (Api auths) App
-appServerT = userServer
+appServerT cs jws  = userServer cs jws :<|> agentServer
 
 convertAppT :: Env -> App a -> Handler a
 convertAppT env appM =

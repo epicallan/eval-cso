@@ -45,6 +45,7 @@ _definitions:
         - RecursiveDo
         - ScopedTypeVariables
         - StandaloneDeriving
+        - StrictData
         - TemplateHaskell
         - TupleSections
         - TypeApplications
@@ -71,6 +72,7 @@ _definitions:
         - -Wno-monomorphism-restriction
         - -Wno-implicit-prelude
         - -Werror
+        - -Wwarn=missing-home-modules
 
   _utils:
     - &lib-common

@@ -11,12 +11,10 @@ import Common.Types (Id)
 import Foundation (App)
 import Model (User)
 import User.Controller
-  ( updateUser, getUserById, listUsers, loginUser
-  , signupUser, setPassword, generateUser
-  )
-import User.Storage.Core (userStorage)
-import User.Types (Login, Signup, ServantAuthHeaders, Edits, UserResponse)
-
+  (generateUser, getUserById, listUsers, loginUser, setPassword, signupUser,
+  updateUser)
+import User.Model.Internal (userModel)
+import User.Types (Login, ServantAuthHeaders, Signup, UserEdits, UserResponse)
 
 type LoginApi =
  "login"
@@ -28,8 +26,8 @@ type SignupApi =
 
 type ProtectedUserApi =
          Get '[JSON] [UserResponse]
-    :<|> ReqBody '[JSON] Edits :> Post '[JSON] Id
-    :<|> Capture "id" Int64 :> ReqBody '[JSON] Edits :> Put '[JSON] UserResponse
+    :<|> ReqBody '[JSON] UserEdits :> Post '[JSON] Id
+    :<|> Capture "id" Int64 :> ReqBody '[JSON] UserEdits :> Put '[JSON] UserResponse
     :<|> Capture "id" Int64 :> Get '[JSON] UserResponse
     :<|> Capture "id" Int64 :> Capture "password" Text :> Patch '[JSON] Id
 
@@ -43,22 +41,22 @@ unprotected
   :: CookieSettings
   -> JWTSettings
   -> ServerT LoginApi App
-unprotected = loginUser userStorage
+unprotected = loginUser userModel
 
 protected
   :: AuthResult User
   -> ServerT ProtectedUserApi App
 protected (Authenticated user) =
-         listUsers userStorage
-    :<|> generateUser userStorage user
-    :<|> updateUser userStorage user
-    :<|> getUserById userStorage
-    :<|> setPassword userStorage user
+         listUsers userModel
+    :<|> generateUser userModel user
+    :<|> updateUser userModel user
+    :<|> getUserById userModel
+    :<|> setPassword userModel user
 
 protected _ = throwAll err401
 
 signupApi :: ServerT SignupApi App
-signupApi = signupUser userStorage
+signupApi = signupUser userModel
 
 userServer
   :: CookieSettings
