@@ -63,4 +63,3 @@ userServer
   -> JWTSettings
   -> ServerT (UserApi auths) App
 userServer cs jwts = protected :<|> unprotected cs jwts :<|> signupApi
-

@@ -45,4 +45,3 @@ data AgentResponse = AgentResponse
   } deriving Show
 
 $(deriveJSON AO.defaultOptions ''AgentResponse)
-

@@ -48,8 +48,8 @@ updateAgent astorage us logedInUser uid attrs = do
 
   runProtectedAction
     logedInUser
-    Member
-    $ asUpdateAgent astorage userId attrs
+    Member $
+    asUpdateAgent astorage userId attrs
 
   getAgentById astorage us uid
 

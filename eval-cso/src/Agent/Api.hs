@@ -7,7 +7,7 @@ import Servant
 import Servant.Auth.Server
 
 import Agent.Controller (createAgentProfile, getAgentById, updateAgent)
-import Agent.Model.Core (agentModel)
+import Agent.Model.Internal (agentModel)
 import Agent.Types (AgentAttrs, AgentResponse, CreateAgent)
 import Common.Types (Id)
 import Foundation (App)
