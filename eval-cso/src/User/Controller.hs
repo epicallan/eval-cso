@@ -108,6 +108,7 @@ loginUser us cs jws loginData = do
 ---------------------------------------
  -- Utilities
 ---------------------------------------
+
 createUser
   :: (HasUserAttrs attrs,  MonadTime m, HasConfig r, MonadReader r m)
   => UserModel m
