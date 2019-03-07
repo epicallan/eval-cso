@@ -10,6 +10,7 @@ library:
     - bytestring
     - co-log
     - cryptonite
+    - esqueleto
     - microlens-platform
     - monad-logger
     - monad-time

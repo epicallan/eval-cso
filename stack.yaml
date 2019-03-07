@@ -12,6 +12,8 @@ extra-deps:
   - contravariant-1.5
   - typerep-map-0.3.0
   - primitive-0.6.4.0
+
+  - esqueleto-2.6.0@sha256:e4672cd3baec100ef8597224abae4e030795e8a1f80abb6e0c3e2570f213a258
   ## Lootbox is not on Hackage
   - git: https://github.com/serokell/lootbox
     commit: 4862d6332791256f0d3c1f9caf1bba8cf38a7851 # master

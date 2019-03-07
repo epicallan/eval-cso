@@ -2,8 +2,6 @@ module App (runApp) where
 
 import Network.Wai.Handler.Warp (run)
 
--- import qualified Data.Pool                   as Pool
-
 import Api (app)
 import Foundation (Env, HasConfig(..), initEnv)
 
