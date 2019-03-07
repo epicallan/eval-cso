@@ -6,7 +6,6 @@ import Agent.Types (AgentAttrs)
 import Common.Types (Id)
 import Model (Agent, Branch, BranchId, Service, ServiceId, User, UserId)
 
--- TODO: move to types
 data AgentStorage m = AgentStorage
   { asCreateAgent :: UserId -> AgentAttrs -> m Id
   , asGetAgentById :: UserId -> m (Maybe (Agent, User))
