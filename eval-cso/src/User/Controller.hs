@@ -28,7 +28,7 @@ getUserById
   => UserModel m
   -> Int64
   -> m UserResponse
-getUserById us uid = getUserById' us uid <&> toUserResponse
+getUserById usModel uid = getUserById' usModel uid <&> toUserResponse
 
 setPassword
   :: (MonadThrow m, HasConfig r, MonadReader r m)
@@ -37,10 +37,10 @@ setPassword
   -> Int64
   -> Text
   -> m Id
-setPassword us logedInUser uid pwd = do
+setPassword usModel logedInUser uid pwd = do
   let userId = toSqlKey uid
-  let mkPassword = hashPassword (Password pwd) >>= usSetPassword us userId
-  user <- getUserById' us uid
+  let mkPassword = hashPassword (Password pwd) >>= umSetPassword usModel userId
+  user <- getUserById' usModel uid
   runProtectedAction logedInUser (userRole user) mkPassword
   pure $ Id uid
 
@@ -50,9 +50,9 @@ generateUser
   -> User
   -> UserEdits
   -> m Id
-generateUser us logedInUser attrs =
+generateUser usModel logedInUser attrs =
   let defaultPassword = Password "TODO: make a random string with name as seed"
-      createU = createUser us attrs defaultPassword
+      createU = createUser usModel attrs defaultPassword
   in runProtectedAction logedInUser (attrs ^. role) createU
 
 updateUser
@@ -62,10 +62,10 @@ updateUser
   -> Int64
   -> UserEdits
   -> m UserResponse
-updateUser us logedInUser uid edits = do
+updateUser usModel logedInUser uid edits = do
   let userId = toSqlKey uid
-  user <- getUserById' us uid
-  let update = toUserResponse <$> usUpdateUser us userId edits
+  user <- getUserById' usModel uid
+  let update = toUserResponse <$> umUpdateUser usModel userId edits
   if | userName user == userName logedInUser -> update
      | otherwise -> runProtectedAction logedInUser (userRole user) update
 
@@ -73,7 +73,7 @@ listUsers
   :: Functor m
   => UserModel m
   -> m [UserResponse]
-listUsers us = fmap toUserResponse <$> usAllUsers us
+listUsers us = fmap toUserResponse <$> umAllUsers us
 
 -- on signup everyone is a regular member, admin gives out roles
 signupUser
@@ -81,7 +81,7 @@ signupUser
   => UserModel m
   -> Signup
   -> m Id -- TODO: should return user
-signupUser us attrs = createUser us attrs $ attrs ^. password
+signupUser usModel attrs = createUser usModel attrs $ attrs ^. password
 
 loginUser
   :: (MonadThrow m, MonadIO m)
@@ -90,9 +90,9 @@ loginUser
   -> JWTSettings
   -> Login
   -> m ServantAuthHeaders
-loginUser us cs jws loginData = do
+loginUser usModel cs jws loginData = do
    let uemail = loginData ^. email
-   dbUser <- usGetUserByEmail us uemail >>= throwInvalidEmail uemail
+   dbUser <- umGetUsersByEmail usModel uemail >>= throwInvalidEmail uemail
    validUser <- if validatePassword (loginData ^. password) (userPassword dbUser)
                    then pure dbUser
                    else throwSError err401 (IncorrectPassword uemail)
@@ -115,10 +115,10 @@ createUser
   -> attrs
   -> Password
   -> m Id
-createUser us userAttrs pwd = do
+createUser usModel userAttrs pwd = do
   hpwd <- hashPassword pwd
   utcTime <- currentTime
-  userId <- usCreateUser us $
+  userId <- umCreateUser usModel $
     User { userRole = userAttrs ^. role
          , userName = userAttrs ^. name
          , userEmail = userAttrs ^. email
@@ -129,5 +129,5 @@ createUser us userAttrs pwd = do
   pure . Id . fromSqlKey $ userId
 
 getUserById' :: MonadThrow m => UserModel m -> Int64 -> m User
-getUserById' us uid =
-  usGetUserById us (toSqlKey uid) >>= maybe (throwInvalidUserId uid) pure
+getUserById' usModel uid =
+  umGetUsersById usModel (toSqlKey uid) >>= maybe (throwInvalidUserId uid) pure

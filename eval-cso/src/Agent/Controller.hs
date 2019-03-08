@@ -8,7 +8,7 @@ import Control.Monad.Time (MonadTime)
 import Database.Persist.Postgresql (toSqlKey)
 import Servant (err400)
 
-import Agent.Model.Types (AgentStorage(..))
+import Agent.Model.Types (AgentModel(..))
 import Agent.Types
   (AgentAttrs, AgentErrors(..), AgentResponse(..), HasCreateAgent(..))
 import Common.Errors (throwSError)
@@ -25,57 +25,57 @@ createAgentProfile
   :: (HasConfig r, MonadReader r m, MonadTime m, MonadThrow m
      , HasCreateAgent attrs
      )
-  => AgentStorage m
+  => AgentModel m
   -> UserModel m
   -> User -- ^ logged in user
   -> attrs -- ^ A combination of user and agent specific attributes
   -> m Id
-createAgentProfile astorage us logedInUser attrs = do
-  uid <- generateUser us logedInUser $ attrs ^. caUserAttrs
-  asCreateAgent astorage (toSqlKey $ unId uid) (attrs ^. caAgentAttrs)
+createAgentProfile agentModel usModel logedInUser attrs = do
+  uid <- generateUser usModel logedInUser $ attrs ^. caUserAttrs
+  amCreateAgent agentModel (toSqlKey $ unId uid) (attrs ^. caAgentAttrs)
 
 -- | used in creating agent profile when agent exists after signup as a user
 updateAgent
   :: MonadThrow m
-  => AgentStorage m
+  => AgentModel m
   -> UserModel m
   -> User -- ^ The current logged in user
   -> Int64 -- ^ Agent User Id
   -> AgentAttrs
   -> m AgentResponse
-updateAgent astorage us logedInUser uid attrs = do
+updateAgent agentModel usModel logedInUser uid attrs = do
   let userId = toSqlKey uid
 
   runProtectedAction
     logedInUser
     Member $
-    asUpdateAgent astorage userId attrs
+    amUpdateAgent agentModel userId attrs
 
-  getAgentById astorage us uid
+  getAgentById agentModel usModel uid
 
 getAgentById
   :: MonadThrow m
-  => AgentStorage m
+  => AgentModel m
   -> UserModel m
   -> Int64 -- ^ Agent user Id
   -> m AgentResponse
-getAgentById astorage us uid = do
-  mAgentUser <- asGetAgentById astorage (toSqlKey uid)
-  let toAgentResponse' = uncurry $ toAgentResponse astorage us
+getAgentById agentModel usModel uid = do
+  mAgentUser <- amGetAgentById agentModel (toSqlKey uid)
+  let toAgentResponse' = uncurry $ toAgentResponse agentModel usModel
       throwUpdateError = throwSError err400 $ AgentUpdateError $ Id uid
   maybe throwUpdateError toAgentResponse' mAgentUser
 
 toAgentResponse
   :: MonadThrow m
-  => AgentStorage m
+  => AgentModel m
   -> UserModel m
   -> Agent
   -> User -- ^ Agent User attributes
   -> m AgentResponse
-toAgentResponse astorage us agent user = do
-  mSupervisor <- traverse (usGetUserById us) $ agentSupervisorId agent
-  mBranch <- traverse (asAgentBranch astorage) $ agentBranch agent
-  mServices <- traverse (asAgentServices astorage) $ agentServices agent
+toAgentResponse agentModel usModel agent user = do
+  mSupervisor <- traverse (umGetUsersById usModel) $ agentSupervisorId agent
+  mBranch <- traverse (amAgentBranch agentModel) $ agentBranch agent
+  mServices <- traverse (amAgentServices agentModel) $ agentServices agent
   let arSupervisor = toUserResponse <$> join mSupervisor
       arBranch = branchName <$> join mBranch
       arServices = fmap serviceName <$> mServices

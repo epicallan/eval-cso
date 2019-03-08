@@ -1,15 +1,15 @@
 module Agent.Model.Types
-       ( AgentStorage(..)
+       ( AgentModel(..)
        ) where
 
 import Agent.Types (AgentAttrs)
 import Common.Types (Id)
 import Model (Agent, Branch, BranchId, Service, ServiceId, User, UserId)
 
-data AgentStorage m = AgentStorage
-  { asCreateAgent :: UserId -> AgentAttrs -> m Id
-  , asGetAgentById :: UserId -> m (Maybe (Agent, User))
-  , asUpdateAgent :: UserId -> AgentAttrs-> m ()
-  , asAgentBranch :: BranchId -> m (Maybe Branch)
-  , asAgentServices :: [ServiceId] -> m [Service]
+data AgentModel m = AgentModel
+  { amCreateAgent :: UserId -> AgentAttrs -> m Id
+  , amGetAgentById :: UserId -> m (Maybe (Agent, User))
+  , amUpdateAgent :: UserId -> AgentAttrs-> m ()
+  , amAgentBranch :: BranchId -> m (Maybe Branch)
+  , amAgentServices :: [ServiceId] -> m [Service]
   }

@@ -7,15 +7,15 @@ import Database.Esqueleto
 import Database.Persist.Postgresql (fromSqlKey, get, insert)
 import Prelude hiding (get, on, set, (^.))
 
-import Agent.Model.Types (AgentStorage(..))
+import Agent.Model.Types (AgentModel(..))
 import Agent.Types (AgentAttrs(..))
 import Common.Types (Id(..))
 import Foundation (HasPool)
 import Model
 
-agentModel :: (MonadIO m, MonadReader r m, HasPool r) => AgentStorage m
-agentModel = AgentStorage
-  { asCreateAgent = \userId AgentAttrs{..} -> do
+agentModel :: (MonadIO m, MonadReader r m, HasPool r) => AgentModel m
+agentModel = AgentModel
+  { amCreateAgent = \userId AgentAttrs{..} -> do
       utcTime <- liftIO getCurrentTime
       agentId <- runInDb $ insert
                    $ Agent
@@ -28,7 +28,7 @@ agentModel = AgentStorage
                        }
       pure . Id $ fromSqlKey agentId
 
-   , asGetAgentById = \userId -> do
+   , amGetAgentById = \userId -> do
        userAgents :: [(Entity Agent, Entity User)] <- runInDb $
                        select $
                          from $ \(agent  `InnerJoin` user) -> do
@@ -38,7 +38,7 @@ agentModel = AgentStorage
 
        pure $ bimap entityVal entityVal <$> safeHead userAgents
 
-   , asUpdateAgent = \ userId AgentAttrs{..} -> do
+   , amUpdateAgent = \ userId AgentAttrs{..} -> do
        utcTime <- liftIO getCurrentTime
        runInDb $ update $ \agent -> do
                     set agent [ AgentSupervisorId =. val _aaSupervisorId
@@ -48,7 +48,7 @@ agentModel = AgentStorage
                               ]
                     where_ (agent ^. AgentUserId ==. val userId)
 
-   , asAgentServices = \serviceIds -> do
+   , amAgentServices = \serviceIds -> do
        services :: [Entity Service] <- runInDb $
                      select $
                        from $ \service -> do
@@ -57,6 +57,6 @@ agentModel = AgentStorage
 
        traverse (pure . entityVal)  services
 
-    , asAgentBranch = runInDb . get
+    , amAgentBranch = runInDb . get
 
   }

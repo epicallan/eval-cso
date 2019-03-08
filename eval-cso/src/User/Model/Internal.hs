@@ -15,21 +15,21 @@ import User.Types (UserEdits(..))
 
 userModel :: (MonadIO m, MonadReader r m, HasPool r) => UserModel m
 userModel = UserModel
-  { usCreateUser = runInDb . insert
+  { umCreateUser = runInDb . insert
 
-  , usSetPassword = \userId hpwd -> runInDb $ update userId [UserPassword =. hpwd]
+  , umSetPassword = \userId hpwd -> runInDb $ update userId [UserPassword =. hpwd]
 
-  , usAllUsers = do
+  , umAllUsers = do
       users :: [Entity User] <- runInDb (selectList [] [])
       pure (entityVal <$> users)
 
-  , usGetUserByEmail = \email ->  do
+  , umGetUsersByEmail = \email ->  do
        mUser :: (Maybe (Entity User)) <- runInDb $ selectFirst [UserEmail ==. email] []
        pure $ entityVal <$> mUser
 
-   , usGetUserById = runInDb . get
+   , umGetUsersById = runInDb . get
 
-   , usUpdateUser = \userId UserEdits{..} -> do
+   , umUpdateUser = \userId UserEdits{..} -> do
        utcTime <- liftIO getCurrentTime
        runInDb $ updateGet userId
                     [ UserName =. _userEditsName

@@ -4,10 +4,10 @@ import Model (User, UserId)
 import User.Types (Email, PasswordHash, UserEdits)
 
 data UserModel m = UserModel
-  { usCreateUser :: User -> m UserId
-  , usAllUsers :: m [User]
-  , usGetUserByEmail :: Email -> m (Maybe User)
-  , usGetUserById :: UserId -> m (Maybe User)
-  , usUpdateUser :: UserId -> UserEdits -> m User
-  , usSetPassword :: UserId -> PasswordHash -> m ()
+  { umCreateUser :: User -> m UserId
+  , umAllUsers :: m [User]
+  , umGetUsersByEmail :: Email -> m (Maybe User)
+  , umGetUsersById :: UserId -> m (Maybe User)
+  , umUpdateUser :: UserId -> UserEdits -> m User
+  , umSetPassword :: UserId -> PasswordHash -> m ()
   }
