@@ -5,7 +5,7 @@ import Prelude hiding (get)
 
 import Data.Time (getCurrentTime)
 import Database.Persist.Postgresql
-  (Entity(..), entityVal, get, insert, selectFirst, selectList, update,
+  (Entity(..), entityVal, get, insertUnique, selectFirst, selectList, update,
   updateGet, (=.), (==.))
 
 import Foundation (HasPool)
@@ -15,7 +15,7 @@ import User.Types (UserEdits(..))
 
 userModel :: (MonadIO m, MonadReader r m, HasPool r) => UserModel m
 userModel = UserModel
-  { umCreateUser = runInDb . insert
+  { umCreateUser = runInDb . insertUnique
 
   , umSetPassword = \userId hpwd -> runInDb $ update userId [UserPassword =. hpwd]
 

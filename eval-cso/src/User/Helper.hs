@@ -2,6 +2,7 @@ module User.Helper
        ( runProtectedAction
        , toUserResponse
        , throwInvalidUserId
+       , throwUserExists
        ) where
 
 import Servant (err400, err404)
@@ -17,6 +18,9 @@ throwInvalidUserId uid = throwSError err404 $ UserNotFound $ Id uid
 throwUserNotAuthorized :: MonadThrow m => Email -> m a
 throwUserNotAuthorized uemail  =
   throwSError err400 $ UserIsNotAuthrized uemail
+
+throwUserExists :: MonadThrow m => m a
+throwUserExists = throwSError err404 UserExistsError
 
 runProtectedAction
   :: (MonadThrow m)

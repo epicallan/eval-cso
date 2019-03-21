@@ -5,6 +5,8 @@ import Network.Wai.Handler.Warp (run)
 import Api (app)
 import Foundation (Env, HasConfig(..), initEnv)
 
+-- TODO: add gzip middleware
+
 runApp :: IO ()
 runApp = bracket initEnv shutdownApp startApp
     where

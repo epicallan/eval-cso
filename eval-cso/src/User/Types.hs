@@ -52,6 +52,7 @@ data UserErrors =
   | UserIsNotAuthrized Email
   | UserNameNotFound Name
   | UserNotFound Id
+  | UserExistsError -- TODO: should be more refined.
   deriving Show
 
 instance Exception UserErrors

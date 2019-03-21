@@ -26,7 +26,10 @@ share
     password       U.PasswordHash sqltype=text
     createdAt      UTCTime  sqltype=timestamptz sql=created_at default=CURRENT_TIMESTAMP
     updatedAt      UTCTime  sqltype=timestamptz sql=updated_at default=CURRENT_TIMESTAMP
-    UniqueUser     email name password
+    UniqueName     name
+    UniqueEmail    email
+    UniquePassword password
+
     deriving Show
 
   Agent sql=agents

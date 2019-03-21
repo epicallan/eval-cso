@@ -16,7 +16,7 @@ import Common.Errors (throwSError)
 import Common.Types (Id(..))
 import Foundation (HasConfig)
 import Model (User(..))
-import User.Helper (runProtectedAction, throwInvalidUserId, toUserResponse)
+import User.Helper (runProtectedAction, throwInvalidUserId, throwUserExists, toUserResponse)
 import User.Model.Types (UserModel(..))
 import User.Password (hashPassword, validatePassword)
 import User.Types
@@ -77,10 +77,10 @@ listUsers us = fmap toUserResponse <$> umAllUsers us
 
 -- on signup everyone is a regular member, admin gives out roles
 signupUser
-  :: (HasConfig r, MonadReader r m, MonadTime m)
+  :: (HasConfig r, MonadReader r m, MonadTime m, MonadThrow m)
   => UserModel m
   -> Signup
-  -> m Id -- TODO: should return user
+  -> m Id
 signupUser usModel attrs = createUser usModel attrs $ attrs ^. password
 
 loginUser
@@ -110,7 +110,7 @@ loginUser usModel cs jws loginData = do
 ---------------------------------------
 
 createUser
-  :: (HasUserAttrs attrs,  MonadTime m, HasConfig r, MonadReader r m)
+  :: (HasUserAttrs attrs,  MonadTime m, HasConfig r, MonadReader r m, MonadThrow m)
   => UserModel m
   -> attrs
   -> Password
@@ -118,7 +118,7 @@ createUser
 createUser usModel userAttrs pwd = do
   hpwd <- hashPassword pwd
   utcTime <- currentTime
-  userId <- umCreateUser usModel $
+  mUserId <- umCreateUser usModel $
     User { userRole = userAttrs ^. role
          , userName = userAttrs ^. name
          , userEmail = userAttrs ^. email
@@ -126,7 +126,7 @@ createUser usModel userAttrs pwd = do
          , userCreatedAt = utcTime
          , userUpdatedAt = utcTime
          }
-  pure . Id . fromSqlKey $ userId
+  Id . fromSqlKey <$> mUserId & maybe throwUserExists pure
 
 getUserById' :: MonadThrow m => UserModel m -> Int64 -> m User
 getUserById' usModel uid =
