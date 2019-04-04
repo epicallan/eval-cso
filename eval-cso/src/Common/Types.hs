@@ -1,6 +1,7 @@
 module Common.Types
        ( Id (..)
        , Name (..)
+       , TxtValue (..)
        ) where
 
 import Data.Aeson.Options as AO (defaultOptions)
@@ -11,6 +12,11 @@ newtype Name = Name {unName :: Text}
   deriving (Eq, Show, PersistField)
 
 $(deriveJSON AO.defaultOptions  { unwrapUnaryRecords = True } ''Name)
+
+newtype TxtValue = TxtValue {unTxtValue :: Text}
+  deriving (Eq, Show, PersistField)
+
+$(deriveJSON AO.defaultOptions  { unwrapUnaryRecords = True } ''TxtValue)
 
 newtype Id = Id {unId :: Int64}
   deriving (Eq, Show, PersistField)

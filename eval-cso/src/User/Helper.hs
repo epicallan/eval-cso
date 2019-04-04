@@ -22,6 +22,8 @@ throwUserNotAuthorized uemail  =
 throwUserExists :: MonadThrow m => m a
 throwUserExists = throwSError err404 UserExistsError
 
+-- | An admin can do anything, an evaluator can do anything for an agent
+-- Agent can only access own account
 runProtectedAction
   :: (MonadThrow m)
   => User -- ^ current logged in user
@@ -32,7 +34,7 @@ runProtectedAction logedInUser urole action = do
   let uemail = userEmail logedInUser
   case userRole logedInUser of
     Admin -> action
-    Evaluator -> if urole == Member
+    Evaluator -> if urole == CsoAgent
                     then action
                     else throwUserNotAuthorized uemail
     _   -> throwUserNotAuthorized uemail

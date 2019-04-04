@@ -1,11 +1,12 @@
 module Agent.Model.Internal (agentModel) where
 
+import Prelude hiding (get, on, set, (^.))
+
 import Data.Time (getCurrentTime)
 import Database.Esqueleto
   (Entity, InnerJoin(..), entityVal, from, in_, on, select, set, update, val,
   valList, where_, (=.), (==.), (^.))
 import Database.Persist.Postgresql (fromSqlKey, get, insert)
-import Prelude hiding (get, on, set, (^.))
 
 import Agent.Model.Types (AgentModel(..))
 import Agent.Types (AgentAttrs(..))
@@ -48,14 +49,14 @@ agentModel = AgentModel
                               ]
                     where_ (agent ^. AgentUserId ==. val userId)
 
-   , amAgentServices = \serviceIds -> do
+   , amAgentServices = \serviceTypeValues -> do
        services :: [Entity Service] <- runInDb $
                      select $
                        from $ \service -> do
-                        where_ $ service ^. ServiceId `in_` valList serviceIds
+                        where_ $ service ^. ServiceValue `in_` valList serviceTypeValues
                         return service
 
-       traverse (pure . entityVal)  services
+       traverse (pure . serviceName . entityVal)  services
 
     , amAgentBranch = runInDb . get
 

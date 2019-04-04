@@ -12,7 +12,8 @@ import Data.Aeson.TH (deriveJSON)
 import Lens.Micro.Platform (makeClassy)
 
 import Common.Types (Id, Name)
-import Model (BranchId, ServiceId, UserId)
+import Evaluation.Types (ServiceTypeValue, ServiceType)
+import Model (BranchId, UserId)
 import User.Types (UserEdits, UserResponse)
 
 newtype AgentErrors = AgentUpdateError Id
@@ -22,7 +23,7 @@ instance Exception AgentErrors
 
 data AgentAttrs = AgentAttrs
   { _aaSupervisorId :: Maybe UserId
-  , _aaServices :: Maybe [ServiceId]
+  , _aaServices :: Maybe [ServiceTypeValue]
   , _aaBranch :: Maybe BranchId
   } deriving Show
 
@@ -40,7 +41,7 @@ makeClassy ''CreateAgent
 data AgentResponse = AgentResponse
   { arUser :: UserResponse
   , arSupervisor :: Maybe UserResponse
-  , arServices :: Maybe [Name]
+  , arServices :: Maybe [ServiceType]
   , arBranch :: Maybe Name
   } deriving Show
 

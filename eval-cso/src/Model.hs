@@ -12,8 +12,9 @@ import Database.Persist.TH
 import Servant.Auth.Server (FromJWT, ToJWT)
 
 import Common.Types (Name)
+import Evaluation.Types as E
 import Foundation (HasPool(..))
-import User.Types as U (Email, PasswordHash, Role)
+import User.Types as U
 
 share
   [ mkPersist sqlSettings
@@ -26,17 +27,15 @@ share
     password       U.PasswordHash sqltype=text
     createdAt      UTCTime  sqltype=timestamptz sql=created_at default=CURRENT_TIMESTAMP
     updatedAt      UTCTime  sqltype=timestamptz sql=updated_at default=CURRENT_TIMESTAMP
-    UniqueName     name
-    UniqueEmail    email
-    UniquePassword password
-
+    UniqueUserName  name
+    UniqueUserEmail email
     deriving Show
 
   Agent sql=agents
     userId         UserId
-    supervisorId   UserId       Maybe default=NULL
-    services       [ServiceId]  Maybe default=NULL
-    branch         BranchId     Maybe default=NULL
+    supervisorId   UserId                Maybe default=NULL
+    services       [E.ServiceTypeValue]  Maybe default=NULL
+    branch         BranchId              Maybe default=NULL
     createdAt      UTCTime      sqltype=timestamptz sql=created_at default=CURRENT_TIMESTAMP
     updatedAt      UTCTime      sqltype=timestamptz sql=updated_at default=CURRENT_TIMESTAMP
     UniqueAgent    userId
@@ -50,10 +49,42 @@ share
     deriving Show
 
   Service sql=services
-    name        Name     sqltype=text
+    name             E.ServiceType      sqltype=text
+    value            E.ServiceTypeValue sqltype=text
     createdAt   UTCTime  sqltype=timestamptz sql=created_at default=CURRENT_TIMESTAMP
     updatedAt   UTCTime  sqltype=timestamptz sql=updated_at default=CURRENT_TIMESTAMP
-    UniqueService name
+    UniqueServiceValue value
+    deriving Show
+
+  Evaluation sql=paremeter
+    evaluator      UserId
+    agent          UserId
+    serviceType    ServiceId
+    reason         E.Reason             sqltype=text
+    comment        E.Comment     Maybe  sqltype=text
+    duration       E.Duration    Maybe  sqltype=int
+    customerNumber E.CustomerNumber     sqltype=int
+    createdAt   UTCTime  sqltype=timestamptz sql=created_at default=CURRENT_TIMESTAMP
+    updatedAt   UTCTime  sqltype=timestamptz sql=updated_at default=CURRENT_TIMESTAMP
+    deriving Show
+
+  Parameter sql=paremeter
+    name        Name              sqltype=text
+    value       E.PValue          sqltype=text
+    description E.Description Maybe sqltype=text default=NULL
+    serviceType ServiceId
+    category    E.Category        sqltype=text
+    group       E.Group    Maybe  sqltype=text default=NULL
+    weight      E.Weight          sqltype=int  default=NULL
+    createdAt   UTCTime  sqltype=timestamptz sql=created_at default=CURRENT_TIMESTAMP
+    updatedAt   UTCTime  sqltype=timestamptz sql=updated_at default=CURRENT_TIMESTAMP
+    UniqueParameterValue value
+    deriving Show
+
+  ParameterScore sql=paremeter_score
+    evaluation  EvaluationId
+    parameter   ParameterId
+    createdAt   UTCTime  sqltype=timestamptz sql=created_at default=CURRENT_TIMESTAMP
     deriving Show
   |]
 
@@ -61,6 +92,9 @@ $(deriveJSON defaultOptions ''User)
 $(deriveJSON defaultOptions ''Branch)
 $(deriveJSON defaultOptions ''Service)
 $(deriveJSON defaultOptions ''Agent)
+$(deriveJSON defaultOptions ''Parameter)
+$(deriveJSON defaultOptions ''ParameterScore)
+$(deriveJSON defaultOptions ''Evaluation)
 
 instance ToJWT User
 instance FromJWT User
