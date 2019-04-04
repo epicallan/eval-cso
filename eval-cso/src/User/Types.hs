@@ -9,12 +9,14 @@ module User.Types
         , ServantAuthHeaders
         , UserErrors(..)
         , UserEdits(..)
+        , UserType (..)
         , UserResponse (..)
         , role, name, email, password
         ) where
 
 import Data.Aeson.Options as AO (defaultOptions)
 import Data.Aeson.TH (Options(..), deriveJSON)
+import Data.Kind (Type)
 import Data.Time (UTCTime)
 import Database.Persist.Sql (PersistField)
 import Database.Persist.TH (derivePersistField)
@@ -32,13 +34,18 @@ type ServantAuthHeaders = Headers '[ Header "Set-Cookie" SetCookie
 
 data Role =
     Admin
-  | Member
+  | CsoAgent
   | Evaluator
   | Supervisor
   deriving (Eq, Show, Read)
 
 $(deriveJSON AO.defaultOptions ''Role)
 derivePersistField "Role"
+
+data UserType a :: Type where
+  CsoAgentUser :: Id -> UserType 'CsoAgent
+  AdminUser :: Id -> UserType 'Admin
+  EvaluatorUser :: Id -> UserType 'Evaluator
 
 newtype Email = Email {unEmail :: Text}
   deriving (Eq, Show, PersistField)
@@ -103,5 +110,4 @@ type HasUserAttrs a =
   )
 
 instance HasRole Signup Role where
-  role f signup = fmap (const signup) (f Member)
-
+  role f signup = fmap (const signup) (f CsoAgent)

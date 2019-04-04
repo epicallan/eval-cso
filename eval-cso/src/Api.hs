@@ -5,12 +5,16 @@ import Data.Proxy (Proxy)
 import Servant
 import Servant.Auth.Server
 
-import Foundation (AppT(..), App, Env)
-import User.Api (UserApi, userServer)
 import Agent.Api (AgentApi, agentServer)
+import Evaluation.Api (EvaluationApi, evaluationServer)
+import Foundation (App, AppT(..), Env)
+import User.Api (UserApi, userServer)
 
 -- API specification
-type Api auths = "api" :> UserApi auths :<|> AgentApi auths
+type Api auths =
+      "api" :> UserApi auths
+  :<|> AgentApi auths
+  :<|> EvaluationApi auths
 
 api :: Proxy (Api '[JWT])
 api = Proxy
@@ -20,7 +24,10 @@ appServerT
   :: CookieSettings
   -> JWTSettings
   -> ServerT (Api auths) App
-appServerT cs jws  = userServer cs jws :<|> agentServer
+appServerT cs jws  =
+       userServer cs jws
+  :<|> agentServer
+  :<|> evaluationServer
 
 convertAppT :: Env -> App a -> Handler a
 convertAppT env appM =

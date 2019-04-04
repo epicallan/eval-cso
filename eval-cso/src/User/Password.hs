@@ -29,7 +29,7 @@ hashPassword
   => Password
   -> m PasswordHash
 hashPassword (Password str) = do
-  salt <- view cSalt
+  salt <- view cSalt -- TODO: should also use userName as part of salt
   pure . PasswordHash . decodeUtf8 @Text @ByteString
     $ BCrypt.bcrypt 12 (encodeUtf8 @Text @ByteString salt)
     $ encodeUtf8 @Text @ByteString str
