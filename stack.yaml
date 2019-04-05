@@ -6,13 +6,6 @@ packages:
 extra-deps:
   - base-noprelude-4.11.1.0
   - aeson-options-0.1.0
-  - co-log-0.2.0
-  # co-log dependecies
-  - co-log-core-0.1.1
-  - contravariant-1.5
-  - typerep-map-0.3.0
-  - primitive-0.6.4.0
-
   - esqueleto-2.6.0@sha256:e4672cd3baec100ef8597224abae4e030795e8a1f80abb6e0c3e2570f213a258
   ## Lootbox is not on Hackage
   - git: https://github.com/serokell/lootbox

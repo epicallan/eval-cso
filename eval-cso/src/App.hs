@@ -1,22 +1,26 @@
 module App (runApp) where
 
+import Data.Pool (destroyAllResources)
+import Network.Wai (Middleware)
 import Network.Wai.Handler.Warp (run)
+import Network.Wai.Middleware.Gzip (def, gzip)
+import Network.Wai.Middleware.RequestLogger (logStdout, logStdoutDev)
 
 import Api (app)
-import Foundation (Env, HasConfig(..), initEnv)
-
--- TODO: add gzip middleware
+import Foundation (Env, Environment(..), HasConfig(..), HasPool(..), initEnv)
 
 runApp :: IO ()
 runApp = bracket initEnv shutdownApp startApp
-    where
-        startApp :: Env -> IO ()
-        startApp env = app env >>= run (env ^. cPort)
 
+startApp :: Env -> IO ()
+startApp env = do
+  app env >>= run (env ^. cPort) . middleware
+  putTextLn $ "running server on port: " <> show (env ^. cPort)
+  where
+    middleware :: Middleware
+    middleware = case env ^. cEnvironment of
+      Production -> logStdout . gzip def
+      _          -> logStdoutDev
 
--- | Takes care of cleaning up 'Config' resources
 shutdownApp :: Env -> IO ()
--- shutdownApp config = Pool.destroyAllResources (config ^. cPort)
--- use close' from Database-persist
-shutdownApp = error "implement me"
-
+shutdownApp = destroyAllResources . view  pool

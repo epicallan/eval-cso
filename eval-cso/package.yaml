@@ -8,7 +8,6 @@ library:
     - aeson
     - aeson-options
     - bytestring
-    - co-log
     - cryptonite
     - esqueleto
     - microlens-platform
@@ -17,6 +16,7 @@ library:
     - persistent
     - persistent-postgresql
     - persistent-template
+    - resource-pool
     - servant-server
     - servant-auth
     - servant-auth-server
