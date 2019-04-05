@@ -4,3 +4,8 @@
 [![Build status](https://secure.travis-ci.org/epicallan/eval-cso.svg)](https://travis-ci.org/epicallan/eval-cso)
 
 ## TODO: description
+
+Provide an environment variable to executable to run in either development or production mode eg
+
+
+`$>  ENV=Production eval-cso`

@@ -9,6 +9,7 @@ library:
     - aeson-options
     - bytestring
     - cryptonite
+    - dhall
     - esqueleto
     - microlens-platform
     - monad-logger

@@ -8,36 +8,55 @@ module Foundation
        , Environment (..)
        , HasPool (..)
        , HasConfig (..)
+       , Port (..)
        ) where
 import Control.Monad.Logger
   (LogLevel(..), LoggingT, MonadLogger, filterLogger, runStdoutLoggingT)
-import qualified Data.ByteString.Char8 as BS
 import Database.Persist.Postgresql (ConnectionString, createPostgresqlPool)
 import Database.Persist.Sql (ConnectionPool)
+import Dhall (Interpret, auto, detailed, input)
 import Lens.Micro.Platform (Lens', makeClassy, makeLenses)
 
 import Control.Monad.IO.Unlift (MonadUnliftIO)
-import Network.Wai.Handler.Warp (Port)
 import Servant.Auth.Server (ThrowAll(..))
 import System.Environment (lookupEnv)
 import System.IO.Error (userError)
+
+newtype Port = Port { unPort :: Natural }
+  deriving (Eq, Show, Generic)
+
+instance Interpret Port
 
 -- | Right now, we're distinguishing between three environments
 data Environment
     = Development
     | Test
     | Production
-    deriving (Eq, Show, Read)
+    deriving (Eq, Show, Read, Generic)
 
+instance Interpret Environment
+
+data DbConf = DbConf
+  { _dbUser :: Text
+  , _dbHost :: Text
+  , _dbName :: Text
+  } deriving (Show, Generic)
+
+makeClassy ''DbConf
+
+instance Interpret DbConf
 
 -- | The Config for our application is (for now) the 'Environment' we're
 -- running in and a Persistent 'ConnectionPool'.
 data Config = Config
     { _cAppName :: Text
-    , _cEnvironment     :: Environment
+    , _cEnvironment :: Environment
     , _cPort    :: Port
+    , _cDbConf :: DbConf
     , _cSalt    :: Text
-    }
+    } deriving (Show, Generic)
+
+instance Interpret Config
 
 data Env = Env
     { _ePool  :: ConnectionPool
@@ -70,16 +89,16 @@ instance MonadThrow m => ThrowAll (AppT m a) where
 -- TODO: get this all config from a secrets config file
 acquireConfig :: (MonadUnliftIO m, MonadThrow m) => m Config
 acquireConfig = do
-    _cPort  <- lookupSetting "EX_PORT" (pure 8081)
-    _cEnvironment   <- lookupSetting "EX_ENV" (pure Development)
-    let _cAppName = "App Name"
-    let _cSalt = "super-secret"
-    pure Config{..}
+    environment <- lookupSetting "ENV" (pure Development)
+    liftIO $ detailed $ case environment of
+      Development -> input auto "./config/dev.dhall"
+      Production -> input auto "./config/prod.dhall"
+      Test -> input auto "./config/test.dhall"
 
 initEnv :: (MonadThrow m, MonadUnliftIO m) => m Env
 initEnv = do
   _eConfig <- acquireConfig
-  _ePool  <- makePool (_eConfig ^. cEnvironment)
+  _ePool  <- makePool (_eConfig ^. cEnvironment) $ _eConfig ^. cDbConf
   pure Env{..}
 
 -- | Looks up a setting in the environment, with a provided default, and
@@ -100,28 +119,6 @@ handleFailedRead str env =
         , env
         ]
 
--- | This function creates a 'ConnectionPool' for the given environment.
-getConnStr :: (MonadIO m, MonadThrow m) => Environment -> m ConnectionString
-getConnStr = \case
-    Test        -> pure $ createConnStr "-test"
-    _           ->  do
-        mConnStr <- liftIO $ runMaybeT $ do
-            let envKeys = [ "host="
-                          , " dbname="
-                          , " user="
-                          ]
-                envs =    [ "EX_HOST"
-                          , "EX_DATABASE"
-                          , "EX_USER"
-                          ]
-            envVars <- traverse (MaybeT . lookupEnv) envs
-            pure $ mconcat . zipWith (<>) envKeys $ BS.pack <$> envVars
-        putTextLn $ " connection : " <> show mConnStr -- TODO: use proper logger
-        case mConnStr of
-            -- If we don't have a correct database configuration, we can't
-            Nothing  -> throwM (userError "Database Configuration not present in environment.")
-            Just str -> pure str
-
 -- | The number of pools to use for a given environment.
 getPoolSize :: Environment -> Int
 getPoolSize = \ case
@@ -129,22 +126,25 @@ getPoolSize = \ case
     Development -> 1
     Production  -> 8
 
--- | A basic 'ConnectionString' for local/test development. Pass in either
--- @""@ for 'Development' or @"test"@ for 'Test'.
-createConnStr :: BS.ByteString -> ConnectionString
-createConnStr sfx = "host=localhost dbname=app" <> sfx <> " user=test"
+createConnStr :: DbConf -> ConnectionString
+createConnStr dconfig =
+     "host="    <> dconfig ^. dbHost
+  <> " dbname=" <> dconfig ^. dbName
+  <> " user="   <> dconfig ^. dbUser
+  & encodeUtf8
 
 filterLogsByLevel :: Environment -> LogLevel -> Bool
 filterLogsByLevel = \case
-  Production -> (>= LevelWarn)
-  _          -> (>= LevelDebug)
+  Development -> (>= LevelDebug)
+  Test        -> (>= LevelError)
+  Production  -> (>= LevelWarn)
 
 filterLogs :: Environment -> LoggingT m a -> LoggingT m a
 filterLogs env = filterLogger (\_ lv -> filterLogsByLevel env lv)
 
 -- | This function creates a 'ConnectionPool' for the given environment.
-makePool :: (MonadThrow m , MonadUnliftIO m) => Environment -> m ConnectionPool
-makePool env = do
+makePool :: MonadUnliftIO m => Environment -> DbConf -> m ConnectionPool
+makePool env dconfig =
     let poolSize = getPoolSize env
-    connStr      <- getConnStr env
-    runStdoutLoggingT $ filterLogs env $ createPostgresqlPool connStr poolSize
+        connStr  = createConnStr dconfig
+    in runStdoutLoggingT $ filterLogs env $ createPostgresqlPool connStr poolSize
