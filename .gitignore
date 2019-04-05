@@ -53,3 +53,9 @@ TAGS
 
 # other
 .DS_Store
+
+# configs
+
+dev.dhall
+prod.dhall
+test.dhall
