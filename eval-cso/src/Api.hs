@@ -1,5 +1,6 @@
 module Api (app) where
 
+import Control.Monad.Logger (runStderrLoggingT)
 import Data.Proxy (Proxy)
 
 import Servant
@@ -7,7 +8,7 @@ import Servant.Auth.Server
 
 import Agent.Api (AgentApi, agentServer)
 import Evaluation.Api (EvaluationApi, evaluationServer)
-import Foundation (App, AppT(..), Env)
+import Foundation (App, AppT(..), Env, HasConfig(..), filterLogs)
 import User.Api (UserApi, userServer)
 
 -- API specification
@@ -29,9 +30,11 @@ appServerT cs jws  =
   :<|> agentServer
   :<|> evaluationServer
 
-convertAppT :: Env -> App a -> Handler a
+convertAppT :: forall a. Env -> App a -> Handler a
 convertAppT env appM =
-  Handler . ExceptT . try . runReaderT (runApp appM) $ env
+    Handler . ExceptT . try . runStderrLoggingT
+  $ filterLogs (env ^. cEnvironment)
+  $ runReaderT (runApp appM) env
 
 proxyContext :: Proxy '[CookieSettings, JWTSettings]
 proxyContext = Proxy

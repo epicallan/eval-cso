@@ -12,11 +12,12 @@ import Database.Persist.Postgresql (fromSqlKey, toSqlKey)
 import Servant
 import Servant.Auth.Server
 
-import Common.Errors (throwSError)
+import Common.Errors (MonadThrowLogger, throwSError)
 import Common.Types (Id(..))
 import Foundation (HasConfig)
 import Model (User(..))
-import User.Helper (runProtectedAction, throwInvalidUserId, throwUserExists, toUserResponse)
+import User.Helper
+  (runProtectedAction, throwInvalidUserId, throwUserExists, toUserResponse)
 import User.Model.Types (UserModel(..))
 import User.Password (hashPassword, validatePassword)
 import User.Types
@@ -24,14 +25,14 @@ import User.Types
   UserEdits(..), UserErrors(..), UserResponse(..), email, name, password, role)
 
 getUserById
-  :: forall m .(MonadThrow m)
+  :: forall m .(MonadThrowLogger m)
   => UserModel m
   -> Int64
   -> m UserResponse
 getUserById usModel uid = getUserById' usModel uid <&> toUserResponse
 
 setPassword
-  :: (MonadThrow m, HasConfig r, MonadReader r m)
+  :: (MonadThrowLogger m, HasConfig r, MonadReader r m)
   => UserModel m
   -> User
   -> Int64
@@ -45,7 +46,7 @@ setPassword usModel logedInUser uid pwd = do
   pure $ Id uid
 
 generateUser
-  :: (HasConfig r, MonadReader r m, MonadTime m, MonadThrow m)
+  :: (HasConfig r, MonadReader r m, MonadTime m, MonadThrowLogger m)
   => UserModel m
   -> User
   -> UserEdits
@@ -56,7 +57,7 @@ generateUser usModel logedInUser attrs =
   in runProtectedAction logedInUser (attrs ^. role) createU
 
 updateUser
-  :: (MonadThrow m)
+  :: MonadThrowLogger m
   => UserModel m
   -> User
   -> Int64
@@ -77,14 +78,14 @@ listUsers us = fmap toUserResponse <$> umAllUsers us
 
 -- on signup everyone is a regular member, admin gives out roles
 signupUser
-  :: (HasConfig r, MonadReader r m, MonadTime m, MonadThrow m)
+  :: (HasConfig r, MonadReader r m, MonadTime m, MonadThrowLogger m)
   => UserModel m
   -> Signup
   -> m Id
 signupUser usModel attrs = createUser usModel attrs $ attrs ^. password
 
 loginUser
-  :: (MonadThrow m, MonadIO m)
+  :: (MonadThrowLogger m, MonadIO m)
   => UserModel m
   -> CookieSettings
   -> JWTSettings
@@ -102,7 +103,7 @@ loginUser usModel cs jws loginData = do
      Just applyCookies -> pure $ applyCookies NoContent
 
    where
-     throwInvalidEmail :: MonadThrow m => Email -> Maybe User -> m User
+     throwInvalidEmail :: MonadThrowLogger m=> Email -> Maybe User -> m User
      throwInvalidEmail uEmail = maybe (throwSError err400 $ UserEmailNotFound uEmail) pure
 
 ---------------------------------------
@@ -110,7 +111,7 @@ loginUser usModel cs jws loginData = do
 ---------------------------------------
 
 createUser
-  :: (HasUserAttrs attrs,  MonadTime m, HasConfig r, MonadReader r m, MonadThrow m)
+  :: (HasUserAttrs attrs,  MonadTime m, HasConfig r, MonadReader r m, MonadThrowLogger m)
   => UserModel m
   -> attrs
   -> Password
@@ -128,6 +129,6 @@ createUser usModel userAttrs pwd = do
          }
   Id . fromSqlKey <$> mUserId & maybe throwUserExists pure
 
-getUserById' :: MonadThrow m => UserModel m -> Int64 -> m User
+getUserById' :: MonadThrowLogger m => UserModel m -> Int64 -> m User
 getUserById' usModel uid =
   umGetUsersById usModel (toSqlKey uid) >>= maybe (throwInvalidUserId uid) pure

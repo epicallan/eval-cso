@@ -6,9 +6,10 @@ module Evaluation.Controller
        ) where
 import Data.List (groupBy)
 import Database.Persist.Postgresql (fromSqlKey)
+-- import Control.Monad.Logger (MonadLogger, logInfoN)
 import Servant (err400, err401)
 
-import Common.Errors (eitherSError, throwSError)
+import Common.Errors (MonadThrowLogger, eitherSError, throwSError)
 import Common.Types (Id(..))
 import Evaluation.Model.Types
   (EvalModel(..), EvaluationScore(..), HasEvaluationScore(..),
@@ -18,7 +19,7 @@ import Model (Evaluation(..), Parameter(..), User(..))
 import User.Types (Role(..))
 
 getServiceEvaluations
-  :: MonadThrow m
+  :: (MonadThrowLogger m)
   => EvalModel m
   -> Text
   -> m [EvalRecord]
@@ -40,21 +41,22 @@ getServiceEvaluations evalModel serviceTyp = do
 
     toEvalRecord [] = Nothing
 
-createParameters :: MonadThrow m => EvalModel m -> User -> ServiceParameters -> m [Id]
+createParameters :: MonadThrowLogger m => EvalModel m -> User -> ServiceParameters -> m [Id]
 createParameters evalModel user sp = protectedAction user $ do
    parameterIds <- emCreateParameters evalModel sp >>= eitherSError err400
    pure $ parameterIds <&> Id . fromSqlKey
 
-editServiceParameters :: MonadThrow m => EvalModel m -> User -> ServiceParameters -> m ()
+editServiceParameters :: MonadThrowLogger m => EvalModel m -> User -> ServiceParameters -> m ()
 editServiceParameters evalModel user sp =
   protectedAction user $ emEditParameters evalModel sp >>= eitherSError err400
 
-saveEvaluation :: MonadThrow m => EvalModel m -> User -> CreateEvaluation -> m Id
+
+saveEvaluation :: MonadThrowLogger m => EvalModel m -> User -> CreateEvaluation -> m Id
 saveEvaluation evalModel user ce = protectedAction user $ do
   evalId <- emCreateEvaluation evalModel ce >>= eitherSError err400
   pure . Id $ fromSqlKey evalId
 
-protectedAction :: MonadThrow m => User -> m a -> m a
+protectedAction :: MonadThrowLogger m => User -> m a -> m a
 protectedAction User{..} action = case userRole of
   Evaluator -> action
   _         -> throwSError err401 $ ActionIsForEvaluatorsOnly userName

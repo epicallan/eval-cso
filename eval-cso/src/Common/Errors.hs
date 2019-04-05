@@ -1,19 +1,24 @@
 module Common.Errors
        ( throwSError
        , eitherSError
+       , MonadThrowLogger
        ) where
-
+import Control.Monad.Logger (MonadLogger, logErrorN)
 import Servant (ServantErr(..))
 
+type MonadThrowLogger m = (MonadLogger m, MonadThrow m)
+
 throwSError
-  :: (MonadThrow m, Exception e)
+  :: (Exception e, MonadThrowLogger m)
   => ServantErr
   -> e
   -> m a
-throwSError sError ex = throwM $ sError {errBody = show ex}
+throwSError sError ex = do
+  logErrorN $ show ex
+  throwM $ sError {errBody = show ex}
 
 eitherSError
-  :: (MonadThrow m, Exception e)
+  :: (Exception e, MonadThrowLogger m)
   => ServantErr
   -> Either e a
   -> m a
