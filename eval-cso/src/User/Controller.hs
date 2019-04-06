@@ -1,5 +1,5 @@
 module User.Controller
-       ( getUserById
+       ( getUserByName
        , updateUser
        , listUsers
        , loginUser
@@ -9,7 +9,7 @@ module User.Controller
        ) where
 import Control.Monad.Time (MonadTime, currentTime)
 import Data.Ratio ((%))
-import Database.Persist.Postgresql (fromSqlKey, toSqlKey)
+import Database.Persist.Postgresql (fromSqlKey)
 import Servant
 import Servant.Auth.Server
 import Test.RandomStrings (randomASCII, randomString')
@@ -19,33 +19,36 @@ import Common.Types (Id(..))
 import Foundation (HasConfig)
 import Model (User(..))
 import User.Helper
-  (runProtectedAction, throwInvalidUserId, throwUserExists, toUserResponse)
-import User.Model.Types (UserModel(..))
+  (runProtectedAction, throwInvalidUserName, throwUserExists, toUserResponse)
+import User.Model.Types (HasUserWithId(..), UserModel(..), UserWithId(..))
 import User.Password (hashPassword, validatePassword)
 import User.Types
   (Email, HasUserAttrs, Login, Password(..), ServantAuthHeaders, Signup(..),
-  UserEdits(..), UserErrors(..), UserResponse(..), email, name, password, role)
+  Uname(..), UserEdits(..), UserErrors(..), UserResponse(..), email, name,
+  password, role)
 
-getUserById
+getUserByName
   :: forall m .(MonadThrowLogger m)
   => UserModel m
-  -> Int64
+  -> Text -- ^ userName
   -> m UserResponse
-getUserById usModel uid = getUserById' usModel uid <&> toUserResponse
+getUserByName usModel nameTxt =
+  let uName = Uname nameTxt
+  in toUserResponse . view uiUser <$> getUserByName' usModel uName
 
 setPassword
   :: (MonadThrowLogger m, HasConfig r, MonadReader r m)
   => UserModel m
   -> User
-  -> Int64
+  -> Text -- ^ userName
   -> Text
   -> m Id
-setPassword usModel logedInUser uid pwd = do
-  let userId = toSqlKey uid
+setPassword usModel logedInUser nameTxt pwd = do
+  let uName = Uname nameTxt
+  (UserWithId user userId) <- getUserByName' usModel uName
   let mkPassword = hashPassword (Password pwd) >>= umSetPassword usModel userId
-  user <- getUserById' usModel uid
   runProtectedAction logedInUser (userRole user) mkPassword
-  pure $ Id uid
+  pure . Id $ fromSqlKey userId
 
 generateUser
   :: (HasConfig r, MonadReader r m, MonadTime m, MonadThrowLogger m, MonadIO m)
@@ -62,14 +65,14 @@ updateUser
   :: MonadThrowLogger m
   => UserModel m
   -> User
-  -> Int64
+  -> Text -- ^ userName
   -> UserEdits
   -> m UserResponse
-updateUser usModel logedInUser uid edits = do
-  let userId = toSqlKey uid
-  user <- getUserById' usModel uid
+updateUser usModel logedInUser nameTxt edits = do
+  let uName = Uname nameTxt
+  (UserWithId user userId) <- getUserByName' usModel uName
   let update = toUserResponse <$> umUpdateUser usModel userId edits
-  if | userName user == userName logedInUser -> update
+  if | uName == userName logedInUser -> update
      | otherwise -> runProtectedAction logedInUser (userRole user) update
 
 listUsers
@@ -96,7 +99,7 @@ loginUser
   -> m ServantAuthHeaders
 loginUser usModel cs jws loginData = do
    let uemail = loginData ^. email
-   dbUser <- umGetUsersByEmail usModel uemail >>= throwInvalidEmail uemail
+   dbUser <- umGetUserByEmail usModel uemail >>= throwInvalidEmail uemail
    validUser <- if validatePassword (loginData ^. password) (userPassword dbUser)
                    then pure dbUser
                    else throwSError err401 (IncorrectPassword uemail)
@@ -120,18 +123,20 @@ createUser
   -> Password
   -> m Id
 createUser usModel userAttrs pwd = do
+  let uName = userAttrs ^. name
   hpwd <- hashPassword pwd
   utcTime <- currentTime
   mUserId <- umCreateUser usModel $
     User { userRole = userAttrs ^. role
-         , userName = userAttrs ^. name
+         , userName = uName
          , userEmail = userAttrs ^. email
          , userPassword = hpwd
          , userCreatedAt = utcTime
          , userUpdatedAt = utcTime
          }
-  Id . fromSqlKey <$> mUserId & maybe throwUserExists pure
+  Id . fromSqlKey <$> maybe (throwUserExists uName) pure mUserId
 
-getUserById' :: MonadThrowLogger m => UserModel m -> Int64 -> m User
-getUserById' usModel uid =
-  umGetUsersById usModel (toSqlKey uid) >>= maybe (throwInvalidUserId uid) pure
+getUserByName' :: MonadThrowLogger m => UserModel m -> Uname -> m UserWithId
+getUserByName' usModel uName = do
+  mUserWithId <- umGetUserByName usModel uName
+  maybe (throwInvalidUserName uName) pure mUserWithId

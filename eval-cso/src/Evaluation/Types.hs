@@ -13,6 +13,7 @@ module Evaluation.Types
         , HasEvalRecord (..)
         , HasServiceParameters (..)
         , ParameterAttrs (..)
+        , ParaName (..)
         , PValue (..)
         , Reason (..)
         , ServiceType (..)
@@ -31,7 +32,6 @@ import Database.Persist.TH (derivePersistField)
 import qualified GHC.Show (Show(show))
 import Lens.Micro.Platform (makeClassy)
 
-import Common.Types (Name)
 import User.Types (Uname)
 
 data Category = ZeroRated | NonZeroRated
@@ -44,6 +44,11 @@ instance Show Category where
 $(deriveJSON AO.defaultOptions ''Category)
 
 derivePersistField "Category"
+
+newtype ParaName = ParaName { unParaName :: Text }
+  deriving (Eq, Show, PersistField)
+
+$(deriveJSON AO.defaultOptions { unwrapUnaryRecords = True } ''ParaName)
 
 newtype Group = Group { unGroup :: Text }
   deriving (Eq, Show, PersistField)
@@ -110,7 +115,7 @@ data EvalErrors =
 instance Exception EvalErrors
 
 data ParameterAttrs = ParameterAttrs
-  { _paName :: Name
+  { _paName :: ParaName
   , _paValue :: PValue
   , _paDescription :: Maybe Description
   , _paWeight :: Weight

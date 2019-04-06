@@ -1,26 +1,25 @@
 module User.Helper
        ( runProtectedAction
        , toUserResponse
-       , throwInvalidUserId
+       , throwInvalidUserName
        , throwUserExists
        ) where
 
 import Servant (err400, err404)
 
 import Common.Errors (MonadThrowLogger, throwSError)
-import Common.Types (Id(..))
 import Model (User(..))
-import User.Types (Email, Role(..), UserErrors(..), UserResponse(..))
+import User.Types (Email, Role(..), Uname, UserErrors(..), UserResponse(..))
 
-throwInvalidUserId :: MonadThrowLogger m => Int64 -> m a
-throwInvalidUserId uid = throwSError err404 $ UserNotFound $ Id uid
+throwInvalidUserName :: MonadThrowLogger m => Uname -> m a
+throwInvalidUserName = throwSError err404 . UserNameNotFound
 
 throwUserNotAuthorized :: MonadThrowLogger m => Email -> m a
 throwUserNotAuthorized uemail  =
   throwSError err400 $ UserIsNotAuthrized uemail
 
-throwUserExists :: MonadThrowLogger m => m a
-throwUserExists = throwSError err404 UserExistsError
+throwUserExists :: MonadThrowLogger m => Uname ->  m a
+throwUserExists = throwSError err404 . UserExistsError
 
 -- | An admin can do anything, an evaluator can do anything for an agent
 -- Agent can only access own account

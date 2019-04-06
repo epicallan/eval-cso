@@ -12,7 +12,6 @@ import Database.Persist.TH
 import Servant.Auth.Server (FromJWT, ToJWT)
 
 import Agent.Types as A
-import Common.Types (Name)
 import Evaluation.Types as E
 import Foundation (HasPool(..))
 import User.Types as U
@@ -70,7 +69,7 @@ share
     deriving Show
 
   Parameter sql=paremeter
-    name        Name              sqltype=text
+    name        E.ParaName        sqltype=text
     value       E.PValue          sqltype=text
     description E.Description Maybe sqltype=text default=NULL
     serviceType ServiceId

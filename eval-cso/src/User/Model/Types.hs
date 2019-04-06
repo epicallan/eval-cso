@@ -17,8 +17,8 @@ makeClassy ''UserWithId
 data UserModel (m :: * -> *) = UserModel
   { umCreateUser :: User -> m (Maybe UserId) -- TODO: should return Either
   , umAllUsers :: m [User]
-  , umGetUsersByEmail :: Email -> m (Maybe User)
-  , umGetUsersById :: UserId -> m (Maybe User)
+  , umGetUserByEmail :: Email -> m (Maybe User)
+  , umGetUserById :: UserId -> m (Maybe User)
   , umGetUserByName :: Uname -> m (Maybe UserWithId)
   , umUpdateUser :: UserId -> UserEdits -> m User
   , umSetPassword :: UserId -> PasswordHash -> m ()

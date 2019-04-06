@@ -64,7 +64,7 @@ agentModel = AgentModel
        traverse (pure . serviceName . entityVal)  services
 
     , amAgentBranch = runInDb . get
-    , amGetUserById = umGetUsersById userModel
+    , amGetUserById = umGetUserById userModel
 
   }
 

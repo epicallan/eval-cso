@@ -23,7 +23,7 @@ userModel = UserModel
       users :: [Entity User] <- runInDb (selectList [] [])
       pure (entityVal <$> users)
 
-  , umGetUsersByEmail = \email ->  do
+  , umGetUserByEmail = \email ->  do
        mUser :: (Maybe (Entity User)) <- runInDb $ selectFirst [UserEmail ==. email] []
        pure $ entityVal <$> mUser
 
@@ -33,7 +33,7 @@ userModel = UserModel
          Nothing -> Nothing
          Just (Entity userId user) -> Just $ UserWithId user userId
 
-   , umGetUsersById = runInDb . get
+   , umGetUserById = runInDb . get
 
    , umUpdateUser = \userId UserEdits{..} -> do
        utcTime <- liftIO getCurrentTime

@@ -65,8 +65,7 @@ data UserErrors =
   | CookieSetupError Email
   | UserIsNotAuthrized Email
   | UserNameNotFound Uname
-  | UserNotFound Id
-  | UserExistsError -- TODO: should be more refined.
+  | UserExistsError Uname
   deriving Show
 
 instance Exception UserErrors
