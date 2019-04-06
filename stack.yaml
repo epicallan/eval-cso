@@ -7,6 +7,7 @@ extra-deps:
   - base-noprelude-4.11.1.0
   - aeson-options-0.1.0
   - esqueleto-2.6.0@sha256:e4672cd3baec100ef8597224abae4e030795e8a1f80abb6e0c3e2570f213a258
+  - random-strings-0.1.1.0@sha256:935a7a23dab45411960df77636a29b44ce42b89eeb15f2b1e809d771491fa677
   ## Lootbox is not on Hackage
   - git: https://github.com/serokell/lootbox
     commit: 4862d6332791256f0d3c1f9caf1bba8cf38a7851 # master

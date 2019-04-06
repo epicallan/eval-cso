@@ -56,6 +56,6 @@ TAGS
 
 # configs
 
-dev.dhall
-prod.dhall
-test.dhall
+dev.yaml
+prod.yaml
+test.yaml

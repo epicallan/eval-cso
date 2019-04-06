@@ -3,9 +3,11 @@
 [![MIT license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Build status](https://secure.travis-ci.org/epicallan/eval-cso.svg)](https://travis-ci.org/epicallan/eval-cso)
 
-## TODO: description
+## Running app
 
 Provide an environment variable to executable to run in either development or production mode eg
 
 
 `$>  ENV=Production eval-cso`
+
+Ensure you have created a config file in [config](./config) for the environment you are running in i.e dev.yaml or prod.yaml.

@@ -11,7 +11,7 @@ import Common.Types (Id)
 import Foundation (App)
 import Model (User)
 import User.Controller
-  (generateUser, getUserById, listUsers, loginUser, setPassword, signupUser,
+  (generateUser, getUserByName, listUsers, loginUser, setPassword, signupUser,
   updateUser)
 import User.Model.Internal (userModel)
 import User.Types (Login, ServantAuthHeaders, Signup, UserEdits, UserResponse)
@@ -27,9 +27,9 @@ type SignupApi =
 type ProtectedUserApi =
          Get '[JSON] [UserResponse]
     :<|> ReqBody '[JSON] UserEdits :> Post '[JSON] Id
-    :<|> Capture "id" Int64 :> ReqBody '[JSON] UserEdits :> Put '[JSON] UserResponse
-    :<|> Capture "id" Int64 :> Get '[JSON] UserResponse
-    :<|> Capture "id" Int64 :> Capture "password" Text :> Patch '[JSON] Id
+    :<|> Capture "userName" Text :> ReqBody '[JSON] UserEdits :> Put '[JSON] UserResponse
+    :<|> Capture "userName" Text :> Get '[JSON] UserResponse
+    :<|> Capture "userName" Text :> Capture "password" Text :> Patch '[JSON] Id
 
 
 type UserApi auths =
@@ -50,7 +50,7 @@ protected (Authenticated user) =
          listUsers userModel
     :<|> generateUser userModel user
     :<|> updateUser userModel user
-    :<|> getUserById userModel
+    :<|> getUserByName userModel
     :<|> setPassword userModel user
 
 protected _ = throwAll err401

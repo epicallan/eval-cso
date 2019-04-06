@@ -13,6 +13,7 @@ module Evaluation.Types
         , HasEvalRecord (..)
         , HasServiceParameters (..)
         , ParameterAttrs (..)
+        , ParaName (..)
         , PValue (..)
         , Reason (..)
         , ServiceType (..)
@@ -31,7 +32,7 @@ import Database.Persist.TH (derivePersistField)
 import qualified GHC.Show (Show(show))
 import Lens.Micro.Platform (makeClassy)
 
-import Common.Types (Name)
+import User.Types (Uname)
 
 data Category = ZeroRated | NonZeroRated
   deriving (Eq, Read)
@@ -43,6 +44,11 @@ instance Show Category where
 $(deriveJSON AO.defaultOptions ''Category)
 
 derivePersistField "Category"
+
+newtype ParaName = ParaName { unParaName :: Text }
+  deriving (Eq, Show, PersistField)
+
+$(deriveJSON AO.defaultOptions { unwrapUnaryRecords = True } ''ParaName)
 
 newtype Group = Group { unGroup :: Text }
   deriving (Eq, Show, PersistField)
@@ -101,15 +107,15 @@ $(deriveJSON AO.defaultOptions { unwrapUnaryRecords = True } ''PValue)
 
 data EvalErrors =
     EServiceNotFound ServiceTypeValue
-  | EUserNameNotFound Name
+  | EUserNameNotFound Uname
   | EParameterNotFound PValue
-  | ActionIsForEvaluatorsOnly Name
+  | ActionIsForEvaluatorsOnly Uname
   deriving Show
 
 instance Exception EvalErrors
 
 data ParameterAttrs = ParameterAttrs
-  { _paName :: Name
+  { _paName :: ParaName
   , _paValue :: PValue
   , _paDescription :: Maybe Description
   , _paWeight :: Weight
@@ -122,8 +128,8 @@ makeClassy ''ParameterAttrs
 
 data EvalAttrs = EvalAttrs
   { _eaReason :: Reason
-  , _eaEvaluator :: Name
-  , _eaAgent :: Name
+  , _eaEvaluator :: Uname
+  , _eaAgent :: Uname
   , _eaService :: ServiceTypeValue
   , _eaCustomer :: CustomerNumber
   , _eaComment :: Maybe Comment

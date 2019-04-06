@@ -8,13 +8,14 @@ module Foundation
        , Environment (..)
        , HasPool (..)
        , HasConfig (..)
-       , Port (..)
        ) where
 import Control.Monad.Logger
   (LogLevel(..), LoggingT, MonadLogger, filterLogger, runStdoutLoggingT)
+import Data.Aeson.Options as AO (defaultOptions)
+import Data.Aeson.TH (deriveJSON)
+import Data.Yaml (decodeFileThrow)
 import Database.Persist.Postgresql (ConnectionString, createPostgresqlPool)
 import Database.Persist.Sql (ConnectionPool)
-import Dhall (Interpret, auto, detailed, input)
 import Lens.Micro.Platform (Lens', makeClassy, makeLenses)
 
 import Control.Monad.IO.Unlift (MonadUnliftIO)
@@ -22,29 +23,26 @@ import Servant.Auth.Server (ThrowAll(..))
 import System.Environment (lookupEnv)
 import System.IO.Error (userError)
 
-newtype Port = Port { unPort :: Natural }
-  deriving (Eq, Show, Generic)
-
-instance Interpret Port
+type Port = Natural
 
 -- | Right now, we're distinguishing between three environments
 data Environment
     = Development
     | Test
     | Production
-    deriving (Eq, Show, Read, Generic)
+    deriving (Eq, Read, Show)
 
-instance Interpret Environment
+$(deriveJSON AO.defaultOptions ''Environment)
 
 data DbConf = DbConf
   { _dbUser :: Text
   , _dbHost :: Text
   , _dbName :: Text
-  } deriving (Show, Generic)
+  } deriving (Show)
 
 makeClassy ''DbConf
 
-instance Interpret DbConf
+$(deriveJSON AO.defaultOptions ''DbConf)
 
 -- | The Config for our application is (for now) the 'Environment' we're
 -- running in and a Persistent 'ConnectionPool'.
@@ -54,9 +52,9 @@ data Config = Config
     , _cPort    :: Port
     , _cDbConf :: DbConf
     , _cSalt    :: Text
-    } deriving (Show, Generic)
+    } deriving (Show)
 
-instance Interpret Config
+$(deriveJSON AO.defaultOptions ''Config)
 
 data Env = Env
     { _ePool  :: ConnectionPool
@@ -86,14 +84,13 @@ type App = AppT (LoggingT IO)
 instance MonadThrow m => ThrowAll (AppT m a) where
   throwAll = throwM
 
--- TODO: get this all config from a secrets config file
 acquireConfig :: (MonadUnliftIO m, MonadThrow m) => m Config
 acquireConfig = do
     environment <- lookupSetting "ENV" (pure Development)
-    liftIO $ detailed $ case environment of
-      Development -> input auto "./config/dev.dhall"
-      Production -> input auto "./config/prod.dhall"
-      Test -> input auto "./config/test.dhall"
+    case environment of
+      Production -> decodeFileThrow "./config/prod.yaml"
+      Development -> decodeFileThrow "./config/dev.yaml"
+      Test -> decodeFileThrow "./config.test.yaml"
 
 initEnv :: (MonadThrow m, MonadUnliftIO m) => m Env
 initEnv = do
@@ -113,7 +110,7 @@ lookupSetting env def = do
 handleFailedRead :: (Show a, MonadThrow m) => a -> String -> m b
 handleFailedRead str env =
     throwM $ userError $ mconcat
-        [ "Failed to read \""
+        [ "Failed to read env \""
         , show str
         , "\" for environment variable "
         , env

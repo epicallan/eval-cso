@@ -11,7 +11,7 @@ import Database.Persist.TH
   (mkMigrate, mkPersist, persistLowerCase, share, sqlSettings)
 import Servant.Auth.Server (FromJWT, ToJWT)
 
-import Common.Types (Name)
+import Agent.Types as A
 import Evaluation.Types as E
 import Foundation (HasPool(..))
 import User.Types as U
@@ -21,7 +21,7 @@ share
   , mkMigrate "migrateAll"
   ] [persistLowerCase|
   User sql=users
-    name           Name           sqltype=text
+    name           U.Uname           sqltype=text
     email          U.Email        sqltype=text
     role           U.Role         sqltype=text
     password       U.PasswordHash sqltype=text
@@ -42,10 +42,10 @@ share
     deriving Show
 
   Branch sql=branch
-    name        Name     sqltype=text
+    name        A.Bname     sqltype=text
     createdAt   UTCTime  sqltype=timestamptz sql=created_at default=CURRENT_TIMESTAMP
     updatedAt   UTCTime  sqltype=timestamptz sql=updated_at default=CURRENT_TIMESTAMP
-    UniqueBranch name
+    UniqueBranchName name
     deriving Show
 
   Service sql=services
@@ -69,7 +69,7 @@ share
     deriving Show
 
   Parameter sql=paremeter
-    name        Name              sqltype=text
+    name        E.ParaName        sqltype=text
     value       E.PValue          sqltype=text
     description E.Description Maybe sqltype=text default=NULL
     serviceType ServiceId
