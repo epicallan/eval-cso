@@ -6,6 +6,7 @@ module User.Types
         , Password (..)
         , PasswordHash (..)
         , Role (..)
+        , Uname (..)
         , ServantAuthHeaders
         , UserErrors(..)
         , UserEdits(..)
@@ -25,7 +26,7 @@ import Lens.Micro.Platform (makeFields)
 import Servant
 import Servant.Auth.Server
 
-import Common.Types (Id, Name)
+import Common.Types (Id)
 import User.Password (Password(..), PasswordHash(..))
 
 type ServantAuthHeaders = Headers '[ Header "Set-Cookie" SetCookie
@@ -42,6 +43,12 @@ data Role =
 $(deriveJSON AO.defaultOptions ''Role)
 derivePersistField "Role"
 
+
+newtype Uname = Uname {unUname :: Text}
+  deriving (Eq, Show, PersistField)
+
+$(deriveJSON AO.defaultOptions  { unwrapUnaryRecords = True } ''Uname)
+
 data UserType a :: Type where
   CsoAgentUser :: Id -> UserType 'CsoAgent
   AdminUser :: Id -> UserType 'Admin
@@ -57,7 +64,7 @@ data UserErrors =
   | IncorrectPassword Email
   | CookieSetupError Email
   | UserIsNotAuthrized Email
-  | UserNameNotFound Name
+  | UserNameNotFound Uname
   | UserNotFound Id
   | UserExistsError -- TODO: should be more refined.
   deriving Show
@@ -76,7 +83,7 @@ makeFields ''Login
 $(deriveJSON AO.defaultOptions ''Login)
 
 data Signup = Signup
- { _signupName :: Name
+ { _signupName :: Uname
  , _signupEmail :: Email
  , _signupPassword :: Password
  }
@@ -85,7 +92,7 @@ $(deriveJSON AO.defaultOptions ''Signup)
 makeFields ''Signup
 
 data UserEdits = UserEdits
- { _userEditsName :: Name
+ { _userEditsName :: Uname
  , _userEditsEmail :: Email
  , _userEditsRole :: Role
  }
@@ -94,7 +101,7 @@ $(deriveJSON AO.defaultOptions ''UserEdits)
 makeFields ''UserEdits
 
 data UserResponse = UserResponse
-  { urName :: Name
+  { urName :: Uname
   , urEmail :: Email
   , urRole :: Role
   , urCreatedAt :: UTCTime
@@ -104,7 +111,7 @@ data UserResponse = UserResponse
 $(deriveJSON AO.defaultOptions ''UserResponse)
 
 type HasUserAttrs a =
-  ( HasName a Name
+  ( HasName a Uname
   , HasEmail a Email
   , HasRole a Role
   )

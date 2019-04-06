@@ -32,6 +32,7 @@ import qualified GHC.Show (Show(show))
 import Lens.Micro.Platform (makeClassy)
 
 import Common.Types (Name)
+import User.Types (Uname)
 
 data Category = ZeroRated | NonZeroRated
   deriving (Eq, Read)
@@ -101,9 +102,9 @@ $(deriveJSON AO.defaultOptions { unwrapUnaryRecords = True } ''PValue)
 
 data EvalErrors =
     EServiceNotFound ServiceTypeValue
-  | EUserNameNotFound Name
+  | EUserNameNotFound Uname
   | EParameterNotFound PValue
-  | ActionIsForEvaluatorsOnly Name
+  | ActionIsForEvaluatorsOnly Uname
   deriving Show
 
 instance Exception EvalErrors
@@ -122,8 +123,8 @@ makeClassy ''ParameterAttrs
 
 data EvalAttrs = EvalAttrs
   { _eaReason :: Reason
-  , _eaEvaluator :: Name
-  , _eaAgent :: Name
+  , _eaEvaluator :: Uname
+  , _eaAgent :: Uname
   , _eaService :: ServiceTypeValue
   , _eaCustomer :: CustomerNumber
   , _eaComment :: Maybe Comment

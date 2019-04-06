@@ -8,9 +8,11 @@ module User.Controller
        , setPassword
        ) where
 import Control.Monad.Time (MonadTime, currentTime)
+import Data.Ratio ((%))
 import Database.Persist.Postgresql (fromSqlKey, toSqlKey)
 import Servant
 import Servant.Auth.Server
+import Test.RandomStrings (randomASCII, randomString')
 
 import Common.Errors (MonadThrowLogger, throwSError)
 import Common.Types (Id(..))
@@ -46,15 +48,15 @@ setPassword usModel logedInUser uid pwd = do
   pure $ Id uid
 
 generateUser
-  :: (HasConfig r, MonadReader r m, MonadTime m, MonadThrowLogger m)
+  :: (HasConfig r, MonadReader r m, MonadTime m, MonadThrowLogger m, MonadIO m)
   => UserModel m
   -> User
   -> UserEdits
   -> m Id
-generateUser usModel logedInUser attrs =
-  let defaultPassword = Password "TODO: make a random string with name as seed"
-      createU = createUser usModel attrs defaultPassword
-  in runProtectedAction logedInUser (attrs ^. role) createU
+generateUser usModel logedInUser attrs = do
+  defaultPassword <- liftIO $ randomString' randomASCII (1 % 2) (2 % 3) 7 <&> toText
+  let createU = createUser usModel attrs  $ Password defaultPassword
+  runProtectedAction logedInUser (attrs ^. role) createU
 
 updateUser
   :: MonadThrowLogger m
@@ -76,7 +78,8 @@ listUsers
   -> m [UserResponse]
 listUsers us = fmap toUserResponse <$> umAllUsers us
 
--- on signup everyone is a regular member, admin gives out roles
+-- | on signup everyone is a regular member i.e CSO Agent, admin gives out roles
+-- note signup has a default role of CsoAgent from HasRole class
 signupUser
   :: (HasConfig r, MonadReader r m, MonadTime m, MonadThrowLogger m)
   => UserModel m

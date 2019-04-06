@@ -9,7 +9,6 @@ library:
     - aeson-options
     - bytestring
     - cryptonite
-    - dhall
     - esqueleto
     - microlens-platform
     - monad-logger
@@ -18,12 +17,14 @@ library:
     - persistent-postgresql
     - persistent-template
     - resource-pool
+    - random-strings
     - servant-server
     - servant-auth
     - servant-auth-server
     - text
     - time
     - unliftio-core
+    - yaml
     - warp
     - wai
     - wai-extra

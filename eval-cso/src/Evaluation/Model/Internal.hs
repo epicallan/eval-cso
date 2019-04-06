@@ -5,12 +5,12 @@ import Prelude hiding (on, set, (^.))
 import Data.Time (getCurrentTime)
 import Database.Esqueleto hiding ((<&>))
 
-import Common.Types (Name)
 import Evaluation.Model.Types
   (EvalModel(..), EvaluationScore(..), ServiceWithId(..))
 import Evaluation.Types
 import Foundation (HasPool)
 import Model
+import User.Types (Uname)
 
 evalModel :: forall m r. (MonadIO m, MonadReader r m, HasPool r) => EvalModel m
 evalModel = EvalModel
@@ -86,7 +86,7 @@ evalModel = EvalModel
         , evaluationUpdatedAt = utcTime
         }
 
-    getUserId :: Name -> m (Either EvalErrors UserId)
+    getUserId :: Uname -> m (Either EvalErrors UserId)
     getUserId uname = do
       meUser :: (Maybe (Entity User)) <- runInDb $ getBy $ UniqueUserName uname
       pure $ maybe (Left $ EUserNameNotFound uname ) (Right . entityKey) meUser
