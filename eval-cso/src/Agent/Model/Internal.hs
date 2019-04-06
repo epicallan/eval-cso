@@ -36,7 +36,7 @@ agentModel = AgentModel
                                return (agent, user)
 
            pure
-             $ maybe (Left SqlErrorFailedToGetAgent) Right
+             $ maybeToRight SqlErrorFailedToGetAgent
              $ bimap entityVal entityVal <$> safeHead userAgents
 
    , amUpdateAgent = \userName AgentAttrs{..} -> do
@@ -45,14 +45,14 @@ agentModel = AgentModel
          mSupervisorId <- getSupervisorId _aaSupervisor
          mBranchId <- getBranchId _aaBranch
          userId <- getUserId userName
-         _ <- runInDb $ update $ \agent -> do
+         lift $ runInDb $ update $ \agent -> do
                          set agent [ AgentSupervisorId =. val mSupervisorId
                                    , AgentServices =. val _aaServices
                                    , AgentBranch =. val mBranchId
                                    , AgentUpdatedAt =. val utcTime
                                    ]
                          where_ (agent ^. AgentUserId ==. val userId)
-         pure ()
+
 
    , amAgentServices = \serviceTypeValues -> do
        services :: [Entity Service] <- runInDb $
@@ -76,7 +76,7 @@ getUserId name = do
 getSupervisorId :: Maybe Uname -> ExceptAgentM m (Maybe UserId)
 getSupervisorId name = ExceptT $ case name of
    Nothing -> pure . Right $ Nothing
-   Just sName -> second Just <$> (runExceptT $ getUserId sName)
+   Just sName -> second Just <$> runExceptT (getUserId sName)
 
 getBranchId :: Maybe Bname -> ExceptAgentM m (Maybe BranchId)
 getBranchId name = case name of
@@ -84,12 +84,11 @@ getBranchId name = case name of
   Just bName -> do
     mBranch <- lift $ runInDb $ getBy $ UniqueBranchName bName
     ExceptT . pure
-      $ maybe (Left $ BranchNameNotFound bName) (Right . Just . entityKey)
-      $ mBranch
+      $ maybe (Left $ BranchNameNotFound bName) (Right . Just . entityKey) mBranch
 
 createAgent :: UserId -> AgentAttrs -> ExceptAgentM m Id
 createAgent userId AgentAttrs{..}= do
-  utcTime <- liftIO $ getCurrentTime
+  utcTime <- liftIO getCurrentTime
   mSupervisorId <- getSupervisorId _aaSupervisor
   mBranchId <- getBranchId _aaBranch
   agentId <- lift $ runInDb
