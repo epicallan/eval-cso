@@ -2,11 +2,11 @@ module Agent.Model.Types
        ( AgentModel(..)
        ) where
 
-import Agent.Types (AgentAttrs, AgentErrors)
-import User.Types (Uname)
+import Agent.Types (AgentAttrs, AgentErrors, Bname)
 import Common.Types (Id)
-import Evaluation.Types (ServiceTypeValue, ServiceType)
-import Model (Agent, Branch, BranchId, User, UserId)
+import Db.Model (Agent, Branch, BranchId, User, UserId)
+import Evaluation.Types (ServiceType, ServiceTypeValue)
+import User.Types (Uname)
 
 data AgentModel m = AgentModel
   { amCreateAgent :: UserId -> AgentAttrs -> m (Either AgentErrors Id)
@@ -15,4 +15,5 @@ data AgentModel m = AgentModel
   , amAgentBranch :: BranchId -> m (Maybe Branch)
   , amAgentServices :: [ServiceTypeValue] -> m [ServiceType]
   , amGetUserById :: UserId -> m (Maybe User)
+  , amCreateBranch :: Bname -> m Id
   }

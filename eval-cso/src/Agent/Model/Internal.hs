@@ -11,7 +11,7 @@ import Database.Persist.Postgresql (fromSqlKey, get, getBy, insert)
 import Agent.Model.Types (AgentModel(..))
 import Agent.Types (AgentAttrs(..), AgentErrors(..), Bname)
 import Common.Types (Id(..))
-import Model
+import Db.Model
 import User.Model.Internal (userModel)
 import User.Model.Types (HasUserWithId(..), UserModel(..))
 import User.Types (Uname(..))
@@ -64,7 +64,15 @@ agentModel = AgentModel
 
     , amAgentBranch = runInDb . get
     , amGetUserById = umGetUserById userModel
-
+    , amCreateBranch = \bname -> do
+        utcTime <- liftIO getCurrentTime
+        branchId <- runInDb $ insert
+                            $ Branch
+                               { branchName = bname
+                               , branchCreatedAt = utcTime
+                               , branchUpdatedAt = utcTime
+                               }
+        pure . Id . fromSqlKey $ branchId
   }
 
 getUserId :: Uname -> ExceptAgentM m UserId

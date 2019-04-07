@@ -12,7 +12,7 @@ import Evaluation.Controller
 import Evaluation.Model.Internal (evalModel)
 import Evaluation.Types
 import Foundation (App)
-import Model (User)
+import Db.Model (User)
 
 type ProtectedApi =
          Capture "serviceType" Text :> Get '[JSON] [EvalRecord]

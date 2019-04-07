@@ -9,7 +9,7 @@ import Network.Wai.Middleware.RequestLogger (logStdout, logStdoutDev)
 import Api (app)
 import Foundation
   (Config, Environment(..), HasConfig(..), HasSettings(..), initEnv, pool)
-import Model (runMigrations)
+import Db.Model (runMigrations)
 
 runApp :: IO ()
 runApp = bracket initEnv shutdownApp startApp

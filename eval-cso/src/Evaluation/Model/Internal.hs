@@ -5,10 +5,13 @@ import Prelude hiding (on, set, (^.))
 import Data.Time (getCurrentTime)
 import Database.Esqueleto hiding ((<&>))
 
+import Common.Types (Id(..))
+import Db.Model
 import Evaluation.Model.Types
   (EvalModel(..), EvaluationScore(..), ServiceWithId(..))
 import Evaluation.Types
-import Model
+  (CreateEvaluation(..), EvalAttrs(..), EvalErrors(..), ParameterAttrs(..),
+  Pvalue, ServiceAttrs(..), ServiceParameters(..), ServiceTypeValue)
 import User.Types (Uname)
 
 evalModel :: forall r m . CanDb m r => EvalModel m
@@ -60,11 +63,20 @@ evalModel = EvalModel
                                , _esEvaluator = entityVal evaluator
                                , _esEvaluationId = entityKey evaluation
                                }
-
-  , emGetEvaluationByUser = error "maybe implement me"
   , emGetService = \ serviceValue -> do
       eServiceEntity <- getService serviceValue
       pure $ second (\(Entity siId siService) -> ServiceWithId siService siId) eServiceEntity
+  , emCreateService = \(ServiceAttrs name value) -> do
+      utcTime <- liftIO getCurrentTime
+      serviceId <- runInDb $ insert
+                           $ Service
+                              { serviceValue = value
+                              , serviceName = name
+                              , serviceCreatedAt = utcTime
+                              , serviceUpdatedAt = utcTime
+                              }
+      pure . Id $ fromSqlKey serviceId
+
   }
   where
     mkEvaluation :: EvalAttrs -> ExceptT EvalErrors m Evaluation
@@ -98,7 +110,7 @@ evalModel = EvalModel
     getServiceId :: ServiceTypeValue -> m (Either EvalErrors ServiceId)
     getServiceId service = fmap entityKey <$> getService service
 
-    getParameterId :: PValue -> m (Either EvalErrors ParameterId)
+    getParameterId :: Pvalue -> m (Either EvalErrors ParameterId)
     getParameterId pval =  do
       meParameter :: (Maybe (Entity Parameter)) <- runInDb $ getBy $ UniqueParameterValue pval
       pure $ maybe (Left $ EParameterNotFound pval) (Right . entityKey) meParameter

@@ -14,7 +14,7 @@ import Evaluation.Model.Types
   (EvalModel(..), EvaluationScore(..), HasEvaluationScore(..),
   HasServiceWithId(..))
 import Evaluation.Types
-import Model (Evaluation(..), Parameter(..), User(..))
+import Db.Model (Evaluation(..), Parameter(..), User(..))
 import User.Types (Role(..))
 
 getServiceEvaluations

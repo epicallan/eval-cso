@@ -8,7 +8,7 @@ module User.Helper
 import Servant (err400, err404)
 
 import Common.Errors (MonadThrowLogger, throwSError)
-import Model (User(..))
+import Db.Model (User(..))
 import User.Types (Email, Role(..), Uname, UserErrors(..), UserResponse(..))
 
 throwInvalidUserName :: MonadThrowLogger m => Uname -> m a
@@ -19,7 +19,7 @@ throwUserNotAuthorized uemail  =
   throwSError err400 $ UserIsNotAuthrized uemail
 
 throwUserExists :: MonadThrowLogger m => Uname ->  m a
-throwUserExists = throwSError err404 . UserExistsError
+throwUserExists = throwSError err400 . UserExistsError
 
 -- | An admin can do anything, an evaluator can do anything for an agent
 -- Agent can only access own account

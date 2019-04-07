@@ -7,11 +7,12 @@ module Evaluation.Model.Types
        ) where
 import Lens.Micro.Platform (makeClassy)
 
-import Evaluation.Types
-  (CreateEvaluation, EvalErrors, ServiceParameters, ServiceTypeValue)
-import Model
+import Common.Types (Id)
+import Db.Model
   (Evaluation, EvaluationId, Parameter, ParameterId, Service, ServiceId, User)
-import User.Types (UserType)
+import Evaluation.Types
+  (CreateEvaluation, EvalErrors, ServiceAttrs, ServiceParameters,
+  ServiceTypeValue)
 
 data EvaluationScore = EvaluationScore
   { _esEvaluation :: Evaluation
@@ -34,5 +35,5 @@ data EvalModel m = EvalModel
   , emCreateEvaluation :: CreateEvaluation -> m (Either EvalErrors EvaluationId)
   , emGetEvaluationByService :: ServiceId -> m [EvaluationScore]
   , emGetService :: ServiceTypeValue -> m (Either EvalErrors ServiceWithId)
-  , emGetEvaluationByUser :: forall a . UserType a -> m [EvaluationScore]
+  , emCreateService :: ServiceAttrs -> m Id
   }

@@ -11,7 +11,7 @@ import Agent.Model.Internal (agentModel)
 import Agent.Types (AgentAttrs, AgentResponse, CreateAgent)
 import Common.Types (Id)
 import Foundation (App)
-import Model (User)
+import Db.Model (User)
 import User.Model.Internal (userModel)
 
 type ProtectedApi =

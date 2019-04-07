@@ -35,8 +35,9 @@ executables:
     source-dirs: app
     dependencies:
       - eval-cso
-      - persistent-postgresql
-      - servant-server
-      - unliftio-core
-      - wai
-      - warp
+  eval-cso-seed :
+    <<: *exec-common
+    source-dirs: migration
+    dependencies:
+      - eval-cso
+

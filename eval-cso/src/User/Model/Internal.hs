@@ -8,7 +8,7 @@ import Database.Persist.Postgresql
   (Entity(..), entityVal, get, getBy, insertUnique, selectFirst, selectList,
   update, updateGet, (=.), (==.))
 
-import Model
+import Db.Model
 import User.Model.Types (UserModel(..), UserWithId(..))
 import User.Types (UserEdits(..))
 

@@ -16,16 +16,16 @@ import Test.RandomStrings (randomASCII, randomString')
 
 import Common.Errors (MonadThrowLogger, throwSError)
 import Common.Types (Id(..))
+import Db.Model (User(..))
 import Foundation (HasSettings)
-import Model (User(..))
 import User.Helper
   (runProtectedAction, throwInvalidUserName, throwUserExists, toUserResponse)
 import User.Model.Types (HasUserWithId(..), UserModel(..), UserWithId(..))
 import User.Password (hashPassword, validatePassword)
 import User.Types
-  (Email, HasUserAttrs, Login, Password(..), ServantAuthHeaders, Signup(..),
-  Uname(..), UserEdits(..), UserErrors(..), UserResponse(..), email, name,
-  password, role)
+  (Email, HasCreateUserAttrs, HasUserAttrs, Login, Password(..),
+  ServantAuthHeaders, Uname(..), UserEdits(..), UserErrors(..),
+  UserResponse(..), email, name, password, role)
 
 getUserByName
   :: forall m .(MonadThrowLogger m)
@@ -84,9 +84,9 @@ listUsers us = fmap toUserResponse <$> umAllUsers us
 -- | on signup everyone is a regular member i.e CSO Agent, admin gives out roles
 -- note signup has a default role of CsoAgent from HasRole class
 signupUser
-  :: (HasSettings r, MonadReader r m, MonadTime m, MonadThrowLogger m)
+  :: (HasSettings r, HasCreateUserAttrs attrs, MonadReader r m, MonadTime m, MonadThrowLogger m)
   => UserModel m
-  -> Signup
+  -> attrs
   -> m Id
 signupUser usModel attrs = createUser usModel attrs $ attrs ^. password
 

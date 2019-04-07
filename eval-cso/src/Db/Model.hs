@@ -1,6 +1,6 @@
 {-# LANGUAGE EmptyDataDecls, QuasiQuotes #-}
-module Model
-  ( module Model
+module Db.Model
+  ( module Db.Model
   ) where
 
 import Data.Aeson.TH (defaultOptions, deriveJSON)
@@ -70,7 +70,7 @@ share
 
   Parameter sql=paremeter
     name        E.ParaName        sqltype=text
-    value       E.PValue          sqltype=text
+    value       E.Pvalue          sqltype=text
     description E.Description Maybe sqltype=text default=NULL
     serviceType ServiceId
     category    E.Category        sqltype=text
