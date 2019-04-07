@@ -11,15 +11,14 @@ import Database.Persist.Postgresql (fromSqlKey, get, getBy, insert)
 import Agent.Model.Types (AgentModel(..))
 import Agent.Types (AgentAttrs(..), AgentErrors(..), Bname)
 import Common.Types (Id(..))
-import Foundation (HasPool)
 import Model
 import User.Model.Internal (userModel)
 import User.Model.Types (HasUserWithId(..), UserModel(..))
 import User.Types (Uname(..))
 
-type ExceptAgentM m a = forall r. (MonadIO m, MonadReader r m, HasPool r) => ExceptT AgentErrors m a
+type ExceptAgentM m a = forall r. CanDb m r => ExceptT AgentErrors m a
 
-agentModel :: forall m r. (MonadIO m, MonadReader r m, HasPool r) => AgentModel m
+agentModel :: forall r m . CanDb m r => AgentModel m
 agentModel = AgentModel
   { amCreateAgent = runExceptT ... createAgent
 

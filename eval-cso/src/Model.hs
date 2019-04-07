@@ -13,7 +13,7 @@ import Servant.Auth.Server (FromJWT, ToJWT)
 
 import Agent.Types as A
 import Evaluation.Types as E
-import Foundation (HasPool(..))
+import Foundation (Environment(..), HasEnvironment(..), HasPool(..))
 import User.Types as U
 
 share
@@ -56,7 +56,7 @@ share
     UniqueServiceValue value
     deriving Show
 
-  Evaluation sql=paremeter
+  Evaluation sql=evaluation
     evaluator      UserId
     agent          UserId
     serviceType    ServiceId
@@ -99,12 +99,21 @@ $(deriveJSON defaultOptions ''Evaluation)
 instance ToJWT User
 instance FromJWT User
 
+type CanDb m r = (MonadIO m, MonadReader r m, HasPool r, HasEnvironment r)
+
 -- we should be able to run multiple migrations
 doMigrations :: SqlPersistT IO ()
 doMigrations = runMigration migrateAll
 
+runMigrations :: CanDb m r => m ()
+runMigrations = do
+  env <- view environment
+  case env of
+    Production -> pass
+    _ -> runInDb doMigrations
+
 runInDb
-  :: forall r m a. (MonadIO m, MonadReader r m, HasPool r)
+  :: CanDb m r
   => SqlPersistT IO a
   -> m a
 runInDb query = do

@@ -34,7 +34,8 @@ convertAppT :: forall a. Config -> App a -> Handler a
 convertAppT conf appM =
     Handler . ExceptT . try . runStderrLoggingT
   $ filterLogs (conf ^. cEnvironment)
-  $ runReaderT (runApp appM) conf
+  $ usingReaderT conf
+  $ runApp appM
 
 proxyContext :: Proxy '[CookieSettings, JWTSettings]
 proxyContext = Proxy

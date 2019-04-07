@@ -19,7 +19,7 @@ type ProtectedApi =
     :<|> ReqBody '[JSON] CreateAgent :> Post '[JSON] Id
     :<|> Capture "userName" Text :> ReqBody '[JSON] AgentAttrs :> Put '[JSON] ()
 
-type AgentApi auths = "agent" :> Auth auths User :> ProtectedApi
+type AgentApi auths = "agents" :> Auth auths User :> ProtectedApi
 
 protectedServer
   :: AuthResult User

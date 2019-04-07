@@ -1,7 +1,7 @@
 appName: Eval-App
 port: 8000
 salt: your-strong-secret-salt
-database:
+dbConf:
   user: db-user
   host: localhost
   name: db-name
