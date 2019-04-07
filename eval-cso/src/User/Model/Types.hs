@@ -5,7 +5,7 @@ module User.Model.Types
        ) where
 import Lens.Micro.Platform (makeClassy)
 
-import Model (User, UserId)
+import Db.Model (User, UserId)
 import User.Types (Email, PasswordHash, Uname, UserEdits)
 
 data UserWithId = UserWithId

@@ -10,4 +10,3 @@ newtype Id = Id {unId :: Int64}
   deriving (Eq, Show, PersistField)
 
 $(deriveJSON AO.defaultOptions  { unwrapUnaryRecords = True }  ''Id)
-

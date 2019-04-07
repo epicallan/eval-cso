@@ -14,8 +14,9 @@ module Evaluation.Types
         , HasServiceParameters (..)
         , ParameterAttrs (..)
         , ParaName (..)
-        , PValue (..)
+        , Pvalue (..)
         , Reason (..)
+        , ServiceAttrs (..)
         , ServiceType (..)
         , ServiceTypeValue (..)
         , ServiceParameters (..)
@@ -100,15 +101,21 @@ newtype ServiceTypeValue = ServiceTypeValue { unServiceTypeValue :: Text }
 
 $(deriveJSON AO.defaultOptions { unwrapUnaryRecords = True } ''ServiceTypeValue)
 
-newtype PValue = PValue { unPValue :: Text }
+data ServiceAttrs = ServiceAttrs
+  { saName :: ServiceType
+  , saValue :: ServiceTypeValue
+  } deriving (Show)
+$(deriveJSON AO.defaultOptions ''ServiceAttrs)
+
+newtype Pvalue = Pvalue { unPvalue :: Text }
   deriving (Eq, Show, PersistField)
 
-$(deriveJSON AO.defaultOptions { unwrapUnaryRecords = True } ''PValue)
+$(deriveJSON AO.defaultOptions { unwrapUnaryRecords = True } ''Pvalue)
 
 data EvalErrors =
     EServiceNotFound ServiceTypeValue
   | EUserNameNotFound Uname
-  | EParameterNotFound PValue
+  | EParameterNotFound Pvalue
   | ActionIsForEvaluatorsOnly Uname
   deriving Show
 
@@ -116,7 +123,7 @@ instance Exception EvalErrors
 
 data ParameterAttrs = ParameterAttrs
   { _paName :: ParaName
-  , _paValue :: PValue
+  , _paValue :: Pvalue
   , _paDescription :: Maybe Description
   , _paWeight :: Weight
   , _paGroup :: Maybe Group
@@ -151,7 +158,7 @@ makeClassy ''EvalRecord
 
 data CreateEvaluation = CreateEvaluation
   { _ceEvalAttrs :: EvalAttrs
-  , _ceParameters :: [PValue]
+  , _ceParameters :: [Pvalue]
   } deriving (Show)
 
 $(deriveJSON AO.defaultOptions ''CreateEvaluation)

@@ -1,6 +1,6 @@
 module User.Types
         ( Email (..)
-        , HasEmail, HasRole, HasName, HasUserAttrs, HasPassword
+        , HasEmail, HasRole, HasName, HasUserAttrs, HasPassword, HasCreateUserAttrs
         , Login (..)
         , Signup (..)
         , Password (..)
@@ -85,7 +85,7 @@ data Signup = Signup
  { _signupName :: Uname
  , _signupEmail :: Email
  , _signupPassword :: Password
- }
+ } deriving (Show)
 
 $(deriveJSON AO.defaultOptions ''Signup)
 makeFields ''Signup
@@ -114,6 +114,8 @@ type HasUserAttrs a =
   , HasEmail a Email
   , HasRole a Role
   )
+
+type HasCreateUserAttrs a = (HasUserAttrs a, HasPassword a Password)
 
 instance HasRole Signup Role where
   role f signup = fmap (const signup) (f CsoAgent)

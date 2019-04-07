@@ -9,7 +9,7 @@ import Servant.Auth.Server
 
 import Common.Types (Id)
 import Foundation (App)
-import Model (User)
+import Db.Model (User)
 import User.Controller
   (generateUser, getUserByName, listUsers, loginUser, setPassword, signupUser,
   updateUser)

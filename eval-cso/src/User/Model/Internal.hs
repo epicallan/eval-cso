@@ -3,12 +3,12 @@ module User.Model.Internal
         ) where
 import Prelude hiding (get)
 
-import Data.Time (getCurrentTime)
+import Control.Monad.Time (currentTime)
 import Database.Persist.Postgresql
   (Entity(..), entityVal, get, getBy, insertUnique, selectFirst, selectList,
   update, updateGet, (=.), (==.))
 
-import Model
+import Db.Model
 import User.Model.Types (UserModel(..), UserWithId(..))
 import User.Types (UserEdits(..))
 
@@ -35,7 +35,7 @@ userModel = UserModel
    , umGetUserById = runInDb . get
 
    , umUpdateUser = \userId UserEdits{..} -> do
-       utcTime <- liftIO getCurrentTime
+       utcTime <- currentTime
        runInDb $ updateGet userId
                     [ UserName =. _userEditsName
                     , UserEmail =. _userEditsEmail

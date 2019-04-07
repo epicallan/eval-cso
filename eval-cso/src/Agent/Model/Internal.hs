@@ -2,7 +2,7 @@ module Agent.Model.Internal (agentModel) where
 
 import Prelude hiding (get, on, set, (^.))
 
-import Data.Time (getCurrentTime)
+import Control.Monad.Time (currentTime)
 import Database.Esqueleto
   (Entity, InnerJoin(..), entityKey, entityVal, from, in_, on, select, set,
   update, val, valList, where_, (=.), (==.), (^.))
@@ -11,7 +11,7 @@ import Database.Persist.Postgresql (fromSqlKey, get, getBy, insert)
 import Agent.Model.Types (AgentModel(..))
 import Agent.Types (AgentAttrs(..), AgentErrors(..), Bname)
 import Common.Types (Id(..))
-import Model
+import Db.Model
 import User.Model.Internal (userModel)
 import User.Model.Types (HasUserWithId(..), UserModel(..))
 import User.Types (Uname(..))
@@ -39,7 +39,7 @@ agentModel = AgentModel
              $ bimap entityVal entityVal <$> safeHead userAgents
 
    , amUpdateAgent = \userName AgentAttrs{..} -> do
-       utcTime <- liftIO getCurrentTime
+       utcTime <- currentTime
        runExceptT $ do
          mSupervisorId <- getSupervisorId _aaSupervisor
          mBranchId <- getBranchId _aaBranch
@@ -64,7 +64,15 @@ agentModel = AgentModel
 
     , amAgentBranch = runInDb . get
     , amGetUserById = umGetUserById userModel
-
+    , amCreateBranch = \bname -> do
+        utcTime <- currentTime
+        branchId <- runInDb $ insert
+                            $ Branch
+                               { branchName = bname
+                               , branchCreatedAt = utcTime
+                               , branchUpdatedAt = utcTime
+                               }
+        pure . Id . fromSqlKey $ branchId
   }
 
 getUserId :: Uname -> ExceptAgentM m UserId
@@ -87,7 +95,7 @@ getBranchId name = case name of
 
 createAgent :: UserId -> AgentAttrs -> ExceptAgentM m Id
 createAgent userId AgentAttrs{..}= do
-  utcTime <- liftIO getCurrentTime
+  utcTime <- currentTime
   mSupervisorId <- getSupervisorId _aaSupervisor
   mBranchId <- getBranchId _aaBranch
   agentId <- lift $ runInDb

@@ -1,8 +1,9 @@
 {-# LANGUAGE EmptyDataDecls, QuasiQuotes #-}
-module Model
-  ( module Model
+module Db.Model
+  ( module Db.Model
   ) where
 
+import Control.Monad.Time (MonadTime)
 import Data.Aeson.TH (defaultOptions, deriveJSON)
 import Data.Time (UTCTime)
 import Database.Esqueleto
@@ -70,7 +71,7 @@ share
 
   Parameter sql=paremeter
     name        E.ParaName        sqltype=text
-    value       E.PValue          sqltype=text
+    value       E.Pvalue          sqltype=text
     description E.Description Maybe sqltype=text default=NULL
     serviceType ServiceId
     category    E.Category        sqltype=text
@@ -99,7 +100,7 @@ $(deriveJSON defaultOptions ''Evaluation)
 instance ToJWT User
 instance FromJWT User
 
-type CanDb m r = (MonadIO m, MonadReader r m, HasPool r, HasEnvironment r)
+type CanDb m r = (MonadIO m, MonadReader r m, HasPool r, HasEnvironment r, MonadTime m)
 
 -- we should be able to run multiple migrations
 doMigrations :: SqlPersistT IO ()

@@ -2,13 +2,16 @@ module Evaluation.Model.Internal (evalModel) where
 
 import Prelude hiding (on, set, (^.))
 
-import Data.Time (getCurrentTime)
+import Control.Monad.Time (currentTime)
 import Database.Esqueleto hiding ((<&>))
 
+import Common.Types (Id(..))
+import Db.Model
 import Evaluation.Model.Types
   (EvalModel(..), EvaluationScore(..), ServiceWithId(..))
 import Evaluation.Types
-import Model
+  (CreateEvaluation(..), EvalAttrs(..), EvalErrors(..), ParameterAttrs(..),
+  Pvalue, ServiceAttrs(..), ServiceParameters(..), ServiceTypeValue)
 import User.Types (Uname)
 
 evalModel :: forall r m . CanDb m r => EvalModel m
@@ -60,16 +63,25 @@ evalModel = EvalModel
                                , _esEvaluator = entityVal evaluator
                                , _esEvaluationId = entityKey evaluation
                                }
-
-  , emGetEvaluationByUser = error "maybe implement me"
   , emGetService = \ serviceValue -> do
       eServiceEntity <- getService serviceValue
       pure $ second (\(Entity siId siService) -> ServiceWithId siService siId) eServiceEntity
+  , emCreateService = \(ServiceAttrs name value) -> do
+      utcTime <- currentTime
+      serviceId <- runInDb $ insert
+                           $ Service
+                              { serviceValue = value
+                              , serviceName = name
+                              , serviceCreatedAt = utcTime
+                              , serviceUpdatedAt = utcTime
+                              }
+      pure . Id $ fromSqlKey serviceId
+
   }
   where
     mkEvaluation :: EvalAttrs -> ExceptT EvalErrors m Evaluation
     mkEvaluation EvalAttrs {..} = do
-      utcTime <- liftIO getCurrentTime
+      utcTime <- currentTime
       agentId  <- ExceptT $ getUserId _eaAgent
       evaluatorId <- ExceptT $ getUserId _eaEvaluator
       serviceId <- ExceptT $ getServiceId _eaService
@@ -98,14 +110,14 @@ evalModel = EvalModel
     getServiceId :: ServiceTypeValue -> m (Either EvalErrors ServiceId)
     getServiceId service = fmap entityKey <$> getService service
 
-    getParameterId :: PValue -> m (Either EvalErrors ParameterId)
+    getParameterId :: Pvalue -> m (Either EvalErrors ParameterId)
     getParameterId pval =  do
       meParameter :: (Maybe (Entity Parameter)) <- runInDb $ getBy $ UniqueParameterValue pval
       pure $ maybe (Left $ EParameterNotFound pval) (Right . entityKey) meParameter
 
     createParameterScore :: EvaluationId -> ParameterId -> m ParameterScore
     createParameterScore evalId pId = do
-      utcTime <- liftIO getCurrentTime
+      utcTime <- currentTime
       pure ParameterScore
         { parameterScoreEvaluation = evalId
         , parameterScoreParameter = pId
@@ -123,7 +135,7 @@ evalModel = EvalModel
 
     mkParameter :: ServiceId -> ParameterAttrs -> m Parameter
     mkParameter serviceId ParameterAttrs{..} = do
-      utcTime <- liftIO getCurrentTime
+      utcTime <- currentTime
       pure Parameter
         { parameterName = _paName
         , parameterValue = _paValue
