@@ -8,12 +8,11 @@ import Database.Persist.Postgresql
   (Entity(..), entityVal, get, getBy, insertUnique, selectFirst, selectList,
   update, updateGet, (=.), (==.))
 
-import Foundation (HasPool)
 import Model
 import User.Model.Types (UserModel(..), UserWithId(..))
 import User.Types (UserEdits(..))
 
-userModel :: (MonadIO m, MonadReader r m, HasPool r) => UserModel m
+userModel :: forall r m . CanDb m r => UserModel m
 userModel = UserModel
   { umCreateUser = runInDb . insertUnique
 

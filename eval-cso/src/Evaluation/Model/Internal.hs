@@ -8,11 +8,10 @@ import Database.Esqueleto hiding ((<&>))
 import Evaluation.Model.Types
   (EvalModel(..), EvaluationScore(..), ServiceWithId(..))
 import Evaluation.Types
-import Foundation (HasPool)
 import Model
 import User.Types (Uname)
 
-evalModel :: forall m r. (MonadIO m, MonadReader r m, HasPool r) => EvalModel m
+evalModel :: forall r m . CanDb m r => EvalModel m
 evalModel = EvalModel
   { emCreateParameters = \(ServiceParameters serviceValue parametersAttrs) -> do
       eServiceId <- getServiceId serviceValue

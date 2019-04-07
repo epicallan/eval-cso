@@ -6,6 +6,7 @@ module Foundation
        , App
        , Settings(..)
        , Environment (..)
+       , HasEnvironment (..)
        , HasPool (..)
        , HasConfig(..)
        , HasSettings (..)
@@ -68,6 +69,12 @@ class HasPool a where
 
 instance HasPool Config where
   pool = cPool
+
+class HasEnvironment a where
+  environment :: Lens' a Environment
+
+instance HasEnvironment Config where
+  environment = cEnvironment
 
 instance HasSettings Config where
   settings = cSettings

@@ -20,7 +20,7 @@ type ProtectedApi =
     :<|> ReqBody '[JSON] ServiceParameters :> Put '[JSON] ()
     :<|> ReqBody '[JSON] CreateEvaluation :> Post '[JSON] Id
 
-type EvaluationApi auths = "evaluation" :> Auth auths User :> ProtectedApi
+type EvaluationApi auths = "evaluations" :> Auth auths User :> ProtectedApi
 
 protectedServer
   :: AuthResult User

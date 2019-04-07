@@ -6,7 +6,6 @@ module Evaluation.Controller
        ) where
 import Data.List (groupBy)
 import Database.Persist.Postgresql (fromSqlKey)
--- import Control.Monad.Logger (MonadLogger, logInfoN)
 import Servant (err400, err401)
 
 import Common.Errors (MonadThrowLogger, eitherSError, throwSError)

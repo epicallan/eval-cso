@@ -7,15 +7,18 @@ import Network.Wai.Middleware.Gzip (def, gzip)
 import Network.Wai.Middleware.RequestLogger (logStdout, logStdoutDev)
 
 import Api (app)
-import Foundation (Config, Environment(..), HasConfig(..), initEnv, pool, sPort)
+import Foundation
+  (Config, Environment(..), HasConfig(..), HasSettings(..), initEnv, pool)
+import Model (runMigrations)
 
 runApp :: IO ()
 runApp = bracket initEnv shutdownApp startApp
 
 startApp :: Config -> IO ()
 startApp conf = do
+  usingReaderT conf runMigrations
+  putTextLn $ "starting " <> conf ^. sAppName <> " on port " <> show (conf ^. sPort)
   app conf >>= run (fromIntegral $ conf ^. sPort) . middleware
-  putTextLn $ "running server on port: " <> show (conf ^. sPort)
   where
     middleware :: Middleware
     middleware = case conf ^. cEnvironment of

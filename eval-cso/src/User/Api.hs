@@ -33,7 +33,7 @@ type ProtectedUserApi =
 
 
 type UserApi auths =
-  "user" :> Auth auths User :> ProtectedUserApi
+  "users" :> Auth auths User :> ProtectedUserApi
   :<|> LoginApi
   :<|> SignupApi
 
