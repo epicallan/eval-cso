@@ -3,6 +3,7 @@ module Db.Model
   ( module Db.Model
   ) where
 
+import Control.Monad.Time (MonadTime)
 import Data.Aeson.TH (defaultOptions, deriveJSON)
 import Data.Time (UTCTime)
 import Database.Esqueleto
@@ -99,7 +100,7 @@ $(deriveJSON defaultOptions ''Evaluation)
 instance ToJWT User
 instance FromJWT User
 
-type CanDb m r = (MonadIO m, MonadReader r m, HasPool r, HasEnvironment r)
+type CanDb m r = (MonadIO m, MonadReader r m, HasPool r, HasEnvironment r, MonadTime m)
 
 -- we should be able to run multiple migrations
 doMigrations :: SqlPersistT IO ()

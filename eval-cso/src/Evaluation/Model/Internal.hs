@@ -2,7 +2,7 @@ module Evaluation.Model.Internal (evalModel) where
 
 import Prelude hiding (on, set, (^.))
 
-import Data.Time (getCurrentTime)
+import Control.Monad.Time (currentTime)
 import Database.Esqueleto hiding ((<&>))
 
 import Common.Types (Id(..))
@@ -67,7 +67,7 @@ evalModel = EvalModel
       eServiceEntity <- getService serviceValue
       pure $ second (\(Entity siId siService) -> ServiceWithId siService siId) eServiceEntity
   , emCreateService = \(ServiceAttrs name value) -> do
-      utcTime <- liftIO getCurrentTime
+      utcTime <- currentTime
       serviceId <- runInDb $ insert
                            $ Service
                               { serviceValue = value
@@ -81,7 +81,7 @@ evalModel = EvalModel
   where
     mkEvaluation :: EvalAttrs -> ExceptT EvalErrors m Evaluation
     mkEvaluation EvalAttrs {..} = do
-      utcTime <- liftIO getCurrentTime
+      utcTime <- currentTime
       agentId  <- ExceptT $ getUserId _eaAgent
       evaluatorId <- ExceptT $ getUserId _eaEvaluator
       serviceId <- ExceptT $ getServiceId _eaService
@@ -117,7 +117,7 @@ evalModel = EvalModel
 
     createParameterScore :: EvaluationId -> ParameterId -> m ParameterScore
     createParameterScore evalId pId = do
-      utcTime <- liftIO getCurrentTime
+      utcTime <- currentTime
       pure ParameterScore
         { parameterScoreEvaluation = evalId
         , parameterScoreParameter = pId
@@ -135,7 +135,7 @@ evalModel = EvalModel
 
     mkParameter :: ServiceId -> ParameterAttrs -> m Parameter
     mkParameter serviceId ParameterAttrs{..} = do
-      utcTime <- liftIO getCurrentTime
+      utcTime <- currentTime
       pure Parameter
         { parameterName = _paName
         , parameterValue = _paValue

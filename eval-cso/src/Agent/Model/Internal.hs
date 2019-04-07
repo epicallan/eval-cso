@@ -2,7 +2,7 @@ module Agent.Model.Internal (agentModel) where
 
 import Prelude hiding (get, on, set, (^.))
 
-import Data.Time (getCurrentTime)
+import Control.Monad.Time (currentTime)
 import Database.Esqueleto
   (Entity, InnerJoin(..), entityKey, entityVal, from, in_, on, select, set,
   update, val, valList, where_, (=.), (==.), (^.))
@@ -39,7 +39,7 @@ agentModel = AgentModel
              $ bimap entityVal entityVal <$> safeHead userAgents
 
    , amUpdateAgent = \userName AgentAttrs{..} -> do
-       utcTime <- liftIO getCurrentTime
+       utcTime <- currentTime
        runExceptT $ do
          mSupervisorId <- getSupervisorId _aaSupervisor
          mBranchId <- getBranchId _aaBranch
@@ -65,7 +65,7 @@ agentModel = AgentModel
     , amAgentBranch = runInDb . get
     , amGetUserById = umGetUserById userModel
     , amCreateBranch = \bname -> do
-        utcTime <- liftIO getCurrentTime
+        utcTime <- currentTime
         branchId <- runInDb $ insert
                             $ Branch
                                { branchName = bname
@@ -95,7 +95,7 @@ getBranchId name = case name of
 
 createAgent :: UserId -> AgentAttrs -> ExceptAgentM m Id
 createAgent userId AgentAttrs{..}= do
-  utcTime <- liftIO getCurrentTime
+  utcTime <- currentTime
   mSupervisorId <- getSupervisorId _aaSupervisor
   mBranchId <- getBranchId _aaBranch
   agentId <- lift $ runInDb
