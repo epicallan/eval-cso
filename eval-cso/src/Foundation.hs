@@ -4,10 +4,11 @@ module Foundation
        , Config (..)
        , AppT (..)
        , App
-       , Env (..)
+       , Settings(..)
        , Environment (..)
        , HasPool (..)
-       , HasConfig (..)
+       , HasConfig(..)
+       , HasSettings (..)
        ) where
 import Control.Monad.Logger
   (LogLevel(..), LoggingT, MonadLogger, filterLogger, runStdoutLoggingT)
@@ -16,7 +17,7 @@ import Data.Aeson.TH (deriveJSON)
 import Data.Yaml (decodeFileThrow)
 import Database.Persist.Postgresql (ConnectionString, createPostgresqlPool)
 import Database.Persist.Sql (ConnectionPool)
-import Lens.Micro.Platform (Lens', makeClassy, makeLenses)
+import Lens.Micro.Platform (Lens', makeClassy)
 
 import Control.Monad.IO.Unlift (MonadUnliftIO)
 import Servant.Auth.Server (ThrowAll(..))
@@ -44,38 +45,36 @@ makeClassy ''DbConf
 
 $(deriveJSON AO.defaultOptions ''DbConf)
 
--- | The Config for our application is (for now) the 'Environment' we're
--- running in and a Persistent 'ConnectionPool'.
-data Config = Config
-    { _cAppName :: Text
-    , _cEnvironment :: Environment
-    , _cPort    :: Port
-    , _cDbConf :: DbConf
-    , _cSalt    :: Text
+data Settings = Settings
+    { _sAppName :: Text
+    , _sPort    :: Port
+    , _sDbConf :: DbConf
+    , _sSalt    :: Text
     } deriving (Show)
 
-$(deriveJSON AO.defaultOptions ''Config)
+$(deriveJSON AO.defaultOptions ''Settings)
 
-data Env = Env
-    { _ePool  :: ConnectionPool
-    , _eConfig :: Config
+data Config = Config
+    { _cPool  :: ConnectionPool
+    , _cSettings :: Settings
+    , _cEnvironment :: Environment
     }
 
-makeLenses ''Env
 makeClassy ''Config
-
-instance HasConfig Env where
-  config = eConfig
+makeClassy ''Settings
 
 class HasPool a where
   pool :: Lens' a ConnectionPool
 
-instance HasPool Env where
-  pool = ePool
+instance HasPool Config where
+  pool = cPool
 
-newtype AppT m a = AppT { runApp :: ReaderT Env m a }
+instance HasSettings Config where
+  settings = cSettings
+
+newtype AppT m a = AppT { runApp :: ReaderT Config m a }
     deriving ( Functor, Applicative, Monad, MonadIO
-             , MonadReader Env, MonadThrow, MonadCatch
+             , MonadReader Config, MonadThrow, MonadCatch
              , MonadTrans, MonadLogger
              )
 
@@ -84,19 +83,18 @@ type App = AppT (LoggingT IO)
 instance MonadThrow m => ThrowAll (AppT m a) where
   throwAll = throwM
 
-acquireConfig :: (MonadUnliftIO m, MonadThrow m) => m Config
-acquireConfig = do
-    environment <- lookupSetting "ENV" (pure Development)
-    case environment of
-      Production -> decodeFileThrow "./config/prod.yaml"
-      Development -> decodeFileThrow "./config/dev.yaml"
-      Test -> decodeFileThrow "./config.test.yaml"
-
-initEnv :: (MonadThrow m, MonadUnliftIO m) => m Env
+initEnv :: forall m. (MonadUnliftIO m, MonadThrow m) => m Config
 initEnv = do
-  _eConfig <- acquireConfig
-  _ePool  <- makePool (_eConfig ^. cEnvironment) $ _eConfig ^. cDbConf
-  pure Env{..}
+    _cEnvironment <- lookupSetting "ENV" (pure Development)
+    _cSettings <- getSettings _cEnvironment
+    _cPool  <- makePool _cEnvironment $ _cSettings ^. sDbConf
+    pure Config{..}
+    where
+      getSettings :: Environment -> m Settings
+      getSettings = \case
+         Production -> decodeFileThrow "./config/prod.yaml"
+         Development -> decodeFileThrow "./config/dev.yaml"
+         Test -> decodeFileThrow "./config.test.yaml"
 
 -- | Looks up a setting in the environment, with a provided default, and
 -- 'read's that information into the inferred type.

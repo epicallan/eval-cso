@@ -16,7 +16,7 @@ import Test.RandomStrings (randomASCII, randomString')
 
 import Common.Errors (MonadThrowLogger, throwSError)
 import Common.Types (Id(..))
-import Foundation (HasConfig)
+import Foundation (HasSettings)
 import Model (User(..))
 import User.Helper
   (runProtectedAction, throwInvalidUserName, throwUserExists, toUserResponse)
@@ -37,7 +37,7 @@ getUserByName usModel nameTxt =
   in toUserResponse . view uiUser <$> getUserByName' usModel uName
 
 setPassword
-  :: (MonadThrowLogger m, HasConfig r, MonadReader r m)
+  :: (MonadThrowLogger m, HasSettings r, MonadReader r m)
   => UserModel m
   -> User
   -> Text -- ^ userName
@@ -51,7 +51,7 @@ setPassword usModel logedInUser nameTxt pwd = do
   pure . Id $ fromSqlKey userId
 
 generateUser
-  :: (HasConfig r, MonadReader r m, MonadTime m, MonadThrowLogger m, MonadIO m)
+  :: (HasSettings r, MonadReader r m, MonadTime m, MonadThrowLogger m, MonadIO m)
   => UserModel m
   -> User
   -> UserEdits
@@ -84,7 +84,7 @@ listUsers us = fmap toUserResponse <$> umAllUsers us
 -- | on signup everyone is a regular member i.e CSO Agent, admin gives out roles
 -- note signup has a default role of CsoAgent from HasRole class
 signupUser
-  :: (HasConfig r, MonadReader r m, MonadTime m, MonadThrowLogger m)
+  :: (HasSettings r, MonadReader r m, MonadTime m, MonadThrowLogger m)
   => UserModel m
   -> Signup
   -> m Id
@@ -117,7 +117,7 @@ loginUser usModel cs jws loginData = do
 ---------------------------------------
 
 createUser
-  :: (HasUserAttrs attrs,  MonadTime m, HasConfig r, MonadReader r m, MonadThrowLogger m)
+  :: (HasUserAttrs attrs,  MonadTime m, HasSettings r, MonadReader r m, MonadThrowLogger m)
   => UserModel m
   -> attrs
   -> Password
