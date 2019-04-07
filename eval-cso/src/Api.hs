@@ -8,7 +8,7 @@ import Servant.Auth.Server
 
 import Agent.Api (AgentApi, agentServer)
 import Evaluation.Api (EvaluationApi, evaluationServer)
-import Foundation (App, AppT(..), Env, HasConfig(..), filterLogs)
+import Foundation (App, AppT(..), Config, HasConfig(..), filterLogs)
 import User.Api (UserApi, userServer)
 
 -- API specification
@@ -30,24 +30,24 @@ appServerT cs jws  =
   :<|> agentServer
   :<|> evaluationServer
 
-convertAppT :: forall a. Env -> App a -> Handler a
-convertAppT env appM =
+convertAppT :: forall a. Config -> App a -> Handler a
+convertAppT conf appM =
     Handler . ExceptT . try . runStderrLoggingT
-  $ filterLogs (env ^. cEnvironment)
-  $ runReaderT (runApp appM) env
+  $ filterLogs (conf ^. cEnvironment)
+  $ runReaderT (runApp appM) conf
 
 proxyContext :: Proxy '[CookieSettings, JWTSettings]
 proxyContext = Proxy
 
-appServer :: Env -> CookieSettings -> JWTSettings -> Server (Api '[JWT])
-appServer env cs jws = hoistServerWithContext
+appServer :: Config -> CookieSettings -> JWTSettings -> Server (Api '[JWT])
+appServer conf cs jws = hoistServerWithContext
   api
   proxyContext
-  (convertAppT env)
+  (convertAppT conf)
   (appServerT cs jws)
 
-app :: Env -> IO Application
-app env = do
+app :: Config -> IO Application
+app conf = do
   -- we generate the key for signing tokens. This would generally be persisted
   -- should we persist ??
   myKey <- generateKey
@@ -55,4 +55,4 @@ app env = do
   let jwtCfg = defaultJWTSettings myKey
       cfg = defaultCookieSettings :. jwtCfg :. EmptyContext
 
-  pure $ serveWithContext api cfg (appServer env defaultCookieSettings jwtCfg)
+  pure $ serveWithContext api cfg (appServer conf defaultCookieSettings jwtCfg)

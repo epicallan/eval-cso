@@ -12,7 +12,7 @@ import Data.Aeson.TH (Options(..), deriveJSON)
 import Data.ByteString (ByteString)
 import Database.Persist.Sql (PersistField)
 
-import Foundation (HasConfig(..))
+import Foundation (HasSettings(..))
 
 newtype PasswordHash = PasswordHash { unPasswordHash :: Text }
   deriving (Eq, Show, PersistField)
@@ -25,11 +25,11 @@ newtype Password = Password {unPassword :: Text }
 $(deriveJSON AO.defaultOptions { unwrapUnaryRecords = True } ''Password)
 
 hashPassword
-  :: (HasConfig r, MonadReader r m)
+  :: (HasSettings r, MonadReader r m)
   => Password
   -> m PasswordHash
 hashPassword (Password str) = do
-  salt <- view cSalt -- TODO: should also use userName as part of salt
+  salt <- view sSalt -- TODO: should also use userName as part of salt
   pure . PasswordHash . decodeUtf8 @Text @ByteString
     $ BCrypt.bcrypt 12 (encodeUtf8 @Text @ByteString salt)
     $ encodeUtf8 @Text @ByteString str
