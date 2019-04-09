@@ -6,6 +6,7 @@ import Data.Aeson (eitherDecodeFileStrict)
 import Data.Aeson.Options as AO (defaultOptions)
 import Data.Aeson.TH (deriveJSON)
 import Lens.Micro.Platform (makeLenses)
+import Paths_eval (getDataFileName)
 
 import Agent.Model.Internal (agentModel)
 import Agent.Model.Types (AgentModel(amCreateBranch))
@@ -59,7 +60,7 @@ $(deriveJSON AO.defaultOptions ''SeedData)
 
 readSeedJson :: (MonadIO m, MonadThrow m) => m SeedData
 readSeedJson = do
-  eSeedData <- liftIO $ eitherDecodeFileStrict "./config/seed.json"
+  eSeedData <- liftIO $ getDataFileName "src/Db/seed.json" >>= eitherDecodeFileStrict
   either (throwM . ReadSeedFileError . toText ) pure eSeedData
 
 mkBranches :: CanMigrate m r => [Bname] -> m ()

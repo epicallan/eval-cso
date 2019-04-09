@@ -5,10 +5,16 @@ services:
     ports:
       - "8888:8888"
       - "8080:8080"
-    command: >
-      sh -c "/src/eval-build/eval-migrate && /src/eval-build/eval-exe"
-    links:
+    command: /src/deploy/eval-ex
+    depends_on:
+      - migration
       - postgres
+
+  migration:
+     build: .
+     command: /src/deploy/eval-migrate
+     depends_on:
+       - postgres
 
   postgres:
     image: postgres:alpine

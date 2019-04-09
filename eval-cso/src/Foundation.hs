@@ -19,6 +19,7 @@ import Data.Yaml (decodeFileThrow)
 import Database.Persist.Postgresql (ConnectionString, createPostgresqlPool)
 import Database.Persist.Sql (ConnectionPool)
 import Lens.Micro.Platform (Lens', makeClassy)
+import System.Directory (getHomeDirectory)
 
 import Control.Monad.IO.Unlift (MonadUnliftIO)
 import Servant.Auth.Server (ThrowAll(..))
@@ -93,16 +94,18 @@ instance MonadThrow m => ThrowAll (AppT m a) where
 
 initEnv :: forall m. (MonadUnliftIO m, MonadThrow m) => m Config
 initEnv = do
-    _cEnvironment <- lookupSetting "ENV" (pure Development)
+    _cEnvironment <- lookupSetting "env" (pure Development)
     _cSettings <- getSettings _cEnvironment
     _cPool  <- makePool _cEnvironment $ _cSettings ^. sDbConf
     pure Config{..}
     where
       getSettings :: Environment -> m Settings
       getSettings = \case
-         Production -> decodeFileThrow "./config/prod.yaml"
          Development -> decodeFileThrow "./config/dev.yaml"
          Test -> decodeFileThrow "./config.test.yaml"
+         Production -> do
+           hmDir <- liftIO getHomeDirectory
+           decodeFileThrow $ hmDir <> "/.eval.yaml"
 
 -- | Looks up a setting in the environment, with a provided default, and
 -- 'read's that information into the inferred type.

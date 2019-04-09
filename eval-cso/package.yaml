@@ -1,7 +1,7 @@
 <<: !include "../hpack/module.yaml"
 
-name: eval-cso
-
+name: eval
+data-files: src/Db/seed.json
 library:
   <<: *lib-common
   dependencies:
@@ -9,6 +9,7 @@ library:
     - aeson-options
     - bytestring
     - cryptonite
+    - directory
     - esqueleto
     - ekg
     - microlens-platform
@@ -36,10 +37,9 @@ executables:
     <<: *exec-common
     source-dirs: app
     dependencies:
-      - eval-cso
+      - eval
   eval-migrate :
     <<: *exec-common
     source-dirs: migration
     dependencies:
-      - eval-cso
-
+      - eval
