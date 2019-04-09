@@ -5,8 +5,8 @@ import Control.Monad.Time (MonadTime)
 import Data.Aeson (eitherDecodeFileStrict)
 import Data.Aeson.Options as AO (defaultOptions)
 import Data.Aeson.TH (deriveJSON)
+import Data.Pool (destroyAllResources)
 import Lens.Micro.Platform (makeLenses)
-import Paths_eval (getDataFileName)
 
 import Agent.Model.Internal (agentModel)
 import Agent.Model.Types (AgentModel(amCreateBranch))
@@ -16,7 +16,7 @@ import Db.Model (CanDb, runMigrations)
 import Evaluation.Model.Internal (evalModel)
 import Evaluation.Model.Types (EvalModel(emCreateService))
 import Evaluation.Types (ServiceAttrs)
-import Foundation (HasSettings, initEnv)
+import Foundation (Config, HasPool(..), HasSettings, initEnv)
 import User.Controller (signupUser)
 import User.Model.Internal (userModel)
 import User.Types
@@ -60,7 +60,7 @@ $(deriveJSON AO.defaultOptions ''SeedData)
 
 readSeedJson :: (MonadIO m, MonadThrow m) => m SeedData
 readSeedJson = do
-  eSeedData <- liftIO $ getDataFileName "src/Db/seed.json" >>= eitherDecodeFileStrict
+  eSeedData <- liftIO $ eitherDecodeFileStrict "config/seed.json"
   either (throwM . ReadSeedFileError . toText ) pure eSeedData
 
 mkBranches :: CanMigrate m r => [Bname] -> m ()
@@ -72,12 +72,21 @@ mkAdminUser us = signupUser userModel us >> pass
 mkServices :: CanMigrate m r => [ServiceAttrs] -> m ()
 mkServices = mapM_ (emCreateService evalModel)
 
-runSeeder :: IO ()
-runSeeder = do
+startSeeder :: Config -> IO ()
+startSeeder conf = do
   seedData <- readSeedJson
-  conf <- initEnv
   runStderrLoggingT $ usingReaderT conf $ do
     runMigrations
     mkAdminUser $ AdminUser $ seedData ^. sdUser
     mkBranches $ seedData ^. sdBranches
     mkServices $ seedData ^. sdServices
+
+  shutdownSeeder conf
+
+shutdownSeeder :: Config -> IO ()
+shutdownSeeder conf = do
+  putTextLn "shutting down seeder.."
+  destroyAllResources $ conf ^. pool
+
+runSeeder:: IO ()
+runSeeder = bracket initEnv shutdownSeeder startSeeder

@@ -10,14 +10,14 @@ RUN apt-get update
 
 RUN apt-get -y install wget unzip libgmp-dev libpq-dev postgresql-client-10
 
-RUN wget https://github.com/epicallan/eval-cso/releases/download/v0.1.2/eval-build.zip
+RUN wget https://github.com/epicallan/eval-cso/releases/download/v0.1.4/eval-build.zip
 
 RUN unzip -q eval-build.zip
 
+RUN mv /src/deploy/eval-ex /src/
+RUN mv /src/deploy/eval-migrate /src/
+
 ENV env=Production
 
-# copy prod.yaml from server into container
-
-COPY .eval.yaml /.eval.yaml
-
-EXPOSE 8888 8080
+# ensure you have prod.yaml from server into container
+COPY config /src/config

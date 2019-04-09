@@ -9,7 +9,6 @@ import Network.Wai.Middleware.RequestLogger (logStdout, logStdoutDev)
 import System.Remote.Monitoring (forkServer)
 
 import Api (app)
-import Db.Model (runMigrations)
 import Foundation
   (Config, Environment(..), HasConfig(..), HasSettings(..), initEnv, pool)
 
@@ -18,8 +17,7 @@ runApp = bracket initEnv shutdownApp startApp
 
 startApp :: Config -> IO ()
 startApp conf = do
-  forkServer "localhost" 8080
-  usingReaderT conf runMigrations
+  forkServer "127.0.0.1" 8080
   putTextLn $ "starting " <> conf ^. sAppName <> " on port " <> show (conf ^. sPort)
   app conf >>= run (fromIntegral $ conf ^. sPort) . middleware
   where

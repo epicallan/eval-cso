@@ -5,14 +5,14 @@ services:
     ports:
       - "8888:8888"
       - "8080:8080"
-    command: /src/deploy/eval-ex
+    command: /src/eval-ex
     depends_on:
       - migration
       - postgres
 
   migration:
      build: .
-     command: /src/deploy/eval-migrate
+     command: /src/eval-migrate
      depends_on:
        - postgres
 

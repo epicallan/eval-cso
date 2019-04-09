@@ -1,7 +1,6 @@
 <<: !include "../hpack/module.yaml"
 
 name: eval
-data-files: src/Db/seed.json
 library:
   <<: *lib-common
   dependencies:
@@ -9,7 +8,6 @@ library:
     - aeson-options
     - bytestring
     - cryptonite
-    - directory
     - esqueleto
     - ekg
     - microlens-platform
