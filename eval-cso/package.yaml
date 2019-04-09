@@ -1,7 +1,6 @@
 <<: !include "../hpack/module.yaml"
 
 name: eval
-data-files: src/Db/seed.json
 library:
   <<: *lib-common
   dependencies:

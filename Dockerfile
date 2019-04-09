@@ -1,23 +1,25 @@
-FROM fpco/stack-build:lts-12.26 as build
+FROM ubuntu:latest
 
 LABEL maintainer="epicallan.al@gmail.com"
 
-RUN mkdir /opt/build
-COPY . /opt/build
-RUN cd /opt/build && stack build --system-ghc
+RUN mkdir /src
 
-FROM alpine:3.9 as runtime
+WORKDIR /src
 
-RUN mkdir -p /opt/eval-cso
+RUN apt-get update
 
-WORKDIR /opt/eval-cso
+RUN apt-get -y install wget unzip libgmp-dev libpq-dev postgresql-client-10
 
-RUN apk --no-cache add ca-certificates gmp libffi libpq postgresql-dev
+RUN wget https://github.com/epicallan/eval-cso/releases/download/v0.1.2/eval-build.zip
 
-COPY --from=build /opt/build/.stack-work/install/x86_64-linux/lts-12.26/8.4.4/bin .
+RUN unzip -q eval-build.zip
 
-COPY config /opt/eval-cso/config
+RUN mv /src/deploy/eval-ex src/
+RUN mv /src/deploy/eval-migrate src/
 
-ENV env=Development
+ENV env=Production
+
+# ensure you have prod.yaml from server into container
+COPY config /src/config
 
 EXPOSE 8888 8080
