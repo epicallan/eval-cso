@@ -20,4 +20,3 @@ RUN unzip -q deploy-build.zip
 COPY config/prod.yaml ./src/config/
 
 EXPOSE 8888 8080
-
