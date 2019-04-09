@@ -59,3 +59,4 @@ TAGS
 dev.yaml
 prod.yaml
 test.yaml
+deploy.sh

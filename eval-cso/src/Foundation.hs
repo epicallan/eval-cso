@@ -40,6 +40,7 @@ data DbConf = DbConf
   { _dbUser :: Text
   , _dbHost :: Text
   , _dbName :: Text
+  , _dbPassword :: Text
   } deriving (Show)
 
 makeClassy ''DbConf
@@ -130,9 +131,10 @@ getPoolSize = \ case
 
 createConnStr :: DbConf -> ConnectionString
 createConnStr dconfig =
-     "host="    <> dconfig ^. dbHost
-  <> " dbname=" <> dconfig ^. dbName
-  <> " user="   <> dconfig ^. dbUser
+     "host="      <> dconfig ^. dbHost
+  <> " dbname="   <> dconfig ^. dbName
+  <> " user="     <> dconfig ^. dbUser
+  <> " password=" <> dconfig ^. dbPassword
   & encodeUtf8
 
 filterLogsByLevel :: Environment -> LogLevel -> Bool

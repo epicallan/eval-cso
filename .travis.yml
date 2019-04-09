@@ -1,14 +1,11 @@
 sudo: true
 language: haskell
-
 git:
   depth: 2
-
 cache:
   directories:
   - "$HOME/.stack"
   - "$TRAVIS_BUILD_DIR/.stack-work"
-
 matrix:
   include:
   - ghc: 8.4.4
@@ -18,21 +15,31 @@ matrix:
       apt:
         packages:
         - libgmp-dev
-
 install:
-  - |
-    mkdir -p ~/.local/bin
-    export PATH="$HOME/.local/bin:$PATH"
-    travis_retry curl -L 'https://www.stackage.org/stack/linux-x86_64' | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
-    stack --version
-    stack setup --no-terminal --install-cabal 2.2.0.1
-    stack ghc -- --version
-    stack build --only-dependencies --no-terminal
-
+- |
+  mkdir -p ~/.local/bin
+  export PATH="$HOME/.local/bin:$PATH"
+  travis_retry curl -L 'https://www.stackage.org/stack/linux-x86_64' | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
+  stack --version
+  stack setup --no-terminal --install-cabal 2.2.0.1
+  stack ghc -- --version
+  stack build --only-dependencies --no-terminal
 script:
-  - stack build --test --bench --no-run-benchmarks --no-terminal --ghc-options=-Werror
-
-  - curl -sSL https://raw.github.com/ndmitchell/neil/master/misc/travis.sh | sh -s -- hlint .
-
+- stack build --test --bench --no-run-benchmarks --no-terminal --ghc-options=-Werror
+- curl -sSL https://raw.github.com/ndmitchell/neil/master/misc/travis.sh | sh -s --
+  hlint .
+- mkdir deploy
+- mv .stack-work/install/x86_64-linux/lts-12.26/8.4.4/bin/eval-ex deploy/
+- mv .stack-work/install/x86_64-linux/lts-12.26/8.4.4/bin/eval-migrate deploy/
+- zip -q -r eval-build.zip deploy
 notifications:
   email: false
+deploy:
+  provider: releases
+  skip_cleanup: true
+  api_key:
+    secure: nej9JUQckpnWSehRgdhJNJMexKNW8lK/a7s8y1I+zcQCf2NyaeSWYYZP3mijZfOhhsUT41ITVcF14r5puJstwT+Vf0vJQAZGA2fESoYVlgEuPBO6Lrv0BEFYPxkOtQOiNloCP6FD9SoFToq/n22Ju6MUGBjV9FfexyF/bGenD6q1688EiZeIAhJ5tEurOCjLT5goluSc2Lp80xDSAxHia/XcV34B5dHDHsrdOo+Lq1DERPNvnnHeoszIpoP0lQ6HyZR6qnica09uL6GSa/TnNnxSM/grVbgKN9LqXJWqUMY1abFfSlg+EKTc5CEv/yp2bTQ+HUEzwEUUOp+4+bQia1BXSuPhPubtWJFXKBku+dB812TcdS6bc9AsUMLXmrvaDc6X0H20TseOESEzkIm+jZZQrt9KSt+GD1sR3oheT3LsGT+h3ovykpYCsN8Vrywnn7LLz2QH/WI5FgOAnKlp2DCQtQnqecNyJ8mdVCLPIqyLK8rUwOUvFhsBR+0zviTOPhevQRiiYRRkwPYtnpyY0w+iz3sSWu99EuA7uFtMTyDBjugiJMMPYNL33UcW7fMKgX60kAnETqMYpfmCqb/vVEKGp2GLBc7HGzRSZzfHsobEmdI0AiTdj1YiOaP4xCjsIuxyfD/9X2vE8jus6G9e1o6uRigMND5vSwTeVSTlb+c=
+  file: eval-build.zip
+  on:
+    tags: true
+    repo: epicallan/eval-cso

@@ -6,4 +6,3 @@ import App (runApp)
 
 main :: IO ()
 main = runApp
-

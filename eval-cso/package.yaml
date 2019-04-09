@@ -10,6 +10,7 @@ library:
     - bytestring
     - cryptonite
     - esqueleto
+    - ekg
     - microlens-platform
     - monad-logger
     - monad-time
@@ -27,15 +28,16 @@ library:
     - yaml
     - warp
     - wai
+    - wai-cors
     - wai-extra
 
 executables:
-  eval-cso :
+  eval-ex :
     <<: *exec-common
     source-dirs: app
     dependencies:
       - eval-cso
-  eval-cso-seed :
+  eval-migrate :
     <<: *exec-common
     source-dirs: migration
     dependencies:

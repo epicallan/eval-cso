@@ -12,10 +12,11 @@ import Foundation (App, AppT(..), Config, HasConfig(..), filterLogs)
 import User.Api (UserApi, userServer)
 
 -- API specification
-type Api auths =
-      "api" :> UserApi auths
-  :<|> AgentApi auths
-  :<|> EvaluationApi auths
+type Api auths = "api" :>
+  (    UserApi auths
+    :<|> AgentApi auths
+    :<|> EvaluationApi auths
+  )
 
 api :: Proxy (Api '[JWT])
 api = Proxy

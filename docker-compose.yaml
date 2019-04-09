@@ -1,0 +1,19 @@
+version: '3'
+services:
+  api:
+    build: .
+    ports:
+      - "8888:8888"
+      - "8080:8080"
+    command: >
+      sh -c "/src/eval-build/eval-migrate && /src/eval-build/eval-exe"
+    links:
+      - postgres
+
+  postgres:
+    image: postgres:alpine
+    restart: always
+    environment:
+      POSTGRES_DB: $APP_DB_NAME
+      POSTGRES_USER: $APP_DB_USER
+      POSTGRES_PASSWORD: $APP_DB_PASSWORD

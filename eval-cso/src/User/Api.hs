@@ -8,8 +8,8 @@ import Servant
 import Servant.Auth.Server
 
 import Common.Types (Id)
-import Foundation (App)
 import Db.Model (User)
+import Foundation (App)
 import User.Controller
   (generateUser, getUserByName, listUsers, loginUser, setPassword, signupUser,
   updateUser)
@@ -32,10 +32,11 @@ type ProtectedUserApi =
     :<|> Capture "userName" Text :> Capture "password" Text :> Patch '[JSON] Id
 
 
-type UserApi auths =
-  "users" :> Auth auths User :> ProtectedUserApi
-  :<|> LoginApi
-  :<|> SignupApi
+type UserApi auths = "users" :>
+  (      Auth auths User :> ProtectedUserApi
+    :<|> LoginApi
+    :<|> SignupApi
+  )
 
 unprotected
   :: CookieSettings
