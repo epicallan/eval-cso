@@ -10,6 +10,4 @@ Provide an environment variable to executable to run in either development or pr
 
 `$>  ENV=Production eval-cso`
 
-Ensure you have created a config file in [config](./config) for the environment which you are running in i.e dev.yaml or test.yaml or `~/~.eval.yaml` for running in production mode.
-
-For a ready to deploy image, check dockerhub.
+Ensure you have created a config file in [config](./config) for the environment which you are running in i.e dev.yaml or test.yaml or prod.yaml.

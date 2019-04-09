@@ -8,7 +8,6 @@ library:
     - aeson-options
     - bytestring
     - cryptonite
-    - directory
     - esqueleto
     - ekg
     - microlens-platform
