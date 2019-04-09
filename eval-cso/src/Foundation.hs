@@ -101,8 +101,8 @@ initEnv = do
       getSettings :: Environment -> m Settings
       getSettings = \case
          Development -> decodeFileThrow "./config/dev.yaml"
-         Test -> decodeFileThrow "./config.test.yaml"
-         Production -> decodeFileThrow "./config.prod.yaml"
+         Test -> decodeFileThrow "./config/test.yaml"
+         Production -> decodeFileThrow "./config/prod.yaml"
 
 -- | Looks up a setting in the environment, with a provided default, and
 -- 'read's that information into the inferred type.
