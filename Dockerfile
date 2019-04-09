@@ -14,8 +14,8 @@ RUN wget https://github.com/epicallan/eval-cso/releases/download/v0.1.3/eval-bui
 
 RUN unzip -q eval-build.zip
 
-RUN mv /src/deploy/eval-ex src/
-RUN mv /src/deploy/eval-migrate src/
+RUN mv /src/deploy/eval-ex /src/
+RUN mv /src/deploy/eval-migrate /src/
 
 ENV env=Production
 
