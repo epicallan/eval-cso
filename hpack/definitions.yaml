@@ -9,7 +9,7 @@ _definitions:
         homepage:           'https://github.com/epicallan/eval-cso#readme'
         bug-reports:        https://github.com/epicallan/eval-cso/issues
         author:             epicallan
-        maintainer:         epicallan <hi@serokell.io>
+        maintainer:         epicallan <epicallan.al@gmail.com>
         copyright:          2018 epicallan
         license:            MIT
         github:             epicallan/eval-cso
