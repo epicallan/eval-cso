@@ -31,7 +31,7 @@ appServerT
   -> JWTSettings
   -> ServerT (Api auths) App
 appServerT cs jws  =
-       userServer (cs{cookieXsrfSetting = Nothing}) jws
+       userServer cs jws
   :<|> agentServer
   :<|> evaluationServer
 
@@ -57,6 +57,10 @@ app conf = do
   myKey <- generateKey
 
   let jwtCfg = defaultJWTSettings myKey
-      cfg = defaultCookieSettings :. jwtCfg :. EmptyContext
+      cookieCfg = defaultCookieSettings
+                    { cookieIsSecure = NotSecure -- TODO: turn to secure when we enable https
+                    , cookieXsrfSetting = Nothing
+                    }
+      cfg = cookieCfg :. jwtCfg :. EmptyContext
 
   pure $ serveWithContext api cfg (appServer conf defaultCookieSettings jwtCfg)

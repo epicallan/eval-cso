@@ -14,12 +14,12 @@ import User.Controller
   (generateUser, getUserByName, listUsers, loginUser, setPassword, signupUser,
   updateUser)
 import User.Model.Internal (userModel)
-import User.Types (Login, ServantAuthHeaders, Signup, UserEdits, UserResponse)
+import User.Types (Login, Signup, UserEdits, UserResponse, UserToken)
 
 type LoginApi =
  "login"
      :> ReqBody '[JSON] Login
-     :> PostNoContent '[JSON] ServantAuthHeaders
+     :> Post '[JSON] UserToken
 
 type SignupApi =
   "signup" :> ReqBody '[JSON] Signup :> Post '[JSON] Id
