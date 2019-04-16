@@ -7,10 +7,10 @@ module User.Types
         , PasswordHash (..)
         , Role (..)
         , Uname (..)
-        , ServantAuthHeaders
         , UserErrors(..)
         , UserEdits(..)
         , UserType (..)
+        , UserToken (..)
         , UserResponse (..)
         , role, name, email, password
         ) where
@@ -23,15 +23,8 @@ import Database.Persist.Sql (PersistField)
 import Database.Persist.TH (derivePersistField)
 import Lens.Micro.Platform (makeFields)
 
-import Servant
-import Servant.Auth.Server
-
 import Common.Types (Id)
 import User.Password (Password(..), PasswordHash(..))
-
-type ServantAuthHeaders = Headers '[ Header "Set-Cookie" SetCookie
-                                   , Header "Set-Cookie" SetCookie
-                                   ] NoContent
 
 data Role =
     Admin
@@ -43,6 +36,9 @@ data Role =
 $(deriveJSON AO.defaultOptions ''Role)
 derivePersistField "Role"
 
+newtype UserToken = UserToken { unUserToken :: Text }
+  deriving (Show)
+$(deriveJSON AO.defaultOptions ''UserToken)
 
 newtype Uname = Uname {unUname :: Text}
   deriving (Eq, Show, PersistField)
@@ -62,7 +58,7 @@ $(deriveJSON AO.defaultOptions { unwrapUnaryRecords = True } ''Email)
 data UserErrors =
     UserEmailNotFound Email
   | IncorrectPassword Email
-  | CookieSetupError Email
+  | CookieSetupError Text
   | UserIsNotAuthrized Email
   | UserNameNotFound Uname
   | UserExistsError Uname

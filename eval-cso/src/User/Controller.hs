@@ -1,3 +1,4 @@
+{-# LANGUAGE TypeApplications #-}
 module User.Controller
        ( getUserByName
        , updateUser
@@ -8,10 +9,11 @@ module User.Controller
        , setPassword
        ) where
 import Control.Monad.Time (MonadTime, currentTime)
+import Data.ByteString.Lazy as L (ByteString)
 import Data.Ratio ((%))
 import Database.Persist.Postgresql (fromSqlKey)
 import Servant
-import Servant.Auth.Server
+import Servant.Auth.Server (CookieSettings(..), JWTSettings, makeJWT)
 import Test.RandomStrings (randomASCII, randomString')
 
 import Common.Errors (MonadThrowLogger, throwSError)
@@ -23,9 +25,9 @@ import User.Helper
 import User.Model.Types (HasUserWithId(..), UserModel(..), UserWithId(..))
 import User.Password (hashPassword, validatePassword)
 import User.Types
-  (Email, HasCreateUserAttrs, HasUserAttrs, Login, Password(..),
-  ServantAuthHeaders, Uname(..), UserEdits(..), UserErrors(..),
-  UserResponse(..), email, name, password, role)
+  (Email, HasCreateUserAttrs, HasUserAttrs, Login, Password(..), Uname(..),
+  UserEdits(..), UserErrors(..), UserResponse(..), UserToken(..), email, name,
+  password, role)
 
 getUserByName
   :: forall m .(MonadThrowLogger m)
@@ -96,25 +98,30 @@ loginUser
   -> CookieSettings
   -> JWTSettings
   -> Login
-  -> m ServantAuthHeaders
+  -> m UserToken
 loginUser usModel cs jws loginData = do
    let uemail = loginData ^. email
    dbUser <- umGetUserByEmail usModel uemail >>= throwInvalidEmail uemail
    validUser <- if validatePassword (loginData ^. password) (userPassword dbUser)
                    then pure dbUser
                    else throwSError err401 (IncorrectPassword uemail)
-   mApplyCookies <- liftIO $ acceptLogin cs jws validUser
-   case mApplyCookies of
-     Nothing -> throwSError err400 (CookieSetupError uemail)
-     Just applyCookies -> pure $ applyCookies NoContent
+   acceptLogin cs jws validUser
 
    where
      throwInvalidEmail :: MonadThrowLogger m=> Email -> Maybe User -> m User
      throwInvalidEmail uEmail = maybe (throwSError err400 $ UserEmailNotFound uEmail) pure
 
----------------------------------------
- -- Utilities
----------------------------------------
+acceptLogin
+  :: (MonadThrowLogger m, MonadIO m)
+  => CookieSettings
+  -> JWTSettings
+  -> User
+  -> m UserToken
+acceptLogin cs jws user = do
+  ejwt <- liftIO $ makeJWT user jws (cookieExpires cs)
+  case ejwt of
+    Left err -> throwSError err400 . CookieSetupError $ show err
+    Right jwt -> pure . UserToken $ decodeUtf8 @Text @L.ByteString jwt
 
 createUser
   :: (HasUserAttrs attrs,  MonadTime m, HasSettings r, MonadReader r m, MonadThrowLogger m)
