@@ -1,4 +1,7 @@
-module Api (app) where
+module Api
+       ( app
+       , api
+       ) where
 
 import Control.Monad.Logger (runStderrLoggingT)
 import Data.Proxy (Proxy)
@@ -22,12 +25,13 @@ api :: Proxy (Api '[JWT])
 api = Proxy
 
 -- composition of various handler servers
+-- We don't need xsrf cookies since we use jwt for auth on all requests
 appServerT
   :: CookieSettings
   -> JWTSettings
   -> ServerT (Api auths) App
 appServerT cs jws  =
-       userServer cs jws
+       userServer (cs{cookieXsrfSetting = Nothing}) jws
   :<|> agentServer
   :<|> evaluationServer
 
@@ -50,8 +54,6 @@ appServer conf cs jws = hoistServerWithContext
 
 app :: Config -> IO Application
 app conf = do
-  -- we generate the key for signing tokens. This would generally be persisted
-  -- should we persist ??
   myKey <- generateKey
 
   let jwtCfg = defaultJWTSettings myKey

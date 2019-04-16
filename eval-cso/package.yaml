@@ -10,6 +10,7 @@ library:
     - cryptonite
     - esqueleto
     - ekg
+    - http-types
     - microlens-platform
     - monad-logger
     - monad-time
