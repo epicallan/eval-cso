@@ -41,6 +41,7 @@ runProtectedAction logedInUser urole action = do
 toUserResponse :: User -> UserResponse
 toUserResponse User{..} =
   UserResponse { urName = userName
+               , urFullName = userFullName
                , urEmail = userEmail
                , urRole = userRole
                , urCreatedAt = userCreatedAt

@@ -26,8 +26,8 @@ import User.Model.Types (HasUserWithId(..), UserModel(..), UserWithId(..))
 import User.Password (hashPassword, validatePassword)
 import User.Types
   (Email, HasCreateUserAttrs, HasUserAttrs, Login, Password(..), Uname(..),
-  UserEdits(..), UserErrors(..), UserResponse(..), UserToken(..), email, name,
-  password, role)
+  UserEdits(..), UserErrors(..), UserLoginResponse(..), UserResponse(..),
+  UserToken(..), email, fullName, name, password, role)
 
 getUserByName
   :: forall m .(MonadThrowLogger m)
@@ -98,7 +98,7 @@ loginUser
   -> CookieSettings
   -> JWTSettings
   -> Login
-  -> m UserToken
+  -> m UserLoginResponse
 loginUser usModel cs jws loginData = do
    let uemail = loginData ^. email
    dbUser <- umGetUserByEmail usModel uemail >>= throwInvalidEmail uemail
@@ -116,12 +116,14 @@ acceptLogin
   => CookieSettings
   -> JWTSettings
   -> User
-  -> m UserToken
+  -> m UserLoginResponse
 acceptLogin cs jws user = do
   ejwt <- liftIO $ makeJWT user jws (cookieExpires cs)
   case ejwt of
     Left err -> throwSError err400 . CookieSetupError $ show err
-    Right jwt -> pure . UserToken $ decodeUtf8 @Text @L.ByteString jwt
+    Right jwt -> pure . UserLoginResponse
+                   (UserToken $ decodeUtf8 @Text @L.ByteString jwt)
+                   $ toUserResponse user
 
 createUser
   :: (HasUserAttrs attrs,  MonadTime m, HasSettings r, MonadReader r m, MonadThrowLogger m)
@@ -136,6 +138,7 @@ createUser usModel userAttrs pwd = do
   mUserId <- umCreateUser usModel $
     User { userRole = userAttrs ^. role
          , userName = uName
+         , userFullName = userAttrs ^. fullName
          , userEmail = userAttrs ^. email
          , userPassword = hpwd
          , userCreatedAt = utcTime

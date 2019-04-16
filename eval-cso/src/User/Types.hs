@@ -1,18 +1,21 @@
 module User.Types
         ( Email (..)
-        , HasEmail, HasRole, HasName, HasUserAttrs, HasPassword, HasCreateUserAttrs
+        , HasEmail, HasRole, HasName, HasUserAttrs, HasPassword
+        , HasCreateUserAttrs, HasFullName
         , Login (..)
         , Signup (..)
         , Password (..)
         , PasswordHash (..)
         , Role (..)
         , Uname (..)
+        , UFullName (..)
         , UserErrors(..)
         , UserEdits(..)
         , UserType (..)
         , UserToken (..)
         , UserResponse (..)
-        , role, name, email, password
+        , UserLoginResponse (..)
+        , role, name, email, password, fullName
         ) where
 
 import Data.Aeson.Options as AO (defaultOptions)
@@ -38,12 +41,17 @@ derivePersistField "Role"
 
 newtype UserToken = UserToken { unUserToken :: Text }
   deriving (Show)
-$(deriveJSON AO.defaultOptions ''UserToken)
+$(deriveJSON AO.defaultOptions  { unwrapUnaryRecords = True } ''UserToken)
 
 newtype Uname = Uname {unUname :: Text}
   deriving (Eq, Show, PersistField)
 
 $(deriveJSON AO.defaultOptions  { unwrapUnaryRecords = True } ''Uname)
+
+newtype UFullName = UFullName {unUFullName :: Text}
+  deriving (Eq, Show, PersistField)
+
+$(deriveJSON AO.defaultOptions  { unwrapUnaryRecords = True } ''UFullName)
 
 data UserType a :: Type where
   CsoAgentUser :: Id -> UserType 'CsoAgent
@@ -79,6 +87,7 @@ $(deriveJSON AO.defaultOptions ''Login)
 
 data Signup = Signup
  { _signupName :: Uname
+ , _signupFullName :: UFullName
  , _signupEmail :: Email
  , _signupPassword :: Password
  } deriving (Show)
@@ -89,6 +98,7 @@ makeFields ''Signup
 data UserEdits = UserEdits
  { _userEditsName :: Uname
  , _userEditsEmail :: Email
+ , _userEditsFullName :: UFullName
  , _userEditsRole :: Role
  }
 
@@ -97,6 +107,7 @@ makeFields ''UserEdits
 
 data UserResponse = UserResponse
   { urName :: Uname
+  , urFullName :: UFullName
   , urEmail :: Email
   , urRole :: Role
   , urCreatedAt :: UTCTime
@@ -105,13 +116,25 @@ data UserResponse = UserResponse
 
 $(deriveJSON AO.defaultOptions ''UserResponse)
 
+data UserLoginResponse = UserLoginResponse
+  { ulToken :: UserToken
+  , ulUser :: UserResponse
+  } deriving Show
+
+$(deriveJSON AO.defaultOptions ''UserLoginResponse)
+
+
 type HasUserAttrs a =
   ( HasName a Uname
   , HasEmail a Email
   , HasRole a Role
+  , HasFullName a UFullName
   )
 
-type HasCreateUserAttrs a = (HasUserAttrs a, HasPassword a Password)
+type HasCreateUserAttrs a =
+  ( HasUserAttrs a
+  , HasPassword a Password
+  )
 
 instance HasRole Signup Role where
   role f signup = fmap (const signup) (f CsoAgent)
