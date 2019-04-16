@@ -1,3 +1,4 @@
+{-# LANGUAGE TypeApplications #-}
 module User.Controller
        ( getUserByName
        , updateUser
