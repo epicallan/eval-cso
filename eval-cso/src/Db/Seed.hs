@@ -20,8 +20,8 @@ import Foundation (Config, HasPool(..), HasSettings, initEnv)
 import User.Controller (signupUser)
 import User.Model.Internal (userModel)
 import User.Types
-  (Email, HasEmail(..), HasName(..), HasPassword(..), HasRole(..), Password,
-  Role(..), Signup, Uname)
+  (Email, HasEmail(..), HasFullName(..), HasName(..), HasPassword(..),
+  HasRole(..), Password, Role(..), Signup, UFullName, Uname)
 
 newtype ReadSeedFileError = ReadSeedFileError Text
   deriving (Show)
@@ -36,6 +36,10 @@ newtype AdminUser = AdminUser { unAdminUser :: Signup }
 instance HasName AdminUser Uname where
   name f admin = fmap (const admin)
                       (f $ unAdminUser admin ^. name)
+
+instance HasFullName AdminUser UFullName where
+  fullName f admin = fmap (const admin)
+                      (f $ unAdminUser admin ^. fullName)
 
 instance HasRole AdminUser Role where
   role f admin = fmap (const admin)

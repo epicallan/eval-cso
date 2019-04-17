@@ -19,6 +19,7 @@ services:
   postgres:
     image: postgres:alpine
     restart: always
+    volumes: ${APP_DATA}:/var/lib/postgresql/data
     environment:
       POSTGRES_DB: $APP_DB_NAME
       POSTGRES_USER: $APP_DB_USER

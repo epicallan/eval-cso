@@ -1,4 +1,4 @@
-{ "user": {"name": "admin", "password": "admin", "email": "admin@nssfug.org"},
+{ "user": {"name": "admin", "fullName": "John Doe", "password": "admin", "email": "admin@nssfug.org"},
   "branches": ["Kampala", "Ntinda"],
   "services": [
     {"value": "call", "name": "Call"},

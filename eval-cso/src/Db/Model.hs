@@ -22,7 +22,8 @@ share
   , mkMigrate "migrateAll"
   ] [persistLowerCase|
   User sql=users
-    name           U.Uname           sqltype=text
+    name           U.Uname        sqltype=text
+    fullName       U.UFullName    sqltype=text
     email          U.Email        sqltype=text
     role           U.Role         sqltype=text
     password       U.PasswordHash sqltype=text

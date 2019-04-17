@@ -10,7 +10,7 @@ RUN apt-get update
 
 RUN apt-get -y install wget unzip libgmp-dev libpq-dev postgresql-client-10
 
-RUN wget https://github.com/epicallan/eval-cso/releases/download/v0.1.5/eval-build.zip
+RUN wget https://github.com/epicallan/eval-cso/releases/download/v0.2.1/eval-build.zip
 
 RUN unzip -q eval-build.zip
 
