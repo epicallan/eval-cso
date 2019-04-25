@@ -11,3 +11,4 @@ Provide an environment variable to executable to run in either development or pr
 `$>  ENV=Production eval-cso`
 
 Ensure you have created a config file in [config](./config) for the environment which you are running in i.e dev.yaml or test.yaml or prod.yaml.
+You may as well declare app configs as environment variables see docker-compose.yaml.
