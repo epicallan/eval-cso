@@ -1,4 +1,4 @@
-version: '3'
+version: '3.5'
 services:
   api:
     build: .
@@ -12,15 +12,16 @@ services:
         /src/eval-migrate
         /src/eval-ex
     environment:
-      DB_NAME: $APP_DB_NAME
-      DB_USER: $APP_DB_USER
-      DB_PASSWORD: $APP_DB_PASSWORD
+      DB_NAME: ${APP_DB_NAME}
+      DB_USER: ${APP_DB_USER}
+      DB_PASSWORD: ${APP_DB_PASSWORD}
       DB_HOST: postgres
       APP_ENV: Production
-      APP_SALT: $APP_SALT
+      APP_SALT: ${APP_SALT}
       APP_PORT: 8888
     depends_on:
       - postgres
+    restart: always
 
   postgres:
     image: postgres:11.2-alpine
@@ -28,6 +29,6 @@ services:
     volumes:
       - ${APP_DATA}:/var/lib/postgresql/data
     environment:
-      POSTGRES_DB: $APP_DB_NAME
-      POSTGRES_USER: $APP_DB_USER
-      POSTGRES_PASSWORD: $APP_DB_PASSWORD
+      POSTGRES_DB: ${APP_DB_NAME}
+      POSTGRES_USER: ${APP_DB_USER}
+      POSTGRES_PASSWORD: ${APP_DB_PASSWORD}
