@@ -125,7 +125,7 @@ parseSettings settingsFile = do
                              $ show err <> "\n Will use environment variables for Settings"
                       pure mempty
   let combined = defaultSettings <> fileSettings <> envSettings
-  liftIO $ putTextLn $ "\n fileSettings config: " <> show envSettings
+  liftIO $ putTextLn $ "\n fileSettings config: " <> show fileSettings
   liftIO $ putTextLn $ "\n combined config: " <> show combined
   either throwM pure $ mkSettings combined
 

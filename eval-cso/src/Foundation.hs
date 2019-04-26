@@ -67,6 +67,7 @@ instance MonadThrow m => ThrowAll (AppT m a) where
 initEnv :: forall m. (MonadUnliftIO m, MonadThrow m) => m Config
 initEnv = do
     _cEnvironment <- lookupSetting "APP_ENV" Development
+    liftIO $ putTextLn $ "\n APP_ENV: " <> show _cEnvironment
     _cSettings <- getSettings _cEnvironment
     _cPool  <- makePool _cEnvironment $ _cSettings ^. sDbConf
     pure Config{..}
