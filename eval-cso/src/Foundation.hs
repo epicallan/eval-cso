@@ -100,7 +100,7 @@ filterLogsByLevel :: Environment -> LogLevel -> Bool
 filterLogsByLevel = \case
   Development -> (>= LevelDebug)
   Test        -> (>= LevelError)
-  Production  -> (>= LevelWarn)
+  Production  -> (>= LevelDebug)
 
 filterLogs :: Environment -> LoggingT m a -> LoggingT m a
 filterLogs env = filterLogger (\_ lv -> filterLogsByLevel env lv)

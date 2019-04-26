@@ -6,7 +6,12 @@ services:
     ports:
       - "8888:8888"
       - "8080:8080"
-    command: /src/eval-ex
+    command:
+      - /bin/bash
+      - -c
+      - |
+        /src/eval-migrate
+        /src/eval-ex
     environment:
       DB_NAME: ${APP_DB_NAME}
       DB_USER: ${APP_DB_USER}
@@ -17,14 +22,6 @@ services:
       APP_PORT: 8888
     depends_on:
       - postgres
-      - migration
-
-  migration:
-    image: eval-app
-    command: /src/eval-migrate
-    restart: on-failure
-    depends_on:
-      - postgres
 
   postgres:
     image: postgres:11.2-alpine
@@ -32,7 +29,7 @@ services:
     volumes:
       - ${APP_DATA}:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD", "pg_isready", "-U", "eval"]
+      test: ["CMD", "pg_isready", "-U", $APP_DB_USER]
       interval: 5s
       timeout: 5s
       retries: 5
