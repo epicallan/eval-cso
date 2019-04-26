@@ -2,6 +2,7 @@ version: '3.5'
 services:
   api:
     build: .
+    image: eval-app
     ports:
       - "8888:8888"
       - "8080:8080"
@@ -15,18 +16,13 @@ services:
       APP_SALT: ${APP_SALT}
       APP_PORT: 8888
     depends_on:
+      - postgres
       - migration
 
   migration:
-    build: .
+    image: eval-app
     command: /src/eval-migrate
-    environment:
-      DB_NAME: ${APP_DB_NAME}
-      DB_USER: ${APP_DB_USER}
-      DB_PASSWORD: ${APP_DB_PASSWORD}
-      DB_HOST: postgres
-      APP_ENV: Production
-      APP_SALT: ${APP_SALT}
+    restart: on-failure
     depends_on:
       - postgres
 
@@ -35,6 +31,11 @@ services:
     restart: always
     volumes:
       - ${APP_DATA}:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "eval"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     environment:
       POSTGRES_DB: ${APP_DB_NAME}
       POSTGRES_USER: ${APP_DB_USER}
