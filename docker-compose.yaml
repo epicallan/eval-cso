@@ -5,12 +5,7 @@ services:
     ports:
       - "8888:8888"
       - "8080:8080"
-    command:
-      - /bin/bash
-      - -c
-      - |
-        /src/eval-migrate
-        /src/eval-ex
+    command: /src/eval-ex
     environment:
       DB_NAME: ${APP_DB_NAME}
       DB_USER: ${APP_DB_USER}
@@ -20,8 +15,20 @@ services:
       APP_SALT: ${APP_SALT}
       APP_PORT: 8888
     depends_on:
+      - migration
+
+  migration:
+    build: .
+    command: /src/eval-migrate
+    environment:
+      DB_NAME: ${APP_DB_NAME}
+      DB_USER: ${APP_DB_USER}
+      DB_PASSWORD: ${APP_DB_PASSWORD}
+      DB_HOST: postgres
+      APP_ENV: Production
+      APP_SALT: ${APP_SALT}
+    depends_on:
       - postgres
-    restart: always
 
   postgres:
     image: postgres:11.2-alpine

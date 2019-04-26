@@ -83,12 +83,9 @@ startSeeder :: Config -> IO ()
 startSeeder conf = do
   seedData <- readSeedJson
   runStderrLoggingT $ usingReaderT conf $ do
-    runMigrations
     mkAdminUser $ AdminUser $ seedData ^. sdUser
     mkBranches $ seedData ^. sdBranches
     mkServices $ seedData ^. sdServices
-
-  shutdownMigration conf
 
 shutdownMigration :: Config -> IO ()
 shutdownMigration conf = do
@@ -99,7 +96,11 @@ startMigration :: Config -> IO ()
 startMigration = runStderrLoggingT . runReaderT runMigrations
 
 runSeeder:: IO ()
-runSeeder = bracket initEnv shutdownMigration startSeeder
+runSeeder = do
+  putTextLn "start seeder..."
+  bracket initEnv shutdownMigration startSeeder
 
 runDbMigrations :: IO ()
-runDbMigrations =  bracket initEnv shutdownMigration startMigration
+runDbMigrations = do
+  putTextLn "start Migration.."
+  bracket initEnv shutdownMigration startMigration
