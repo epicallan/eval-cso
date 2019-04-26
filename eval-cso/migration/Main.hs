@@ -1,6 +1,6 @@
 module Main (main) where
 
-import Db.Seed (runSeeder)
+import Db.Migration (runDbMigrations, runSeeder)
 
 main :: IO ()
-main = runSeeder
+main = runDbMigrations >> runSeeder

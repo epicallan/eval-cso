@@ -1,4 +1,7 @@
-module Db.Seed (runSeeder) where
+module Db.Migration
+        ( runSeeder
+        , runDbMigrations
+        ) where
 
 import Control.Monad.Logger (runStderrLoggingT)
 import Control.Monad.Time (MonadTime)
@@ -80,17 +83,24 @@ startSeeder :: Config -> IO ()
 startSeeder conf = do
   seedData <- readSeedJson
   runStderrLoggingT $ usingReaderT conf $ do
-    runMigrations
     mkAdminUser $ AdminUser $ seedData ^. sdUser
     mkBranches $ seedData ^. sdBranches
     mkServices $ seedData ^. sdServices
 
-  shutdownSeeder conf
-
-shutdownSeeder :: Config -> IO ()
-shutdownSeeder conf = do
-  putTextLn "shutting down seeder.."
+shutdownMigration :: Config -> IO ()
+shutdownMigration conf = do
+  putTextLn "shutting down Migration.."
   destroyAllResources $ conf ^. pool
 
+startMigration :: Config -> IO ()
+startMigration = runStderrLoggingT . runReaderT runMigrations
+
 runSeeder:: IO ()
-runSeeder = bracket initEnv shutdownSeeder startSeeder
+runSeeder = do
+  putTextLn "start seeder..."
+  bracket initEnv shutdownMigration startSeeder
+
+runDbMigrations :: IO ()
+runDbMigrations = do
+  putTextLn "start Migration.."
+  bracket initEnv shutdownMigration startMigration

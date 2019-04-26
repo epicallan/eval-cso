@@ -14,7 +14,7 @@ import Servant.Auth.Server (FromJWT, ToJWT)
 
 import Agent.Types as A
 import Evaluation.Types as E
-import Foundation (Environment(..), HasEnvironment(..), HasPool(..))
+import Foundation (HasPool(..))
 import User.Types as U
 
 share
@@ -101,18 +101,13 @@ $(deriveJSON defaultOptions ''Evaluation)
 instance ToJWT User
 instance FromJWT User
 
-type CanDb m r = (MonadIO m, MonadReader r m, HasPool r, HasEnvironment r, MonadTime m)
+type CanDb m r = (MonadIO m, MonadReader r m, HasPool r, MonadTime m)
 
--- we should be able to run multiple migrations
 doMigrations :: SqlPersistT IO ()
 doMigrations = runMigration migrateAll
 
 runMigrations :: CanDb m r => m ()
-runMigrations = do
-  env <- view environment
-  case env of
-    Production -> pass
-    _ -> runInDb doMigrations
+runMigrations = runInDb doMigrations
 
 runInDb
   :: CanDb m r
