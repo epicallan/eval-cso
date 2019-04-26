@@ -13,7 +13,7 @@ import Data.Aeson.Options as AO (defaultOptions)
 import Data.Aeson.TH (deriveJSON)
 import Data.Monoid (Last(..))
 import Data.Text ()
-import Data.Yaml (decodeFileThrow)
+import Data.Yaml (decodeFileEither)
 import Lens.Micro.Platform (makeClassy)
 import System.Environment (lookupEnv)
 
@@ -43,7 +43,7 @@ data PartialSettings = PartialSettings
   , psPort    :: Last Port
   , psDbConf  :: Last DbConf
   , psSalt    :: Last Text
-  } deriving Show
+  } deriving (Show)
 
 newtype SettingsError = SettingsError Text
  deriving Show
@@ -115,7 +115,13 @@ defaultSettings = PartialSettings
 
 parseSettings :: (MonadIO m, MonadThrow m) => FilePath -> m Settings
 parseSettings settingsFile = do
-  fileSettings <- decodeFileThrow settingsFile
+  efileSettings <- liftIO $ decodeFileEither @PartialSettings settingsFile
   envSettings <- mkEnvSettings
+  fileSettings <- case efileSettings of
+                    Right x -> pure x
+                    Left err -> do
+                      liftIO $ putTextLn
+                             $ show err <> "\n Will use environment variables for Settings"
+                      pure mempty
   let combined = defaultSettings <> fileSettings <> envSettings
   either throwM pure $ mkSettings combined
