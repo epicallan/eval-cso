@@ -1,3 +1,4 @@
+{-# LANGUAGE TypeApplications #-}
 module Settings
        ( DbConf (..)
        , HasDbConf (..)
@@ -8,7 +9,10 @@ module Settings
        , parseSettings
        ) where
 import Data.Aeson (FromJSON(..), withObject, (.:?))
+import Data.Aeson.Options as AO (defaultOptions)
+import Data.Aeson.TH (deriveJSON)
 import Data.Monoid (Last(..))
+import Data.Text ()
 import Data.Yaml (decodeFileThrow)
 import Lens.Micro.Platform (makeClassy)
 import System.Environment (lookupEnv)
@@ -22,6 +26,7 @@ data DbConf = DbConf
   , _dbPassword :: Text
   } deriving (Show)
 
+$(deriveJSON AO.defaultOptions  ''DbConf)
 makeClassy ''DbConf
 
 data Settings = Settings
@@ -30,38 +35,20 @@ data Settings = Settings
   , _sDbConf  :: DbConf
   , _sSalt    :: Text
   } deriving (Show)
+
 makeClassy ''Settings
 
 data PartialSettings = PartialSettings
   { psAppName :: Last Text
   , psPort    :: Last Port
-  , psDbConf  :: Last PartialDbConf
+  , psDbConf  :: Last DbConf
   , psSalt    :: Last Text
-  } deriving Show
-
-data PartialDbConf = PartialDbConf
-  { pdUser     :: Last Text
-  , pdHost     :: Last Text
-  , pdName     :: Last Text
-  , pdPassword :: Last Text
   } deriving Show
 
 newtype SettingsError = SettingsError Text
  deriving Show
 
 instance Exception SettingsError
-
-instance Semigroup PartialDbConf where
-  x <> y = PartialDbConf
-    { pdUser = pdUser x <> pdUser y
-    , pdHost = pdHost x <> pdHost y
-    , pdName = pdName x <> pdName y
-    , pdPassword = pdPassword x <> pdPassword y
-    }
-
-instance Monoid PartialDbConf where
-  mempty = PartialDbConf mempty mempty mempty mempty
-  mappend = (<>)
 
 instance Semigroup PartialSettings where
   x <> y = PartialSettings
@@ -74,14 +61,6 @@ instance Semigroup PartialSettings where
 instance Monoid PartialSettings where
   mempty = PartialSettings mempty mempty mempty mempty
   mappend = (<>)
-
-instance FromJSON PartialDbConf where
-  parseJSON = withObject "FromJSON PartialDbConf" $ \obj -> do
-    pdUser <- Last <$> obj .:? "user"
-    pdHost <- Last <$> obj .:? "host"
-    pdName <- Last <$> obj .:? "name"
-    pdPassword <- Last <$>  obj .:? "password"
-    return PartialDbConf {..}
 
 instance FromJSON PartialSettings where
   parseJSON = withObject "FromJSON PartialSettings" $ \obj -> do
@@ -98,37 +77,34 @@ mkSettings :: PartialSettings -> Either SettingsError Settings
 mkSettings PartialSettings{..} = do
   _sAppName <- lastToEither "Missing App Name" psAppName
   _sPort <- lastToEither "Missing Port" psPort
-  pDbConf <- lastToEither "Missing DB Config" psDbConf
+  _sDbConf <- lastToEither "Missing DB Config" psDbConf
   _sSalt <- lastToEither "Missing salt" psSalt
-  _sDbConf <- mkDbConf pDbConf
   return Settings {..}
 
-mkDbConf :: PartialDbConf -> Either SettingsError DbConf
-mkDbConf PartialDbConf{..} = do
-  _dbUser <- lastToEither "Missing DB user" pdUser
-  _dbHost <- lastToEither "Missing DB host" pdHost
-  _dbName <- lastToEither "Missing DB name" pdName
-  _dbPassword <- lastToEither "Missing DB password" pdPassword
-  return DbConf {..}
-
-lookupOption :: (Read a, MonadIO m) => Text -> m (Maybe a)
+lookupOption :: forall a m. (Read a, MonadIO m) => Text -> m (Maybe a)
 lookupOption env = do
   mvalue <- liftIO $ lookupEnv $ toString env
-  pure $ mvalue >>= readMaybe
+  pure $ mvalue >>= readMaybe @a
 
-mkEnvSettings :: MonadIO m => m PartialSettings
+mkEnvSettings :: forall m. MonadIO m => m PartialSettings
 mkEnvSettings = do
-  psAppName <- lastOption "APP_NAME"
+  psAppName <- lastTextOption "APP_NAME"
   psPort <- lastOption "APP_PORT"
-  psSalt <- lastOption "APP_SALT"
-  pdUser <- lastOption "DB_USER"
-  pdName <- lastOption "DB_NAME"
-  pdHost <- lastOption "DB_HOST"
-  pdPassword <- lastOption "DB_PASSWORD"
-  let psDbConf = PartialDbConf <$> pdUser <*> pdName <*> pdHost <*> pdPassword
+  psSalt <- lastTextOption "APP_SALT"
+  pdUser <- lastTextOption "DB_USER"
+  pdName <- lastTextOption "DB_NAME"
+  pdHost <- lastTextOption "DB_HOST"
+  pdPassword <- lastTextOption "DB_PASSWORD"
+  let psDbConf = DbConf <$> pdUser <*> pdHost <*> pdName <*> pdPassword
   return PartialSettings {..}
   where
-    lastOption env = Last <$> lookupOption env
+    lastOption :: forall a. Read a => Text -> m (Last a)
+    lastOption env = Last <$> lookupOption @a env
+
+    lastTextOption :: Text -> m (Last Text)
+    lastTextOption env = do
+      mvalue <- liftIO $ lookupEnv (toString env)
+      pure . Last $ toText <$> mvalue
 
 defaultSettings :: PartialSettings
 defaultSettings = PartialSettings
