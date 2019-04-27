@@ -14,7 +14,7 @@ module Evaluation.Types
         , HasServiceParameters (..)
         , ParameterAttrs (..)
         , ParaName (..)
-        , Pvalue (..)
+        , Paravalue (..)
         , Reason (..)
         , ServiceAttrs (..)
         , ServiceType (..)
@@ -33,7 +33,7 @@ import Database.Persist.TH (derivePersistField)
 import qualified GHC.Show (Show(show))
 import Lens.Micro.Platform (makeClassy)
 
-import User.Types (Uname)
+import User.Types (UserName)
 
 data Category = ZeroRated | NonZeroRated
   deriving (Eq, Read)
@@ -107,23 +107,23 @@ data ServiceAttrs = ServiceAttrs
   } deriving (Show)
 $(deriveJSON AO.defaultOptions ''ServiceAttrs)
 
-newtype Pvalue = Pvalue { unPvalue :: Text }
+newtype Paravalue = Paravalue { unPvalue :: Text }
   deriving (Eq, Show, PersistField)
 
-$(deriveJSON AO.defaultOptions { unwrapUnaryRecords = True } ''Pvalue)
+$(deriveJSON AO.defaultOptions { unwrapUnaryRecords = True } ''Paravalue)
 
 data EvalErrors =
     EServiceNotFound ServiceTypeValue
-  | EUserNameNotFound Uname
-  | EParameterNotFound Pvalue
-  | ActionIsForEvaluatorsOnly Uname
+  | EUserNameNotFound UserName
+  | EParameterNotFound Paravalue
+  | ActionIsForEvaluatorsOnly UserName
   deriving Show
 
 instance Exception EvalErrors
 
 data ParameterAttrs = ParameterAttrs
   { _paName :: ParaName
-  , _paValue :: Pvalue
+  , _paValue :: Paravalue
   , _paDescription :: Maybe Description
   , _paWeight :: Weight
   , _paGroup :: Maybe Group
@@ -135,8 +135,8 @@ makeClassy ''ParameterAttrs
 
 data EvalAttrs = EvalAttrs
   { _eaReason :: Reason
-  , _eaEvaluator :: Uname
-  , _eaAgent :: Uname
+  , _eaEvaluator :: UserName
+  , _eaAgent :: UserName
   , _eaService :: ServiceTypeValue
   , _eaCustomer :: CustomerNumber
   , _eaComment :: Maybe Comment
@@ -158,7 +158,7 @@ makeClassy ''EvalRecord
 
 data CreateEvaluation = CreateEvaluation
   { _ceEvalAttrs :: EvalAttrs
-  , _ceParameters :: [Pvalue]
+  , _ceParameters :: [Paravalue]
   } deriving (Show)
 
 $(deriveJSON AO.defaultOptions ''CreateEvaluation)

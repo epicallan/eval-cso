@@ -33,9 +33,9 @@ startApp conf = do
 
     policy :: CorsResourcePolicy
     policy = simpleCorsResourcePolicy
-                { corsMethods =    simpleMethods
-                                <> [methodPatch, methodPut, methodDelete]
-                , corsRequestHeaders = ["Content-Type"]
+                { corsMethods =  simpleMethods
+                              <> [methodPatch, methodPut, methodDelete]
+                , corsRequestHeaders = ["Authorization", "Content-Type"]
                 }
 
 shutdownApp :: Config -> IO ()

@@ -11,8 +11,8 @@ import Evaluation.Model.Types
   (EvalModel(..), EvaluationScore(..), ServiceWithId(..))
 import Evaluation.Types
   (CreateEvaluation(..), EvalAttrs(..), EvalErrors(..), ParameterAttrs(..),
-  Pvalue, ServiceAttrs(..), ServiceParameters(..), ServiceTypeValue)
-import User.Types (Uname)
+  Paravalue, ServiceAttrs(..), ServiceParameters(..), ServiceTypeValue)
+import qualified User.Types as U (UserName)
 
 evalModel :: forall r m . CanDb m r => EvalModel m
 evalModel = EvalModel
@@ -97,7 +97,7 @@ evalModel = EvalModel
         , evaluationUpdatedAt = utcTime
         }
 
-    getUserId :: Uname -> m (Either EvalErrors UserId)
+    getUserId :: U.UserName -> m (Either EvalErrors UserId)
     getUserId uname = do
       meUser :: (Maybe (Entity User)) <- runInDb $ getBy $ UniqueUserName uname
       pure $ maybe (Left $ EUserNameNotFound uname ) (Right . entityKey) meUser
@@ -110,7 +110,7 @@ evalModel = EvalModel
     getServiceId :: ServiceTypeValue -> m (Either EvalErrors ServiceId)
     getServiceId service = fmap entityKey <$> getService service
 
-    getParameterId :: Pvalue -> m (Either EvalErrors ParameterId)
+    getParameterId :: Paravalue -> m (Either EvalErrors ParameterId)
     getParameterId pval =  do
       meParameter :: (Maybe (Entity Parameter)) <- runInDb $ getBy $ UniqueParameterValue pval
       pure $ maybe (Left $ EParameterNotFound pval) (Right . entityKey) meParameter

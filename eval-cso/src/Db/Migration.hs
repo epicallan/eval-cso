@@ -13,7 +13,7 @@ import Lens.Micro.Platform (makeLenses)
 
 import Agent.Model.Internal (agentModel)
 import Agent.Model.Types (AgentModel(amCreateBranch))
-import Agent.Types (Bname)
+import Agent.Types (BranchName)
 import Common.Errors (MonadThrowLogger)
 import Db.Model (CanDb, runMigrations)
 import Evaluation.Model.Internal (evalModel)
@@ -24,7 +24,7 @@ import User.Controller (signupUser)
 import User.Model.Internal (userModel)
 import User.Types
   (Email, HasEmail(..), HasFullName(..), HasName(..), HasPassword(..),
-  HasRole(..), Password, Role(..), Signup, UFullName, Uname)
+  HasRole(..), Password, Role(..), Signup, FullName, UserName)
 
 newtype ReadSeedFileError = ReadSeedFileError Text
   deriving (Show)
@@ -36,11 +36,11 @@ type CanMigrate m r = (CanDb m r, MonadThrowLogger m, MonadTime m)
 newtype AdminUser = AdminUser { unAdminUser :: Signup }
 
 -- | we don't need setters
-instance HasName AdminUser Uname where
+instance HasName AdminUser UserName where
   name f admin = fmap (const admin)
                       (f $ unAdminUser admin ^. name)
 
-instance HasFullName AdminUser UFullName where
+instance HasFullName AdminUser FullName where
   fullName f admin = fmap (const admin)
                       (f $ unAdminUser admin ^. fullName)
 
@@ -58,7 +58,7 @@ instance HasPassword AdminUser Password where
 
 data SeedData = SeedData
   { _sdUser :: Signup
-  , _sdBranches :: [Bname]
+  , _sdBranches :: [BranchName]
   , _sdServices :: [ServiceAttrs]
   } deriving (Show)
 
@@ -70,7 +70,7 @@ readSeedJson = do
   eSeedData <- liftIO $ eitherDecodeFileStrict "config/seed.json"
   either (throwM . ReadSeedFileError . toText ) pure eSeedData
 
-mkBranches :: CanMigrate m r => [Bname] -> m ()
+mkBranches :: CanMigrate m r => [BranchName] -> m ()
 mkBranches = mapM_ (amCreateBranch agentModel)
 
 mkAdminUser :: (CanMigrate m r, HasSettings r) => AdminUser -> m ()

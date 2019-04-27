@@ -9,16 +9,16 @@ import Servant (err400, err404)
 
 import Common.Errors (MonadThrowLogger, throwSError)
 import Db.Model (User(..))
-import User.Types (Email, Role(..), Uname, UserErrors(..), UserResponse(..))
+import User.Types (Email, Role(..), UserName, UserErrors(..), UserResponse(..))
 
-throwInvalidUserName :: MonadThrowLogger m => Uname -> m a
+throwInvalidUserName :: MonadThrowLogger m => UserName -> m a
 throwInvalidUserName = throwSError err404 . UserNameNotFound
 
 throwUserNotAuthorized :: MonadThrowLogger m => Email -> m a
 throwUserNotAuthorized uemail  =
   throwSError err400 $ UserIsNotAuthrized uemail
 
-throwUserExists :: MonadThrowLogger m => Uname ->  m a
+throwUserExists :: MonadThrowLogger m => UserName ->  m a
 throwUserExists = throwSError err400 . UserExistsError
 
 -- | An admin can do anything, an evaluator can do anything for an agent
@@ -40,7 +40,7 @@ runProtectedAction logedInUser urole action = do
 
 toUserResponse :: User -> UserResponse
 toUserResponse User{..} =
-  UserResponse { urName = userName
+  UserResponse { urUserName = userName
                , urFullName = userFullName
                , urEmail = userEmail
                , urRole = userRole

@@ -25,9 +25,10 @@ import User.Helper
 import User.Model.Types (HasUserWithId(..), UserModel(..), UserWithId(..))
 import User.Password (hashPassword, validatePassword)
 import User.Types
-  (Email, HasCreateUserAttrs, HasUserAttrs, Login, Password(..), Uname(..),
+  (Email, HasCreateUserAttrs, HasUserAttrs, Login, Password(..),
   UserEdits(..), UserErrors(..), UserLoginResponse(..), UserResponse(..),
   UserToken(..), email, fullName, name, password, role)
+import qualified User.Types as U (UserName(..))
 
 getUserByName
   :: forall m .(MonadThrowLogger m)
@@ -35,7 +36,7 @@ getUserByName
   -> Text -- ^ userName
   -> m UserResponse
 getUserByName usModel nameTxt =
-  let uName = Uname nameTxt
+  let uName = U.UserName nameTxt
   in toUserResponse . view uiUser <$> getUserByName' usModel uName
 
 setPassword
@@ -46,7 +47,7 @@ setPassword
   -> Text
   -> m Id
 setPassword usModel logedInUser nameTxt pwd = do
-  let uName = Uname nameTxt
+  let uName = U.UserName nameTxt
   (UserWithId user userId) <- getUserByName' usModel uName
   let mkPassword = hashPassword (Password pwd) >>= umSetPassword usModel userId
   runProtectedAction logedInUser (userRole user) mkPassword
@@ -71,7 +72,7 @@ updateUser
   -> UserEdits
   -> m UserResponse
 updateUser usModel logedInUser nameTxt edits = do
-  let uName = Uname nameTxt
+  let uName = U.UserName nameTxt
   (UserWithId user userId) <- getUserByName' usModel uName
   let update = toUserResponse <$> umUpdateUser usModel userId edits
   if | uName == userName logedInUser -> update
@@ -146,7 +147,7 @@ createUser usModel userAttrs pwd = do
          }
   Id . fromSqlKey <$> maybe (throwUserExists uName) pure mUserId
 
-getUserByName' :: MonadThrowLogger m => UserModel m -> Uname -> m UserWithId
+getUserByName' :: MonadThrowLogger m => UserModel m -> U.UserName -> m UserWithId
 getUserByName' usModel uName = do
   mUserWithId <- umGetUserByName usModel uName
   maybe (throwInvalidUserName uName) pure mUserWithId

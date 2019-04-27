@@ -9,12 +9,13 @@ import Database.Esqueleto
 import Database.Persist.Postgresql (fromSqlKey, get, getBy, insert)
 
 import Agent.Model.Types (AgentModel(..))
-import Agent.Types (AgentAttrs(..), AgentErrors(..), Bname)
+import Agent.Types (AgentAttrs(..), AgentErrors(..))
+import qualified Agent.Types as A (BranchName)
 import Common.Types (Id(..))
 import Db.Model
 import User.Model.Internal (userModel)
 import User.Model.Types (HasUserWithId(..), UserModel(..))
-import User.Types (Uname(..))
+import qualified User.Types as U (UserName(..))
 
 type ExceptAgentM m a = forall r. CanDb m r => ExceptT AgentErrors m a
 
@@ -75,17 +76,17 @@ agentModel = AgentModel
         pure . Id . fromSqlKey $ branchId
   }
 
-getUserId :: Uname -> ExceptAgentM m UserId
+getUserId :: U.UserName -> ExceptAgentM m UserId
 getUserId name = do
   mUserWithId <- umGetUserByName userModel name
   ExceptT $ pure . maybe (Left $ UserNameNotFound name) (Right . view uiId) $ mUserWithId
 
-getSupervisorId :: Maybe Uname -> ExceptAgentM m (Maybe UserId)
+getSupervisorId :: Maybe U.UserName -> ExceptAgentM m (Maybe UserId)
 getSupervisorId name = ExceptT $ case name of
    Nothing -> pure . Right $ Nothing
    Just sName -> second Just <$> runExceptT (getUserId sName)
 
-getBranchId :: Maybe Bname -> ExceptAgentM m (Maybe BranchId)
+getBranchId :: Maybe A.BranchName -> ExceptAgentM m (Maybe BranchId)
 getBranchId name = case name of
   Nothing -> ExceptT . pure . Right $ Nothing
   Just bName -> do

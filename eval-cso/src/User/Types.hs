@@ -7,8 +7,8 @@ module User.Types
         , Password (..)
         , PasswordHash (..)
         , Role (..)
-        , Uname (..)
-        , UFullName (..)
+        , UserName (..)
+        , FullName (..)
         , UserErrors(..)
         , UserEdits(..)
         , UserType (..)
@@ -43,15 +43,15 @@ newtype UserToken = UserToken { unUserToken :: Text }
   deriving (Show)
 $(deriveJSON AO.defaultOptions  { unwrapUnaryRecords = True } ''UserToken)
 
-newtype Uname = Uname {unUname :: Text}
+newtype UserName = UserName {unUname :: Text}
   deriving (Eq, Show, PersistField)
 
-$(deriveJSON AO.defaultOptions  { unwrapUnaryRecords = True } ''Uname)
+$(deriveJSON AO.defaultOptions  { unwrapUnaryRecords = True } ''UserName)
 
-newtype UFullName = UFullName {unUFullName :: Text}
+newtype FullName = FullName {unFullName :: Text}
   deriving (Eq, Show, PersistField)
 
-$(deriveJSON AO.defaultOptions  { unwrapUnaryRecords = True } ''UFullName)
+$(deriveJSON AO.defaultOptions  { unwrapUnaryRecords = True } ''FullName)
 
 data UserType a :: Type where
   CsoAgentUser :: Id -> UserType 'CsoAgent
@@ -68,8 +68,8 @@ data UserErrors =
   | IncorrectPassword Email
   | CookieSetupError Text
   | UserIsNotAuthrized Email
-  | UserNameNotFound Uname
-  | UserExistsError Uname
+  | UserNameNotFound UserName
+  | UserExistsError UserName
   deriving Show
 
 instance Exception UserErrors
@@ -86,8 +86,8 @@ makeFields ''Login
 $(deriveJSON AO.defaultOptions ''Login)
 
 data Signup = Signup
- { _signupName :: Uname
- , _signupFullName :: UFullName
+ { _signupName :: UserName
+ , _signupFullName :: FullName
  , _signupEmail :: Email
  , _signupPassword :: Password
  } deriving (Show)
@@ -96,9 +96,9 @@ $(deriveJSON AO.defaultOptions ''Signup)
 makeFields ''Signup
 
 data UserEdits = UserEdits
- { _userEditsName :: Uname
+ { _userEditsName :: UserName
  , _userEditsEmail :: Email
- , _userEditsFullName :: UFullName
+ , _userEditsFullName :: FullName
  , _userEditsRole :: Role
  }
 
@@ -106,8 +106,8 @@ $(deriveJSON AO.defaultOptions ''UserEdits)
 makeFields ''UserEdits
 
 data UserResponse = UserResponse
-  { urName :: Uname
-  , urFullName :: UFullName
+  { urUserName :: UserName
+  , urFullName :: FullName
   , urEmail :: Email
   , urRole :: Role
   , urCreatedAt :: UTCTime
@@ -125,10 +125,10 @@ $(deriveJSON AO.defaultOptions ''UserLoginResponse)
 
 
 type HasUserAttrs a =
-  ( HasName a Uname
+  ( HasName a UserName
   , HasEmail a Email
   , HasRole a Role
-  , HasFullName a UFullName
+  , HasFullName a FullName
   )
 
 type HasCreateUserAttrs a =
