@@ -6,13 +6,13 @@ import Servant
 import Servant.Auth.Server
 
 import Common.Types (Id)
+import Db.Model (User)
 import Evaluation.Controller
   (createParameters, editServiceParameters, getServiceEvaluations,
   saveEvaluation)
 import Evaluation.Model.Internal (evalModel)
 import Evaluation.Types
 import Foundation (App)
-import Db.Model (User)
 
 type ProtectedApi =
          Capture "serviceType" Text :> Get '[JSON] [EvalRecord]
@@ -35,4 +35,3 @@ protectedServer _ = throwAll err401
 
 evaluationServer :: ServerT (EvaluationApi auths) App
 evaluationServer = protectedServer
-

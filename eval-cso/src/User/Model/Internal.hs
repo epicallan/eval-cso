@@ -37,7 +37,8 @@ userModel = UserModel
    , umUpdateUser = \userId UserEdits{..} -> do
        utcTime <- currentTime
        runInDb $ updateGet userId
-                    [ UserName =. _userEditsName
+                    [ UserName =. _userEditsUserName
+                    , UserFullName =. _userEditsFullName
                     , UserEmail =. _userEditsEmail
                     , UserRole =. _userEditsRole
                     , UserUpdatedAt =. utcTime

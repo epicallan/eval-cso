@@ -1,7 +1,7 @@
 module User.Types
         ( Email (..)
-        , HasEmail, HasRole, HasName, HasUserAttrs, HasPassword
-        , HasCreateUserAttrs, HasFullName
+        , HasEmail(..), HasRole(..), HasUserName(..), HasUserAttrs, HasPassword(..)
+        , HasCreateUserAttrs, HasFullName(..)
         , Login (..)
         , Signup (..)
         , Password (..)
@@ -15,12 +15,14 @@ module User.Types
         , UserToken (..)
         , UserResponse (..)
         , UserLoginResponse (..)
-        , role, name, email, password, fullName
         ) where
 
+import Data.Aeson (FromJSON(..), ToJSON(..), genericParseJSON, genericToJSON)
 import Data.Aeson.Options as AO (defaultOptions)
 import Data.Aeson.TH (Options(..), deriveJSON)
+import Data.Char (toLower)
 import Data.Kind (Type)
+import Data.List (stripPrefix)
 import Data.Time (UTCTime)
 import Database.Persist.Sql (PersistField)
 import Database.Persist.TH (derivePersistField)
@@ -31,7 +33,7 @@ import User.Password (Password(..), PasswordHash(..))
 
 data Role =
     Admin
-  | CsoAgent
+  | CSOAgent
   | Evaluator
   | Supervisor
   deriving (Eq, Show, Read)
@@ -54,7 +56,7 @@ newtype FullName = FullName {unFullName :: Text}
 $(deriveJSON AO.defaultOptions  { unwrapUnaryRecords = True } ''FullName)
 
 data UserType a :: Type where
-  CsoAgentUser :: Id -> UserType 'CsoAgent
+  CSOAgentUser :: Id -> UserType 'CSOAgent
   AdminUser :: Id -> UserType 'Admin
   EvaluatorUser :: Id -> UserType 'Evaluator
 
@@ -86,7 +88,7 @@ makeFields ''Login
 $(deriveJSON AO.defaultOptions ''Login)
 
 data Signup = Signup
- { _signupName :: UserName
+ { _signupUserName :: UserName
  , _signupFullName :: FullName
  , _signupEmail :: Email
  , _signupPassword :: Password
@@ -95,14 +97,29 @@ data Signup = Signup
 $(deriveJSON AO.defaultOptions ''Signup)
 makeFields ''Signup
 
+userEditsOptions :: Options
+userEditsOptions = AO.defaultOptions{ fieldLabelModifier = userEditsLabel }
+  where
+    userEditsLabel :: String -> String
+    userEditsLabel label = maybe label headToLower (stripPrefix "_userEdits" label)
+
+    headToLower :: String -> String
+    headToLower []     = error "Can not use headToLower on empty String"
+    headToLower (x:xs) = toLower x : xs
+
 data UserEdits = UserEdits
- { _userEditsName :: UserName
+ { _userEditsUserName :: UserName
  , _userEditsEmail :: Email
  , _userEditsFullName :: FullName
  , _userEditsRole :: Role
- }
+ } deriving Generic
 
-$(deriveJSON AO.defaultOptions ''UserEdits)
+instance ToJSON UserEdits where
+    toJSON = genericToJSON userEditsOptions
+
+instance FromJSON UserEdits where
+    parseJSON = genericParseJSON userEditsOptions
+
 makeFields ''UserEdits
 
 data UserResponse = UserResponse
@@ -125,7 +142,7 @@ $(deriveJSON AO.defaultOptions ''UserLoginResponse)
 
 
 type HasUserAttrs a =
-  ( HasName a UserName
+  ( HasUserName a UserName
   , HasEmail a Email
   , HasRole a Role
   , HasFullName a FullName
@@ -137,4 +154,4 @@ type HasCreateUserAttrs a =
   )
 
 instance HasRole Signup Role where
-  role f signup = fmap (const signup) (f CsoAgent)
+  role f signup = fmap (const signup) (f CSOAgent)

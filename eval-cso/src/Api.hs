@@ -17,15 +17,14 @@ import User.Api (UserApi, userServer)
 -- API specification
 type Api auths = "api" :>
   (    UserApi auths
-    :<|> AgentApi auths
-    :<|> EvaluationApi auths
+  :<|> AgentApi auths
+  :<|> EvaluationApi auths
   )
 
 api :: Proxy (Api '[JWT])
 api = Proxy
 
 -- composition of various handler servers
--- We don't need xsrf cookies since we use jwt for auth on all requests
 appServerT
   :: CookieSettings
   -> JWTSettings

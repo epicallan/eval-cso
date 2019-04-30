@@ -23,8 +23,8 @@ import Foundation (Config, HasPool(..), HasSettings, initEnv)
 import User.Controller (signupUser)
 import User.Model.Internal (userModel)
 import User.Types
-  (Email, HasEmail(..), HasFullName(..), HasName(..), HasPassword(..),
-  HasRole(..), Password, Role(..), Signup, FullName, UserName)
+  (Email, FullName, HasEmail(..), HasFullName(..), HasPassword(..),
+  HasRole(..), HasUserName(..), Password, Role(..), Signup, UserName)
 
 newtype ReadSeedFileError = ReadSeedFileError Text
   deriving (Show)
@@ -36,9 +36,9 @@ type CanMigrate m r = (CanDb m r, MonadThrowLogger m, MonadTime m)
 newtype AdminUser = AdminUser { unAdminUser :: Signup }
 
 -- | we don't need setters
-instance HasName AdminUser UserName where
-  name f admin = fmap (const admin)
-                      (f $ unAdminUser admin ^. name)
+instance HasUserName AdminUser UserName where
+  userName f admin = fmap (const admin)
+                      (f $ unAdminUser admin ^. userName)
 
 instance HasFullName AdminUser FullName where
   fullName f admin = fmap (const admin)

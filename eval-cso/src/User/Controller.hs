@@ -25,10 +25,10 @@ import User.Helper
 import User.Model.Types (HasUserWithId(..), UserModel(..), UserWithId(..))
 import User.Password (hashPassword, validatePassword)
 import User.Types
-  (Email, HasCreateUserAttrs, HasUserAttrs, Login, Password(..),
-  UserEdits(..), UserErrors(..), UserLoginResponse(..), UserResponse(..),
-  UserToken(..), email, fullName, name, password, role)
-import qualified User.Types as U (UserName(..))
+  (Email, HasCreateUserAttrs, HasUserAttrs, Login, Password(..), UserEdits(..),
+  UserErrors(..), UserLoginResponse(..), UserResponse(..), UserToken(..),
+  email, fullName, password, role)
+import qualified User.Types as U (UserName(..), userName)
 
 getUserByName
   :: forall m .(MonadThrowLogger m)
@@ -85,7 +85,7 @@ listUsers
 listUsers us = fmap toUserResponse <$> umAllUsers us
 
 -- | on signup everyone is a regular member i.e CSO Agent, admin gives out roles
--- note signup has a default role of CsoAgent from HasRole class
+-- note signup has a default role of CSOAgent from HasRole class
 signupUser
   :: (HasSettings r, HasCreateUserAttrs attrs, MonadReader r m, MonadTime m, MonadThrowLogger m)
   => UserModel m
@@ -133,7 +133,7 @@ createUser
   -> Password
   -> m Id
 createUser usModel userAttrs pwd = do
-  let uName = userAttrs ^. name
+  let uName = userAttrs ^. U.userName
   hpwd <- hashPassword pwd
   utcTime <- currentTime
   mUserId <- umCreateUser usModel $

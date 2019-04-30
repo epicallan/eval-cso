@@ -10,7 +10,7 @@ RUN apt-get update
 
 RUN apt-get -y install wget unzip libgmp-dev libpq-dev
 
-RUN wget https://github.com/epicallan/eval-cso/releases/download/v0.3.0/eval-build.zip
+RUN wget https://github.com/epicallan/eval-cso/releases/download/v0.3.2/eval-build.zip
 
 RUN unzip -q eval-build.zip
 

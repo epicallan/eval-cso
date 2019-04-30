@@ -33,7 +33,7 @@ runProtectedAction logedInUser urole action = do
   let uemail = userEmail logedInUser
   case userRole logedInUser of
     Admin -> action
-    Evaluator -> if urole == CsoAgent
+    Evaluator -> if urole == CSOAgent
                     then action
                     else throwUserNotAuthorized uemail
     _   -> throwUserNotAuthorized uemail

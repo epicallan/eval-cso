@@ -1,11 +1,13 @@
 module Agent.Types
        ( AgentErrors (..)
        , AgentResponse(..)
+       , AgentDataResponse(..)
        , AgentAttrs (..)
        , BranchName (..)
        , CreateAgent
        , HasAgentAttrs
        , HasCreateAgent (..)
+       , HasCreateAgentUser (..)
        ) where
 
 import Data.Aeson.Options as AO (defaultOptions)
@@ -14,7 +16,7 @@ import Database.Persist.Sql (PersistField)
 import Lens.Micro.Platform (makeClassy)
 
 import Evaluation.Types (ServiceType, ServiceTypeValue)
-import User.Types (UserName, UserEdits, UserResponse)
+import User.Types (Email, FullName, UserName, UserResponse)
 
 newtype BranchName = Name {unBname :: Text}
   deriving (Eq, Show, PersistField)
@@ -38,9 +40,18 @@ data AgentAttrs = AgentAttrs
 $(deriveJSON AO.defaultOptions ''AgentAttrs)
 makeClassy ''AgentAttrs
 
+data CreateAgentUser = CreateAgentUser
+ { _cauUserName :: UserName
+ , _cauFullName :: FullName
+ , _cauEmail :: Email
+ } deriving (Show)
+
+makeClassy ''CreateAgentUser
+$(deriveJSON AO.defaultOptions ''CreateAgentUser)
+
 data CreateAgent = CreateAgent
-  { _caAgentAttrs :: AgentAttrs
-  , _caUserAttrs :: UserEdits
+  { _caAgent :: AgentAttrs
+  , _caUser :: CreateAgentUser
   }
 
 $(deriveJSON AO.defaultOptions ''CreateAgent)
@@ -54,3 +65,10 @@ data AgentResponse = AgentResponse
   } deriving Show
 
 $(deriveJSON AO.defaultOptions ''AgentResponse)
+
+data AgentDataResponse = AgentDataResponse
+  { adrServices :: [ServiceType]
+  , adrBranches :: [BranchName]
+  , adrSupervisors :: [UserResponse]
+  }
+$(deriveJSON AO.defaultOptions ''AgentDataResponse)

@@ -8,13 +8,14 @@ import Database.Esqueleto
   update, val, valList, where_, (=.), (==.), (^.))
 import Database.Persist.Postgresql (fromSqlKey, get, getBy, insert)
 
-import Agent.Model.Types (AgentModel(..))
+import Agent.Model.Types (AgentData(..), AgentModel(..))
 import Agent.Types (AgentAttrs(..), AgentErrors(..))
 import qualified Agent.Types as A (BranchName)
 import Common.Types (Id(..))
 import Db.Model
 import User.Model.Internal (userModel)
 import User.Model.Types (HasUserWithId(..), UserModel(..))
+import User.Types (Role(Supervisor))
 import qualified User.Types as U (UserName(..))
 
 type ExceptAgentM m a = forall r. CanDb m r => ExceptT AgentErrors m a
@@ -74,6 +75,24 @@ agentModel = AgentModel
                                , branchUpdatedAt = utcTime
                                }
         pure . Id . fromSqlKey $ branchId
+    , amGetAgentData = do
+        eBranches :: [Entity Branch] <- runInDb $
+          select $ from $ \branch -> return branch
+        eServices :: [Entity Service] <- runInDb $
+          select $ from $ \service -> return service
+        eSupervisors :: [Entity User] <- runInDb $
+           select $
+             from $ \user -> do
+               where_ $ user ^. UserRole ==. val Supervisor
+               return user
+        let branches = fmap entityVal eBranches
+            services = fmap entityVal eServices
+            supervisors = fmap entityVal eSupervisors
+        return AgentData
+          { adServices = services
+          , adBranches = branches
+          , adSupervisors = supervisors
+          }
   }
 
 getUserId :: U.UserName -> ExceptAgentM m UserId

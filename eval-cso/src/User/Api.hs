@@ -25,24 +25,25 @@ type SignupApi =
   "signup" :> ReqBody '[JSON] Signup :> Post '[JSON] Id
 
 type ProtectedUserApi =
-         Get '[JSON] [UserResponse]
-    :<|> ReqBody '[JSON] UserEdits :> Post '[JSON] Id
-    :<|> Capture "userName" Text :> ReqBody '[JSON] UserEdits :> Put '[JSON] UserResponse
-    :<|> Capture "userName" Text :> Get '[JSON] UserResponse
-    :<|> Capture "userName" Text :> Capture "password" Text :> Patch '[JSON] Id
+       Get '[JSON] [UserResponse]
+  :<|> ReqBody '[JSON] UserEdits :> Post '[JSON] Id
+  :<|> Capture "userName" Text :> ReqBody '[JSON] UserEdits :> Put '[JSON] UserResponse
+  :<|> Capture "userName" Text :> Get '[JSON] UserResponse
+  :<|> Capture "userName" Text :> Capture "password" Text :> Patch '[JSON] Id
 
 
 type UserApi auths = "users" :>
-  (      Auth auths User :> ProtectedUserApi
-    :<|> LoginApi
-    :<|> SignupApi
+  (    LoginApi
+  :<|> SignupApi
+  :<|> Auth auths User :> ProtectedUserApi
   )
 
-unprotected
+
+loginHandler
   :: CookieSettings
   -> JWTSettings
   -> ServerT LoginApi App
-unprotected = loginUser userModel
+loginHandler = loginUser userModel
 
 protected
   :: AuthResult User
@@ -56,11 +57,11 @@ protected (Authenticated user) =
 
 protected _ = throwAll err401
 
-signupApi :: ServerT SignupApi App
-signupApi = signupUser userModel
+signupHandler :: ServerT SignupApi App
+signupHandler = signupUser userModel
 
 userServer
   :: CookieSettings
   -> JWTSettings
   -> ServerT (UserApi auths) App
-userServer cs jwts = protected :<|> unprotected cs jwts :<|> signupApi
+userServer cs jwts =loginHandler cs jwts :<|> signupHandler :<|> protected
