@@ -30,17 +30,12 @@ import Data.Aeson.TH (Options(..), deriveJSON)
 import Data.Time (UTCTime)
 import Database.Persist.Sql (PersistField)
 import Database.Persist.TH (derivePersistField)
-import qualified GHC.Show (Show(show))
 import Lens.Micro.Platform (makeClassy)
 
 import User.Types (UserName)
 
-data Category = ZeroRated | NonZeroRated
-  deriving (Eq, Read)
-
-instance Show Category where
-  show ZeroRated = "Reasons for zero rating"
-  show NonZeroRated = "Reasons for deviation"
+data Category = ZeroRated | Deviation
+  deriving (Eq, Read, Show)
 
 $(deriveJSON AO.defaultOptions ''Category)
 
@@ -113,9 +108,9 @@ newtype Paravalue = Paravalue { unPvalue :: Text }
 $(deriveJSON AO.defaultOptions { unwrapUnaryRecords = True } ''Paravalue)
 
 data EvalErrors =
-    EServiceNotFound ServiceTypeValue
-  | EUserNameNotFound UserName
-  | EParameterNotFound Paravalue
+    ServiceNotFound ServiceTypeValue
+  | UserNameNotFound UserName
+  | ParameterNotFound Paravalue
   | ActionIsForEvaluatorsOnly UserName
   deriving Show
 
@@ -136,7 +131,7 @@ makeClassy ''ParameterAttrs
 data EvalAttrs = EvalAttrs
   { _eaReason :: Reason
   , _eaEvaluator :: UserName
-  , _eaAgent :: UserName
+  , _eaAgentName :: UserName
   , _eaService :: ServiceTypeValue
   , _eaCustomer :: CustomerNumber
   , _eaComment :: Maybe Comment

@@ -71,13 +71,13 @@ share
     deriving Show
 
   Parameter sql=paremeter
-    name        E.ParaName        sqltype=text
+    name        E.ParaName           sqltype=text
     value       E.Paravalue          sqltype=text
-    description E.Description Maybe sqltype=text default=NULL
+    description E.Description Maybe  sqltype=text default=NULL
     serviceType ServiceId
-    category    E.Category        sqltype=text
-    group       E.Group    Maybe  sqltype=text default=NULL
-    weight      E.Weight          sqltype=int  default=NULL
+    category    E.Category           sqltype=text
+    group       E.Group    Maybe     sqltype=text default=NULL
+    weight      E.Weight             sqltype=int  default=NULL
     createdAt   UTCTime  sqltype=timestamptz sql=created_at default=CURRENT_TIMESTAMP
     updatedAt   UTCTime  sqltype=timestamptz sql=updated_at default=CURRENT_TIMESTAMP
     UniqueParameterValue value

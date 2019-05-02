@@ -22,24 +22,17 @@ evalModel = EvalModel
         Left err -> pure $ Left err
         Right serviceId -> do
           parameters <- traverse (mkParameter serviceId) parametersAttrs
-          runInDb $ insertMany parameters <&> Right
+          runInDb $ putMany parameters <&> Right
 
-  , emEditParameters = \(ServiceParameters serviceValue parametersAttrs) -> do
-      eServiceId <- getServiceId serviceValue
-      case eServiceId of
-        Left err -> pure $ Left err
-        Right serviceId -> do
-          parameters <- traverse (mkParameter serviceId) parametersAttrs
-          Right <$> mapM_ updateParameter parameters
-
-  , emCreateEvaluation = \(CreateEvaluation evalAttrs pValues) -> do
+  , emCreateEvaluation = \(CreateEvaluation evalAttrs paramValues) -> do
      eEvaluation <- runExceptT $ mkEvaluation evalAttrs
      case eEvaluation of
        Left errors -> pure $ Left errors
        Right evaluation -> do
          (Entity evalId _) :: Entity Evaluation <- runInDb $ insertEntity evaluation
-         mParameterList <- traverse getParameterId pValues
-         mapM_ (createParameterScore evalId) (rights mParameterList)
+         mParameterList <- traverse getParameterId paramValues
+         scores <- traverse (createParameterScore evalId) (rights mParameterList)
+         runInDb $ insertMany scores
          pure $ Right evalId
 
   , emGetEvaluationByService = \serviceId -> do
@@ -76,13 +69,23 @@ evalModel = EvalModel
                               , serviceUpdatedAt = utcTime
                               }
       pure . Id $ fromSqlKey serviceId
-
+  , emGetServiceParameters = \serviceValue -> do
+      eServiceEntity <- getService serviceValue
+      case eServiceEntity of
+        Left err -> pure $ Left err
+        Right (Entity serviceId _) -> do
+          parameters <- runInDb $
+             select $
+               from $ \parameter -> do
+                 where_ $ parameter ^. ParameterServiceType ==. val serviceId
+                 return parameter
+          pure . Right $ entityVal <$> parameters
   }
   where
     mkEvaluation :: EvalAttrs -> ExceptT EvalErrors m Evaluation
     mkEvaluation EvalAttrs {..} = do
       utcTime <- currentTime
-      agentId  <- ExceptT $ getUserId _eaAgent
+      agentId  <- ExceptT $ getUserId _eaAgentName
       evaluatorId <- ExceptT $ getUserId _eaEvaluator
       serviceId <- ExceptT $ getServiceId _eaService
       pure Evaluation
@@ -100,12 +103,12 @@ evalModel = EvalModel
     getUserId :: U.UserName -> m (Either EvalErrors UserId)
     getUserId uname = do
       meUser :: (Maybe (Entity User)) <- runInDb $ getBy $ UniqueUserName uname
-      pure $ maybe (Left $ EUserNameNotFound uname ) (Right . entityKey) meUser
+      pure $ maybe (Left $ UserNameNotFound uname ) (Right . entityKey) meUser
 
     getService :: ServiceTypeValue -> m (Either EvalErrors (Entity Service))
     getService service = do
       meService :: (Maybe (Entity Service)) <- runInDb $ getBy $ UniqueServiceValue service
-      pure $ maybeToRight (EServiceNotFound service) meService
+      pure $ maybeToRight (ServiceNotFound service) meService
 
     getServiceId :: ServiceTypeValue -> m (Either EvalErrors ServiceId)
     getServiceId service = fmap entityKey <$> getService service
@@ -113,7 +116,7 @@ evalModel = EvalModel
     getParameterId :: Paravalue -> m (Either EvalErrors ParameterId)
     getParameterId pval =  do
       meParameter :: (Maybe (Entity Parameter)) <- runInDb $ getBy $ UniqueParameterValue pval
-      pure $ maybe (Left $ EParameterNotFound pval) (Right . entityKey) meParameter
+      pure $ maybe (Left $ ParameterNotFound pval) (Right . entityKey) meParameter
 
     createParameterScore :: EvaluationId -> ParameterId -> m ParameterScore
     createParameterScore evalId pId = do
@@ -123,15 +126,6 @@ evalModel = EvalModel
         , parameterScoreParameter = pId
         , parameterScoreCreatedAt = utcTime
         }
-
-    updateParameter :: Parameter -> m ()
-    updateParameter Parameter{..} = runInDb $ update $ \para -> do
-                                      set para [ ParameterWeight =. val parameterWeight
-                                               , ParameterName =. val parameterName
-                                               , ParameterDescription =. val parameterDescription
-                                               , ParameterGroup =. val parameterGroup
-                                               ]
-                                      where_ (para ^. ParameterName ==. val parameterName)
 
     mkParameter :: ServiceId -> ParameterAttrs -> m Parameter
     mkParameter serviceId ParameterAttrs{..} = do
