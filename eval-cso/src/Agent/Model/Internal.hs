@@ -37,7 +37,7 @@ agentModel = AgentModel
                                return (agent, user)
 
            pure
-             $ maybeToRight SqlErrorFailedToGetAgent
+             $ maybeToRight (SqlErrorFailedToGetAgent name)
              $ bimap entityVal entityVal <$> safeHead userAgents
 
    , amUpdateAgent = \userName AgentAttrs{..} -> do

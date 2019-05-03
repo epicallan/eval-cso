@@ -26,7 +26,7 @@ $(deriveJSON AO.defaultOptions  { unwrapUnaryRecords = True } ''BranchName)
 data AgentErrors =
     BranchNameNotFound BranchName
   | UserNameNotFound UserName
-  | SqlErrorFailedToGetAgent
+  | SqlErrorFailedToGetAgent UserName
   deriving Show
 
 instance Exception AgentErrors

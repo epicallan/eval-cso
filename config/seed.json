@@ -3,6 +3,9 @@
   "services": [
     {"value": "call", "name": "Call"},
     {"value": "email", "name": "Email"},
-    {"value": "sms", "name": "SMS"}
+    {"value": "sms", "name": "SMS"},
+    {"value": "web", "name": "WEB"},
+    {"value": "whatsapp", "name": "Whatsapp"},
+    {"value": "look_and_feel", "name": "Look and Feel"}
   ]
 }
