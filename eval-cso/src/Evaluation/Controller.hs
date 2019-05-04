@@ -35,7 +35,7 @@ getServiceEvaluations evalModel serviceType = do
           _erParameters = toParameterAttr . view esParameter <$> groupScores
           totalScore =  sum $ view paWeight <$> _erParameters
           isZeroRated = any (\para -> para ^. paCategory == ZeroRated) _erParameters
-          _erScore = if isZeroRated then 0 else totalScore
+          _erScore = if isZeroRated then 0 else 100 - totalScore
       in Just EvalRecord {..}
 
     toEvalRecord [] = Nothing

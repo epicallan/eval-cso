@@ -37,7 +37,7 @@ agentModel = AgentModel
                                return (agent, user)
 
            pure
-             $ maybeToRight (SqlErrorFailedToGetAgent name)
+             $ maybeToRight (AgentUserNameNotFound name)
              $ bimap entityVal entityVal <$> safeHead userAgents
 
    , amUpdateAgent = \userName AgentAttrs{..} -> do
@@ -98,7 +98,7 @@ agentModel = AgentModel
 getUserId :: U.UserName -> ExceptAgentM m UserId
 getUserId name = do
   mUserWithId <- umGetUserByName userModel name
-  ExceptT $ pure . maybe (Left $ UserNameNotFound name) (Right . view uiId) $ mUserWithId
+  ExceptT $ pure . maybe (Left $ AgentUserNameNotFound name) (Right . view uiId) $ mUserWithId
 
 getSupervisorId :: Maybe U.UserName -> ExceptAgentM m (Maybe UserId)
 getSupervisorId name = ExceptT $ case name of
