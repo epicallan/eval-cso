@@ -8,8 +8,7 @@ import Servant (err400, err401)
 
 import Claim.Model.Types (ClaimModel(..), ClaimScore(..))
 import Claim.Types
-  (ClaimErrors(..), ClaimRecord(..), ClaimTypeName, CreateClaim,
-  CreateClaimTypes)
+  (ClaimErrors(..), ClaimRecord(..), ClaimTypeRecord(..), CreateClaim)
 import Common.Errors (MonadThrowLogger, eitherSError, throwSError)
 import Common.Types (Id(..))
 import Db.Model (Claim(..), ClaimType(..), User(..))
@@ -33,14 +32,14 @@ saveClaim claimModel user claim = protectedAction user $ do
 
 getClaimTypes
   :: MonadThrowLogger m
-  => ClaimModel m -> m [ClaimTypeName]
+  => ClaimModel m -> m [ClaimTypeRecord]
 getClaimTypes claimModel = do
   claimTypes <- cmGetClaimtypes claimModel
-  pure $ claimTypeName <$> claimTypes
+  pure $ toClaimTypeRecord <$> claimTypes
 
 saveClaimTypes
   :: MonadThrowLogger m
-  => ClaimModel m -> User -> CreateClaimTypes -> m ()
+  => ClaimModel m -> User -> [ClaimTypeRecord] -> m ()
 saveClaimTypes claimModel user claimTypes =
   adminAction user $ cmCreateClaimtypes claimModel claimTypes
 
@@ -55,6 +54,12 @@ protectedAction User{..} action = case userRole of
   Evaluator -> action
   Admin     -> action
   _         -> throwSError err401 $ ActionIsForEvaluators userName
+
+toClaimTypeRecord :: ClaimType -> ClaimTypeRecord
+toClaimTypeRecord ClaimType {..} = ClaimTypeRecord
+  { _ctrName = claimTypeName
+  , _ctrValue = claimTypeValue
+  }
 
 toClaimRecord :: ClaimScore -> ClaimRecord
 toClaimRecord ClaimScore{..} =

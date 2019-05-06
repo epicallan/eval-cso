@@ -7,14 +7,14 @@ import Servant.Auth.Server
 
 import Claim.Controller
 import Claim.Model.Internal (claimModel)
-import Claim.Types
+import Claim.Types -- TODO: add types
 import Common.Types (Id)
 import Db.Model (User)
 import Foundation (App)
 
 type ClaimTypeApi =
-         ReqBody '[JSON] CreateClaimTypes :> Post '[JSON] ()
-    :<|> Get '[JSON] [ClaimTypeName]
+         ReqBody '[JSON] [ClaimTypeRecord] :> Post '[JSON] ()
+    :<|> Get '[JSON] [ClaimTypeRecord]
 
 type ProtectedApi =
          Get '[JSON] [ClaimRecord]

@@ -3,11 +3,11 @@ module Claim.Types
         , AllParametersMet
         , HasClaimRecord (..)
         , HasCreateClaim (..)
-        , HasCreateClaimTypes (..)
         , ClaimRecord (..)
         , CreateClaim (..)
-        , CreateClaimTypes (..)
+        , ClaimTypeRecord (..)
         , ClaimTypeName (..)
+        , ClaimTypeValue (..)
         , WorkflowNumber (..)
         , ClaimErrors (..)
         , Score (..)
@@ -28,6 +28,12 @@ newtype ClaimTypeName = ClaimTypeName { unClaimTypeName :: Text }
   deriving (Eq, Show, PersistField)
 
 $(deriveJSON AO.defaultOptions { unwrapUnaryRecords = True } ''ClaimTypeName)
+
+
+newtype ClaimTypeValue = ClaimTypeValue { unClaimTypeValue :: Text }
+  deriving (Eq, Show, PersistField)
+
+$(deriveJSON AO.defaultOptions { unwrapUnaryRecords = True } ''ClaimTypeValue)
 
 newtype WorkflowNumber = WorkflowNumber { unWorkflowNumber :: Text }
   deriving (Eq, Show, PersistField)
@@ -67,9 +73,9 @@ data ClaimRecord = ClaimRecord
 $(deriveJSON AO.defaultOptions ''ClaimRecord)
 makeClassy ''ClaimRecord
 
-newtype CreateClaimTypes = CreateClaimTypes
-  { _cctTypes :: [ClaimTypeName]
+data ClaimTypeRecord = ClaimTypeRecord
+  { _ctrName :: ClaimTypeName
+  , _ctrValue :: ClaimTypeValue
   } deriving (Show)
 
-$(deriveJSON AO.defaultOptions ''CreateClaimTypes)
-makeClassy ''CreateClaimTypes
+$(deriveJSON AO.defaultOptions ''ClaimTypeRecord)

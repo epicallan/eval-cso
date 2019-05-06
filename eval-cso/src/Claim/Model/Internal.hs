@@ -6,7 +6,7 @@ import Control.Monad.Time (MonadTime, currentTime)
 import Database.Esqueleto hiding ((<&>))
 
 import Claim.Model.Types (ClaimModel(..), ClaimScore(..))
-import Claim.Types (ClaimErrors(..), CreateClaim(..), cctTypes)
+import Claim.Types (ClaimErrors(..), ClaimTypeRecord(..), CreateClaim(..))
 import qualified Claim.Types as C (ClaimTypeName)
 import Common.Types (Id(..))
 import Db.Model
@@ -18,7 +18,7 @@ type ExceptClaimM m a = forall r. CanDb m r => ExceptT ClaimErrors m a
 
 claimModel :: forall r m . CanDb m r => ClaimModel m
 claimModel = ClaimModel
-  { cmCreateClaimtypes = runInDb . putMany <=< traverse mkClaimType . view  cctTypes
+  { cmCreateClaimtypes = runInDb . putMany <=< traverse mkClaimType
   , cmCreateClaim = \userId createClaim -> do
       eClaim <- runExceptT $ mkClaim userId createClaim
       case eClaim of
@@ -57,11 +57,12 @@ getClaimTypeId name = do
   meClaimType :: (Maybe (Entity ClaimType)) <- runInDb $ getBy $ UniqueClaimTypeName name
   ExceptT $ pure $ maybe (Left $ ClaimTypeNotFound name ) (Right . entityKey) meClaimType
 
-mkClaimType :: MonadTime m => C.ClaimTypeName -> m ClaimType
-mkClaimType name = do
+mkClaimType :: MonadTime m => ClaimTypeRecord -> m ClaimType
+mkClaimType ClaimTypeRecord{..} = do
   utcTime <- currentTime
   pure $ ClaimType
-    { claimTypeName = name
+    { claimTypeName = _ctrName
+    , claimTypeValue = _ctrValue
     , claimTypeCreatedAt = utcTime
     , claimTypeUpdatedAt = utcTime
     }
