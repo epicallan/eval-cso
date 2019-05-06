@@ -7,7 +7,7 @@ import Database.Esqueleto hiding ((<&>))
 
 import Claim.Model.Types (ClaimModel(..), ClaimScore(..))
 import Claim.Types (ClaimErrors(..), ClaimTypeRecord(..), CreateClaim(..))
-import qualified Claim.Types as C (ClaimTypeName)
+import qualified Claim.Types as C (ClaimTypeValue)
 import Common.Types (Id(..))
 import Db.Model
 import User.Model.Internal (userModel)
@@ -52,10 +52,10 @@ getUserId name = do
   ExceptT $ pure . maybe (Left $ UserNameNotFound name) (Right . view uiId) $ mUserWithId
 
 
-getClaimTypeId :: C.ClaimTypeName -> ExceptClaimM m ClaimTypeId
-getClaimTypeId name = do
-  meClaimType :: (Maybe (Entity ClaimType)) <- runInDb $ getBy $ UniqueClaimTypeName name
-  ExceptT $ pure $ maybe (Left $ ClaimTypeNotFound name ) (Right . entityKey) meClaimType
+getClaimTypeId :: C.ClaimTypeValue -> ExceptClaimM m ClaimTypeId
+getClaimTypeId value = do
+  meClaimType :: (Maybe (Entity ClaimType)) <- runInDb $ getBy $ UniqueClaimTypeValue value
+  ExceptT $ pure $ maybe (Left $ ClaimTypeNotFound value ) (Right . entityKey) meClaimType
 
 mkClaimType :: MonadTime m => ClaimTypeRecord -> m ClaimType
 mkClaimType ClaimTypeRecord{..} = do
@@ -80,7 +80,7 @@ mkClaim claimEvaluator CreateClaim {..} = do
   claimCreatedAt <- currentTime
   claimAgent <- getUserId _ccAgentName
   claimClaimType <- getClaimTypeId _ccClaimType
-  let claimAllParametersMet = _ccAllParemetersMet
+  let claimAllParametersMet = _ccAllParametersMet
       claimWorkflowNumber = _ccWorkflowNumber
       claimComment = _ccComment
       claimUpdatedAt = claimCreatedAt

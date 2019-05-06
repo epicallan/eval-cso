@@ -35,13 +35,13 @@ newtype ClaimTypeValue = ClaimTypeValue { unClaimTypeValue :: Text }
 
 $(deriveJSON AO.defaultOptions { unwrapUnaryRecords = True } ''ClaimTypeValue)
 
-newtype WorkflowNumber = WorkflowNumber { unWorkflowNumber :: Text }
+newtype WorkflowNumber = WorkflowNumber { unWorkflowNumber :: Int }
   deriving (Eq, Show, PersistField)
 
 $(deriveJSON AO.defaultOptions { unwrapUnaryRecords = True } ''WorkflowNumber)
 
 data ClaimErrors =
-    ClaimTypeNotFound ClaimTypeName
+    ClaimTypeNotFound ClaimTypeValue
   | UserNameNotFound UserName
   | ActionIsForEvaluators UserName
   | ActionIsForAdmins UserName
@@ -50,11 +50,11 @@ data ClaimErrors =
 instance Exception ClaimErrors
 
 data CreateClaim = CreateClaim
-  { _ccAllParemetersMet :: AllParametersMet
+  { _ccAllParametersMet :: AllParametersMet
   , _ccAgentName :: UserName
   , _ccWorkflowNumber :: WorkflowNumber
   , _ccComment :: Maybe Comment
-  , _ccClaimType :: ClaimTypeName
+  , _ccClaimType :: ClaimTypeValue
   } deriving (Show)
 
 $(deriveJSON AO.defaultOptions ''CreateClaim)

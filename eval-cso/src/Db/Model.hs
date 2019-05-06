@@ -76,7 +76,7 @@ share
     value       C.ClaimTypeValue sqltype=text
     createdAt   UTCTime  sqltype=timestamptz sql=created_at default=CURRENT_TIMESTAMP
     updatedAt   UTCTime  sqltype=timestamptz sql=updated_at default=CURRENT_TIMESTAMP
-    UniqueClaimTypeName name
+    UniqueClaimTypeValue value
     deriving Show
 
   Claim sql=claim
