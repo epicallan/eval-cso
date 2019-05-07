@@ -20,7 +20,7 @@ import Database.Persist.Sql (PersistField)
 import Lens.Micro.Platform (makeClassy)
 
 import Evaluation.Types (Comment(..), Score(..))
-import User.Types (UserName, UserResponse)
+import User.Types (UserName)
 
 type AllParametersMet = Bool
 
@@ -62,8 +62,8 @@ makeClassy ''CreateClaim
 
 data ClaimRecord = ClaimRecord
   { _crScore :: Score
-  , _crEvaluator :: UserResponse
-  , _crAgentName :: UserResponse
+  , _crEvaluator :: UserName
+  , _crAgentName :: UserName
   , _crWorkflowNumber :: WorkflowNumber
   , _crComment :: Maybe Comment
   , _crClaimType :: ClaimTypeName

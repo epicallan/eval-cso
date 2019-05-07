@@ -5,9 +5,9 @@ module Claim.Api
 import Servant
 import Servant.Auth.Server
 
-import Claim.Controller
+import Claim.Controller (getClaimTypes, getClaims, saveClaim, saveClaimTypes)
 import Claim.Model.Internal (claimModel)
-import Claim.Types -- TODO: add types
+import Claim.Types (ClaimRecord, ClaimTypeRecord, CreateClaim)
 import Common.Types (Id)
 import Db.Model (User)
 import Foundation (App)
