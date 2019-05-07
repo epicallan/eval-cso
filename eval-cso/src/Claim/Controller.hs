@@ -12,7 +12,6 @@ import Claim.Types
 import Common.Errors (MonadThrowLogger, eitherSError, throwSError)
 import Common.Types (Id(..))
 import Db.Model (Claim(..), ClaimType(..), User(..))
-import User.Helper (toUserResponse)
 import User.Types (Role(..))
 
 getClaims
@@ -63,8 +62,8 @@ toClaimTypeRecord ClaimType {..} = ClaimTypeRecord
 
 toClaimRecord :: ClaimScore -> ClaimRecord
 toClaimRecord ClaimScore{..} =
-  let _crEvaluator = toUserResponse _csEvaluator
-      _crAgentName = toUserResponse _csAgent
+  let _crEvaluator = userName _csEvaluator
+      _crAgentName = userName _csAgent
       _crComment = claimComment _csClaim
       _crClaimType = claimTypeName _csClaimType
       _crDate = claimUpdatedAt _csClaim
