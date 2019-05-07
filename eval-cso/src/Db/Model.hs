@@ -12,8 +12,9 @@ import Database.Persist.TH
   (mkMigrate, mkPersist, persistLowerCase, share, sqlSettings)
 import Servant.Auth.Server (FromJWT, ToJWT)
 
-import Agent.Types as A
-import Evaluation.Types as E
+import qualified Agent.Types as A
+import qualified Claim.Types as C
+import qualified Evaluation.Types as E
 import Foundation (HasPool(..))
 import qualified User.Types as U
 
@@ -70,6 +71,26 @@ share
     updatedAt   UTCTime  sqltype=timestamptz sql=updated_at default=CURRENT_TIMESTAMP
     deriving Show
 
+  ClaimType sql=claim_type
+    name        C.ClaimTypeName  sqltype=text
+    value       C.ClaimTypeValue sqltype=text
+    createdAt   UTCTime  sqltype=timestamptz sql=created_at default=CURRENT_TIMESTAMP
+    updatedAt   UTCTime  sqltype=timestamptz sql=updated_at default=CURRENT_TIMESTAMP
+    UniqueClaimTypeValue value
+    deriving Show
+
+  Claim sql=claim
+    evaluator        UserId
+    agent            UserId
+    allParametersMet C.AllParametersMet
+    comment          E.Comment  Maybe   sqltype=text default=Null
+    workflowNumber   C.WorkflowNumber   sqltype=int
+    claimType        ClaimTypeId
+    UniqueWorkflowNumber workflowNumber
+    createdAt   UTCTime  sqltype=timestamptz sql=created_at default=CURRENT_TIMESTAMP
+    updatedAt   UTCTime  sqltype=timestamptz sql=updated_at default=CURRENT_TIMESTAMP
+    deriving Show
+
   Parameter sql=paremeter
     name        E.ParaName           sqltype=text
     value       E.Paravalue          sqltype=text
@@ -90,6 +111,8 @@ share
     deriving Show
   |]
 
+$(deriveJSON defaultOptions ''Claim)
+$(deriveJSON defaultOptions ''ClaimType)
 $(deriveJSON defaultOptions ''User)
 $(deriveJSON defaultOptions ''Branch)
 $(deriveJSON defaultOptions ''Service)

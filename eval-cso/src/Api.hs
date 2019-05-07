@@ -10,6 +10,7 @@ import Servant
 import Servant.Auth.Server
 
 import Agent.Api (AgentApi, agentServer)
+import Claim.Api (ClaimApi, claimServer)
 import Evaluation.Api (EvaluationApi, evaluationServer)
 import Foundation (App, AppT(..), Config, HasConfig(..), filterLogs)
 import User.Api (UserApi, userServer)
@@ -19,6 +20,7 @@ type Api auths = "api" :>
   (    UserApi auths
   :<|> AgentApi auths
   :<|> EvaluationApi auths
+  :<|> ClaimApi auths
   )
 
 api :: Proxy (Api '[JWT])
@@ -33,6 +35,7 @@ appServerT cs jws  =
        userServer cs jws
   :<|> agentServer
   :<|> evaluationServer
+  :<|> claimServer
 
 convertAppT :: forall a. Config -> App a -> Handler a
 convertAppT conf appM =
