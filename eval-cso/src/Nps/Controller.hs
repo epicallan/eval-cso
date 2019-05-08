@@ -36,6 +36,8 @@ toNpsRecord :: NpsDbRecord -> NpsRecord
 toNpsRecord NpsDbRecord{..} =
   let nrEvaluator = userName ndrEvaluator
       nrAgentName = userName ndrAgent
+      nrSupervisor = userFullName <$> ndrSupervisor
+      nrBranch = ndrBranch
       nrCustomerTel = npsCustomerTel ndrNps
       nrDate = npsDate ndrNps
       nrTouchPoint = npsTouchPoint ndrNps

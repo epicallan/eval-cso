@@ -15,6 +15,14 @@ import qualified User.Types as U (UserName)
 
 type ExceptNpsM m a = forall r. CanDb m r => ExceptT NpsErrors m a
 
+type NpsData =
+  ( Entity Nps
+  , Entity User
+  , Entity User
+  , Maybe (Entity User)
+  , Maybe (Entity Branch)
+  )
+
 npsModel :: forall r m . CanDb m r => NpsModel m
 npsModel = NpsModel
   { nmCreateNps = \userId createNps -> do
@@ -24,12 +32,17 @@ npsModel = NpsModel
         Right nps -> Right . Id . fromSqlKey <$> runInDb (insert nps)
 
   , nmGetNpss = do
-     npsData :: [(Entity Nps, Entity User, Entity User)] <- runInDb $
+     npsData :: [NpsData] <- runInDb $
        select $
-         from $ \(nps `InnerJoin` agent `InnerJoin` evaluator) -> do
+         from $ \(nps `InnerJoin` agent `InnerJoin` evaluator `InnerJoin` supervisor
+                  `InnerJoin` branch `InnerJoin` users `InnerJoin` agentProfile
+                 ) -> do
+            on (agentProfile ^. AgentBranch ==. branch ?. BranchId)
+            on (agentProfile ^. AgentSupervisorId ==.  users ?. UserId)
+            on (agent ^. UserId ==. agentProfile ^. AgentUserId)
             on (evaluator ^. UserId ==. nps ^. NpsEvaluator)
             on (agent ^. UserId ==. nps ^. NpsAgent)
-            return (nps, agent, evaluator)
+            return (nps, agent, evaluator, supervisor, branch)
      return $ toNpsDbRecord <$> npsData
 
   , nmGetEvaluatorId = \uname -> do
@@ -42,11 +55,13 @@ getUserId name = do
   mUserWithId <- umGetUserByName userModel name
   ExceptT $ pure . maybe (Left $ UserNameNotFound name) (Right . view uiId) $ mUserWithId
 
-toNpsDbRecord :: (Entity Nps, Entity User, Entity User) -> NpsDbRecord
-toNpsDbRecord (eNps, eAgent, eEvaluator) = NpsDbRecord
+toNpsDbRecord :: NpsData -> NpsDbRecord
+toNpsDbRecord (eNps, eAgent, eEvaluator, eSupervisor, eBranch) = NpsDbRecord
   { ndrNps = entityVal eNps
   , ndrEvaluator = entityVal eEvaluator
   , ndrAgent = entityVal eAgent
+  , ndrSupervisor = entityVal <$> eSupervisor
+  , ndrBranch = branchName . entityVal <$> eBranch
   }
 
 mkNps :: MonadTime m => UserId -> CreateNps -> ExceptNpsM m Nps

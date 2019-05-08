@@ -63,6 +63,8 @@ toClaimTypeRecord ClaimType {..} = ClaimTypeRecord
 toClaimRecord :: ClaimScore -> ClaimRecord
 toClaimRecord ClaimScore{..} =
   let _crEvaluator = userName _csEvaluator
+      _crSupervisor = userFullName <$> _csSupervisor
+      _crBranch = _csBranch
       _crAgentName = userName _csAgent
       _crComment = claimComment _csClaim
       _crClaimType = claimTypeName _csClaimType

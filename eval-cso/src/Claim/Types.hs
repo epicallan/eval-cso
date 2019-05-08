@@ -12,6 +12,7 @@ module Claim.Types
         , ClaimErrors (..)
         , Score (..)
         , Details (..)
+        , BranchName (..)
         ) where
 
 import Data.Aeson.Options as AO (defaultOptions)
@@ -20,8 +21,8 @@ import Data.Time (UTCTime)
 import Database.Persist.Sql (PersistField)
 import Lens.Micro.Platform (makeClassy)
 
-import Evaluation.Types (Comment(..), Score(..), Details(..))
-import User.Types (UserName)
+import Evaluation.Types (BranchName(..), Comment(..), Details(..), Score(..))
+import User.Types (FullName, UserName)
 
 type AllParametersMet = Bool
 
@@ -66,6 +67,8 @@ data ClaimRecord = ClaimRecord
   { _crScore :: Score
   , _crEvaluator :: UserName
   , _crAgentName :: UserName
+  , _crSupervisor :: Maybe FullName
+  , _crBranch :: Maybe BranchName
   , _crWorkflowNumber :: WorkflowNumber
   , _crComment :: Maybe Comment
   , _crClaimType :: ClaimTypeName

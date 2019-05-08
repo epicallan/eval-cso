@@ -87,11 +87,13 @@ toEvalAttr
 toEvalAttr service firstScore =
   let evaluation = firstScore ^. esEvaluation
       agent = firstScore ^. esAgent
+      supervisor = firstScore ^. esSupervisor
       evaluator = firstScore ^. esEvaluator
   in EvalAttrs
        { _eaReason = evaluationReason evaluation
        , _eaEvaluator = userName evaluator
        , _eaAgentName = userName agent
+       , _eaSupervisor = userFullName <$> supervisor
        , _eaCustomerTel = evaluationCustomerTel evaluation
        , _eaService = service
        , _eaDetails = evaluationDetails evaluation

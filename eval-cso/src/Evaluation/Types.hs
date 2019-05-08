@@ -33,7 +33,7 @@ import Database.Persist.Sql (PersistField)
 import Database.Persist.TH (derivePersistField)
 import Lens.Micro.Platform (makeClassy)
 
-import User.Types (UserName)
+import User.Types (FullName, UserName)
 
 data Category = ZeroRated | Deviation
   deriving (Eq, Read, Show)
@@ -138,6 +138,7 @@ data EvalAttrs = EvalAttrs
   { _eaReason :: Reason
   , _eaEvaluator :: UserName
   , _eaAgentName :: UserName
+  , _eaSupervisor :: Maybe FullName
   , _eaService :: ServiceTypeValue
   , _eaCustomerTel :: Telephone
   , _eaComment :: Maybe Comment

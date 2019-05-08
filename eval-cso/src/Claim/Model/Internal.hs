@@ -16,6 +16,15 @@ import qualified User.Types as U (UserName)
 
 type ExceptClaimM m a = forall r. CanDb m r => ExceptT ClaimErrors m a
 
+type ClaimScoreTuple =
+  ( Entity Claim
+  , Entity ClaimType
+  , Entity User
+  , Entity User
+  , Maybe (Entity User)
+  , Maybe (Entity Branch)
+  )
+
 claimModel :: forall r m . CanDb m r => ClaimModel m
 claimModel = ClaimModel
   { cmCreateClaimtypes = runInDb . putMany <=< traverse mkClaimType
@@ -26,14 +35,19 @@ claimModel = ClaimModel
         Right claim -> Right . Id . fromSqlKey <$> runInDb (insert claim)
 
   , cmGetClaims = do
-     claimData :: [(Entity Claim, Entity ClaimType, Entity User, Entity User)] <- runInDb $
+     claimData :: [ClaimScoreTuple] <- runInDb $
        select $
-         from $ \(claim `InnerJoin` claimType `InnerJoin` agent `InnerJoin` evaluator
+         from $ \(claim `InnerJoin` claimType `InnerJoin` agent
+                 `InnerJoin` evaluator `InnerJoin` supervisor
+                 `InnerJoin` branch `InnerJoin` agentProfile `InnerJoin` users
                  ) -> do
+            on (agentProfile ^. AgentBranch ==. branch ?. BranchId)
+            on (agentProfile ^. AgentSupervisorId ==.  users ?. UserId)
+            on (agent ^. UserId ==. agentProfile ^. AgentUserId)
             on (evaluator ^. UserId ==. claim ^. ClaimEvaluator)
             on (agent ^. UserId ==. claim ^. ClaimAgent)
             on (claimType ^. ClaimTypeId ==. claim ^. ClaimClaimType)
-            return (claim, claimType, agent, evaluator)
+            return (claim, claimType, agent, evaluator, supervisor, branch)
      return $ toClaimScore <$> claimData
 
   , cmGetClaimtypes = do
@@ -67,12 +81,14 @@ mkClaimType ClaimTypeRecord{..} = do
     , claimTypeUpdatedAt = utcTime
     }
 
-toClaimScore :: (Entity Claim, Entity ClaimType, Entity User, Entity User) -> ClaimScore
-toClaimScore (eClaim, eClaimType, eAgent, eEvaluator) = ClaimScore
+toClaimScore :: ClaimScoreTuple -> ClaimScore
+toClaimScore (eClaim, eClaimType, eAgent, eEvaluator, supervisor, branch) = ClaimScore
   { _csClaim = entityVal eClaim
   , _csEvaluator = entityVal eEvaluator
   , _csAgent = entityVal eAgent
   , _csClaimType = entityVal eClaimType
+  , _csSupervisor = entityVal <$> supervisor
+  , _csBranch = branchName . entityVal <$> branch
   }
 
 mkClaim :: MonadTime m => UserId -> CreateClaim -> ExceptClaimM m Claim
