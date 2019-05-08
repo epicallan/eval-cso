@@ -12,6 +12,7 @@ import Evaluation.Controller
   saveEvaluation)
 import Evaluation.Model.Internal (evalModel)
 import Evaluation.Types
+  (CreateEvaluation, EvalRecord, ParameterAttrs, ServiceParameters)
 import Foundation (App)
 
 type ServiceApi =

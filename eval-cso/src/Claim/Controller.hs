@@ -69,4 +69,5 @@ toClaimRecord ClaimScore{..} =
       _crDate = claimUpdatedAt _csClaim
       _crScore = if claimAllParametersMet _csClaim then 100 else 0
       _crWorkflowNumber = claimWorkflowNumber _csClaim
+      _crDetails = claimDetails _csClaim
   in ClaimRecord{..}

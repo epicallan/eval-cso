@@ -3,7 +3,7 @@ module Evaluation.Types
         , CustomerNumber (..)
         , Comment (..)
         , CreateEvaluation (..)
-        , Duration (..)
+        , Details (..)
         , Description (..)
         , EvalRecord (..)
         , EvalAttrs (..)
@@ -23,6 +23,7 @@ module Evaluation.Types
         , EvalErrors (..)
         , Score (..)
         , Weight (..)
+        , Telephone (..)
         ) where
 
 import Data.Aeson.Options as AO (defaultOptions)
@@ -40,6 +41,11 @@ data Category = ZeroRated | Deviation
 $(deriveJSON AO.defaultOptions ''Category)
 
 derivePersistField "Category"
+
+newtype Telephone =Telephone { unTelephone :: Text}
+  deriving (Eq, Show, PersistField)
+
+$(deriveJSON AO.defaultOptions { unwrapUnaryRecords = True } ''Telephone)
 
 newtype ParaName = ParaName { unParaName :: Text }
   deriving (Eq, Show, PersistField)
@@ -76,10 +82,10 @@ newtype Weight = Weight {unWeight :: Int }
 
 $(deriveJSON AO.defaultOptions { unwrapUnaryRecords = True } ''Weight)
 
-newtype Duration = Duration {unDuration :: Int }
-  deriving (Eq, Show, PersistField, Num)
+newtype Details = Details {unDetails :: Text }
+  deriving (Eq, Show, PersistField)
 
-$(deriveJSON AO.defaultOptions { unwrapUnaryRecords = True } ''Duration)
+$(deriveJSON AO.defaultOptions { unwrapUnaryRecords = True } ''Details)
 
 newtype Score = Score {unScore :: Int }
   deriving (Eq, Show, Num)
@@ -133,9 +139,9 @@ data EvalAttrs = EvalAttrs
   , _eaEvaluator :: UserName
   , _eaAgentName :: UserName
   , _eaService :: ServiceTypeValue
-  , _eaCustomer :: CustomerNumber
+  , _eaCustomerTel :: Telephone
   , _eaComment :: Maybe Comment
-  , _eaDuration :: Maybe Duration
+  , _eaDetails :: Maybe Details
   , _eaDate :: UTCTime
   } deriving (Show)
 

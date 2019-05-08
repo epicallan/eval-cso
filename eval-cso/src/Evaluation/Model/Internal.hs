@@ -94,8 +94,8 @@ evalModel = EvalModel
         , evaluationServiceType = serviceId
         , evaluationReason = _eaReason
         , evaluationComment = _eaComment
-        , evaluationDuration = _eaDuration
-        , evaluationCustomerNumber = _eaCustomer
+        , evaluationDetails = _eaDetails
+        , evaluationCustomerTel = _eaCustomerTel
         , evaluationCreatedAt = utcTime
         , evaluationUpdatedAt = utcTime
         }

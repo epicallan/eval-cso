@@ -11,6 +11,7 @@ module Claim.Types
         , WorkflowNumber (..)
         , ClaimErrors (..)
         , Score (..)
+        , Details (..)
         ) where
 
 import Data.Aeson.Options as AO (defaultOptions)
@@ -19,7 +20,7 @@ import Data.Time (UTCTime)
 import Database.Persist.Sql (PersistField)
 import Lens.Micro.Platform (makeClassy)
 
-import Evaluation.Types (Comment(..), Score(..))
+import Evaluation.Types (Comment(..), Score(..), Details(..))
 import User.Types (UserName)
 
 type AllParametersMet = Bool
@@ -55,6 +56,7 @@ data CreateClaim = CreateClaim
   , _ccWorkflowNumber :: WorkflowNumber
   , _ccComment :: Maybe Comment
   , _ccClaimType :: ClaimTypeValue
+  , _ccDetails :: Maybe Details
   } deriving (Show)
 
 $(deriveJSON AO.defaultOptions ''CreateClaim)
@@ -67,6 +69,7 @@ data ClaimRecord = ClaimRecord
   , _crWorkflowNumber :: WorkflowNumber
   , _crComment :: Maybe Comment
   , _crClaimType :: ClaimTypeName
+  , _crDetails :: Maybe Details
   , _crDate :: UTCTime
   } deriving (Show)
 

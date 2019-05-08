@@ -66,8 +66,8 @@ share
     serviceType    ServiceId
     reason         E.Reason             sqltype=text
     comment        E.Comment     Maybe  sqltype=text
-    duration       E.Duration    Maybe  sqltype=int
-    customerNumber E.CustomerNumber     sqltype=int
+    details        E.Details    Maybe  sqltype=text
+    customerTel    E.Telephone          sqltype=text
     createdAt   UTCTime  sqltype=timestamptz sql=created_at default=CURRENT_TIMESTAMP
     updatedAt   UTCTime  sqltype=timestamptz sql=updated_at default=CURRENT_TIMESTAMP
     deriving Show
@@ -87,6 +87,7 @@ share
     comment          E.Comment  Maybe   sqltype=text default=Null
     workflowNumber   C.WorkflowNumber   sqltype=int
     claimType        ClaimTypeId
+    details          E.Details    Maybe  sqltype=text
     UniqueWorkflowNumber workflowNumber
     createdAt   UTCTime  sqltype=timestamptz sql=created_at default=CURRENT_TIMESTAMP
     updatedAt   UTCTime  sqltype=timestamptz sql=updated_at default=CURRENT_TIMESTAMP
@@ -94,13 +95,13 @@ share
 
   Nps sql=nps
    evaluator                UserId
-   customerTel              N.Telephone Maybe sqltype=int default Null
+   customerTel              E.Telephone Maybe sqltype=int default Null
    agent                    UserId
    date                     UTCTime
    touchPoint               N.TouchPoint      sqltype=text
    reason                   E.Reason          sqltype=text
    waitTime                 N.WaitTime        sqltype=int
-   duration                 E.Duration        sqltype=int
+   duration                 N.Duration        sqltype=int
    issueResolved            Bool
    furtherInformationGiven  Bool
    rating                   N.Rating             sqltype=int

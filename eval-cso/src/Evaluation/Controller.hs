@@ -15,6 +15,9 @@ import Evaluation.Model.Types
   (EvalModel(..), EvaluationScore(..), HasEvaluationScore(..),
   HasServiceWithId(..))
 import Evaluation.Types
+  (Category(ZeroRated), CreateEvaluation, EvalAttrs(..), EvalErrors(..),
+  EvalRecord(..), HasParameterAttrs(..), ParameterAttrs(..),
+  ServiceParameters(..), ServiceTypeValue(..))
 import User.Types (Role(..))
 
 getServiceEvaluations
@@ -89,9 +92,9 @@ toEvalAttr service firstScore =
        { _eaReason = evaluationReason evaluation
        , _eaEvaluator = userName evaluator
        , _eaAgentName = userName agent
-       , _eaCustomer = evaluationCustomerNumber evaluation
+       , _eaCustomerTel = evaluationCustomerTel evaluation
        , _eaService = service
-       , _eaDuration = evaluationDuration evaluation
+       , _eaDetails = evaluationDetails evaluation
        , _eaComment = evaluationComment evaluation
        , _eaDate = evaluationUpdatedAt evaluation
        }
