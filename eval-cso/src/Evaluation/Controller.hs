@@ -95,6 +95,7 @@ toEvalAttr service firstScore =
        , _eaCustomerTel = evaluationCustomerTel evaluation
        , _eaService = service
        , _eaDetails = evaluationDetails evaluation
+       , _eaBranch =  firstScore ^. esBranch
        , _eaComment = evaluationComment evaluation
        , _eaDate = evaluationUpdatedAt evaluation
        }

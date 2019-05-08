@@ -36,24 +36,28 @@ evalModel = EvalModel
          pure $ Right evalId
 
   , emGetEvaluationByService = \serviceId -> do
-     evalData :: [(Entity Evaluation, Entity Parameter, Entity User, Entity User)] <- runInDb $
+     evalData :: [(Entity Evaluation, Entity Parameter, Maybe (Entity Branch), Entity User, Entity User)] <- runInDb $
        select $
          from $ \(service `InnerJoin` evaluation `InnerJoin` parameterScore
-                  `InnerJoin` parameter `InnerJoin` agent `InnerJoin` evaluator
+                 `InnerJoin` parameter `InnerJoin` branch `InnerJoin` agentProfile
+                 `InnerJoin` agent `InnerJoin` evaluator
                  ) -> do
             on (evaluator ^. UserId ==. evaluation ^. EvaluationEvaluator)
             on (agent ^. UserId ==. evaluation ^. EvaluationAgent)
+            on (agent ^. UserId ==. agentProfile ^. AgentUserId)
+            on (agentProfile ^. AgentBranch ==. branch ?. BranchId)
             on (parameter ^. ParameterId ==. parameterScore ^. ParameterScoreParameter)
             on (parameterScore ^. ParameterScoreEvaluation ==. evaluation ^. EvaluationId)
             on (service ^. ServiceId  ==. evaluation ^. EvaluationServiceType)
             where_ (service ^. ServiceId ==. val serviceId)
-            return (evaluation, parameter, agent, evaluator)
+            return (evaluation, parameter, branch, agent, evaluator)
 
-     return $ evalData <&> \(evaluation, parameter, agent, evaluator) -> EvaluationScore
+     return $ evalData <&> \(evaluation, parameter, branch, agent, evaluator) -> EvaluationScore
                                { _esEvaluation = entityVal evaluation
                                , _esParameter = entityVal parameter
                                , _esAgent = entityVal agent
                                , _esEvaluator = entityVal evaluator
+                               , _esBranch = branchName . entityVal <$> branch
                                , _esEvaluationId = entityKey evaluation
                                }
   , emGetService = \ serviceValue -> do

@@ -1,6 +1,5 @@
 module Evaluation.Types
         ( Category (..)
-        , CustomerNumber (..)
         , Comment (..)
         , CreateEvaluation (..)
         , Details (..)
@@ -24,6 +23,7 @@ module Evaluation.Types
         , Score (..)
         , Weight (..)
         , Telephone (..)
+        , BranchName (..)
         ) where
 
 import Data.Aeson.Options as AO (defaultOptions)
@@ -41,6 +41,11 @@ data Category = ZeroRated | Deviation
 $(deriveJSON AO.defaultOptions ''Category)
 
 derivePersistField "Category"
+
+newtype BranchName = Name {unBname :: Text}
+  deriving (Eq, Show, PersistField)
+
+$(deriveJSON AO.defaultOptions  { unwrapUnaryRecords = True } ''BranchName)
 
 newtype Telephone =Telephone { unTelephone :: Text}
   deriving (Eq, Show, PersistField)
@@ -71,11 +76,6 @@ newtype Reason = Reason { unReason :: Text }
   deriving (Eq, Show, PersistField)
 
 $(deriveJSON AO.defaultOptions { unwrapUnaryRecords = True } ''Reason)
-
-newtype CustomerNumber = CustomerNumber {unCustomerNumber :: Int }
-  deriving (Eq, Show, PersistField)
-
-$(deriveJSON AO.defaultOptions { unwrapUnaryRecords = True } ''CustomerNumber)
 
 newtype Weight = Weight {unWeight :: Int }
   deriving (Eq, Show, PersistField, Num)
@@ -142,6 +142,7 @@ data EvalAttrs = EvalAttrs
   , _eaCustomerTel :: Telephone
   , _eaComment :: Maybe Comment
   , _eaDetails :: Maybe Details
+  , _eaBranch :: Maybe BranchName
   , _eaDate :: UTCTime
   } deriving (Show)
 

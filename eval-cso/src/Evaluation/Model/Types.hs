@@ -12,13 +12,14 @@ import Db.Model
   (Evaluation, EvaluationId, Parameter, Service, ServiceId, User)
 import Evaluation.Types
   (CreateEvaluation, EvalErrors, ServiceAttrs, ServiceParameters,
-  ServiceTypeValue)
+  ServiceTypeValue, BranchName)
 
 data EvaluationScore = EvaluationScore
   { _esEvaluation :: Evaluation
   , _esParameter :: Parameter
   , _esEvaluator :: User
   , _esAgent :: User
+  , _esBranch :: Maybe BranchName
   , _esEvaluationId :: EvaluationId
   }
 makeClassy ''EvaluationScore
