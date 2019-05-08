@@ -16,6 +16,7 @@ import qualified Agent.Types as A
 import qualified Claim.Types as C
 import qualified Evaluation.Types as E
 import Foundation (HasPool(..))
+import qualified Nps.Types as N
 import qualified User.Types as U
 
 share
@@ -90,6 +91,27 @@ share
     createdAt   UTCTime  sqltype=timestamptz sql=created_at default=CURRENT_TIMESTAMP
     updatedAt   UTCTime  sqltype=timestamptz sql=updated_at default=CURRENT_TIMESTAMP
     deriving Show
+
+  Nps sql=nps
+   evaluator                UserId
+   customerTel              N.Telephone Maybe sqltype=int default Null
+   agent                    UserId
+   date                     UTCTime
+   touchPoint               N.TouchPoint      sqltype=text
+   reason                   E.Reason          sqltype=text
+   waitTime                 N.WaitTime        sqltype=int
+   duration                 E.Duration        sqltype=int
+   issueResolved            Bool
+   furtherInformationGiven  Bool
+   rating                   N.Rating             sqltype=int
+   ratingReason             N.RatingReason Maybe sqltype=text default=Null
+   crmCaptureCorrect        Bool
+   crmCaptureReason         N.CRMCaptureReason  Maybe sqltype=text default=Null
+   frontLineRatingReason    N.FrontLineRatingReason sqltype=text
+   backOfficeReason         N.BackOfficeReason sqltype=text
+   createdAt   UTCTime  sqltype=timestamptz sql=created_at default=CURRENT_TIMESTAMP
+   updatedAt   UTCTime  sqltype=timestamptz sql=updated_at default=CURRENT_TIMESTAMP
+   deriving Show
 
   Parameter sql=paremeter
     name        E.ParaName           sqltype=text

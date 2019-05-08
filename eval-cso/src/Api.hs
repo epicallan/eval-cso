@@ -13,6 +13,7 @@ import Agent.Api (AgentApi, agentServer)
 import Claim.Api (ClaimApi, claimServer)
 import Evaluation.Api (EvaluationApi, evaluationServer)
 import Foundation (App, AppT(..), Config, HasConfig(..), filterLogs)
+import Nps.Api (NpsApi, npsServer)
 import User.Api (UserApi, userServer)
 
 -- API specification
@@ -21,6 +22,7 @@ type Api auths = "api" :>
   :<|> AgentApi auths
   :<|> EvaluationApi auths
   :<|> ClaimApi auths
+  :<|> NpsApi auths
   )
 
 api :: Proxy (Api '[JWT])
@@ -36,6 +38,7 @@ appServerT cs jws  =
   :<|> agentServer
   :<|> evaluationServer
   :<|> claimServer
+  :<|> npsServer
 
 convertAppT :: forall a. Config -> App a -> Handler a
 convertAppT conf appM =
