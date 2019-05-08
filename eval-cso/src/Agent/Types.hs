@@ -11,17 +11,11 @@ module Agent.Types
        ) where
 
 import Data.Aeson.Options as AO (defaultOptions)
-import Data.Aeson.TH (Options(..), deriveJSON)
-import Database.Persist.Sql (PersistField)
+import Data.Aeson.TH (deriveJSON)
 import Lens.Micro.Platform (makeClassy)
 
-import Evaluation.Types (ServiceType, ServiceTypeValue)
+import Evaluation.Types (BranchName(..), ServiceType, ServiceTypeValue)
 import User.Types (Email, FullName, UserName, UserResponse)
-
-newtype BranchName = Name {unBname :: Text}
-  deriving (Eq, Show, PersistField)
-
-$(deriveJSON AO.defaultOptions  { unwrapUnaryRecords = True } ''BranchName)
 
 data AgentErrors =
     BranchNameNotFound BranchName

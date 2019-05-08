@@ -12,20 +12,21 @@ module Nps.Types
         , NpsRecord (..)
         , CreateNps (..)
         , NpsErrors (..)
+        , BranchName (..)
         ) where
 
 import Data.Aeson.Options as AO (defaultOptions)
 import Data.Aeson.TH (Options(..), deriveJSON)
 import Data.Time (UTCTime)
 import Database.Persist.Sql (PersistField)
-import Evaluation.Types (Duration(..), Reason(..))
-import User.Types (UserName)
+import Evaluation.Types (BranchName(..), Reason(..), Telephone(..))
+import User.Types (FullName, UserName)
 
-
-newtype Telephone =Telephone { unTelephone :: Text}
+newtype Duration =Duration { unDuration :: Int}
   deriving (Eq, Show, PersistField)
 
-$(deriveJSON AO.defaultOptions { unwrapUnaryRecords = True } ''Telephone)
+$(deriveJSON AO.defaultOptions { unwrapUnaryRecords = True } ''Duration)
+
 
 newtype TouchPoint = TouchPoint { unTouchPoint :: Text }
   deriving (Eq, Show, PersistField)
@@ -47,17 +48,17 @@ newtype RatingReason = RatingReason { unRatingReason :: Text }
 
 $(deriveJSON AO.defaultOptions { unwrapUnaryRecords = True } ''RatingReason)
 
-newtype CRMCaptureReason = CRMCaptureReason { unCRMCaptureReason :: Int }
+newtype CRMCaptureReason = CRMCaptureReason { unCRMCaptureReason :: Text }
   deriving (Eq, Show, PersistField)
 
 $(deriveJSON AO.defaultOptions { unwrapUnaryRecords = True } ''CRMCaptureReason)
 
-newtype FrontLineRatingReason = FrontLineRatingReason { unFrontLineRatingReason :: Int }
+newtype FrontLineRatingReason = FrontLineRatingReason { unFrontLineRatingReason :: Text }
   deriving (Eq, Show, PersistField)
 
 $(deriveJSON AO.defaultOptions { unwrapUnaryRecords = True } ''FrontLineRatingReason)
 
-newtype BackOfficeReason = BackOfficeReason { unBackOfficeReason :: Int }
+newtype BackOfficeReason = BackOfficeReason { unBackOfficeReason :: Text }
   deriving (Eq, Show, PersistField)
 
 $(deriveJSON AO.defaultOptions { unwrapUnaryRecords = True } ''BackOfficeReason)
@@ -94,6 +95,8 @@ data NpsRecord = NpsRecord
   { nrCustomerTel :: Maybe Telephone
   , nrEvaluator :: UserName
   , nrAgentName :: UserName
+  , nrSupervisor :: Maybe FullName
+  , nrBranch :: Maybe BranchName
   , nrDate :: UTCTime
   , nrTouchPoint :: TouchPoint
   , nrRating :: Rating

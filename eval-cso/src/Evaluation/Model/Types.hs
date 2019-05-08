@@ -8,10 +8,9 @@ module Evaluation.Model.Types
 import Lens.Micro.Platform (makeClassy)
 
 import Common.Types (Id)
-import Db.Model
-  (Evaluation, EvaluationId, Parameter, Service, ServiceId, User)
+import Db.Model (Evaluation, EvaluationId, Parameter, Service, ServiceId, User)
 import Evaluation.Types
-  (CreateEvaluation, EvalErrors, ServiceAttrs, ServiceParameters,
+  (BranchName, CreateEvaluation, EvalErrors, ServiceAttrs, ServiceParameters,
   ServiceTypeValue)
 
 data EvaluationScore = EvaluationScore
@@ -19,6 +18,8 @@ data EvaluationScore = EvaluationScore
   , _esParameter :: Parameter
   , _esEvaluator :: User
   , _esAgent :: User
+  , _esSupervisor :: Maybe User
+  , _esBranch :: Maybe BranchName
   , _esEvaluationId :: EvaluationId
   }
 makeClassy ''EvaluationScore

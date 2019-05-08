@@ -4,7 +4,7 @@ module Claim.Model.Types
        ) where
 import Lens.Micro.Platform (makeClassy)
 
-import Claim.Types (ClaimErrors, CreateClaim, ClaimTypeRecord)
+import Claim.Types (ClaimErrors, CreateClaim, ClaimTypeRecord, BranchName)
 import Common.Types (Id)
 import Db.Model (Claim, ClaimType, User, UserId)
 import User.Types (UserName)
@@ -13,6 +13,8 @@ data ClaimScore = ClaimScore
   { _csClaim :: Claim
   , _csEvaluator :: User
   , _csAgent :: User
+  , _csSupervisor :: Maybe User
+  , _csBranch :: Maybe BranchName
   , _csClaimType :: ClaimType
   }
 

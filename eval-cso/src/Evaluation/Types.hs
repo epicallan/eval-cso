@@ -1,9 +1,8 @@
 module Evaluation.Types
         ( Category (..)
-        , CustomerNumber (..)
         , Comment (..)
         , CreateEvaluation (..)
-        , Duration (..)
+        , Details (..)
         , Description (..)
         , EvalRecord (..)
         , EvalAttrs (..)
@@ -23,6 +22,8 @@ module Evaluation.Types
         , EvalErrors (..)
         , Score (..)
         , Weight (..)
+        , Telephone (..)
+        , BranchName (..)
         ) where
 
 import Data.Aeson.Options as AO (defaultOptions)
@@ -32,7 +33,7 @@ import Database.Persist.Sql (PersistField)
 import Database.Persist.TH (derivePersistField)
 import Lens.Micro.Platform (makeClassy)
 
-import User.Types (UserName)
+import User.Types (FullName, UserName)
 
 data Category = ZeroRated | Deviation
   deriving (Eq, Read, Show)
@@ -40,6 +41,16 @@ data Category = ZeroRated | Deviation
 $(deriveJSON AO.defaultOptions ''Category)
 
 derivePersistField "Category"
+
+newtype BranchName = Name {unBname :: Text}
+  deriving (Eq, Show, PersistField)
+
+$(deriveJSON AO.defaultOptions  { unwrapUnaryRecords = True } ''BranchName)
+
+newtype Telephone =Telephone { unTelephone :: Text}
+  deriving (Eq, Show, PersistField)
+
+$(deriveJSON AO.defaultOptions { unwrapUnaryRecords = True } ''Telephone)
 
 newtype ParaName = ParaName { unParaName :: Text }
   deriving (Eq, Show, PersistField)
@@ -66,20 +77,15 @@ newtype Reason = Reason { unReason :: Text }
 
 $(deriveJSON AO.defaultOptions { unwrapUnaryRecords = True } ''Reason)
 
-newtype CustomerNumber = CustomerNumber {unCustomerNumber :: Int }
-  deriving (Eq, Show, PersistField)
-
-$(deriveJSON AO.defaultOptions { unwrapUnaryRecords = True } ''CustomerNumber)
-
 newtype Weight = Weight {unWeight :: Int }
   deriving (Eq, Show, PersistField, Num)
 
 $(deriveJSON AO.defaultOptions { unwrapUnaryRecords = True } ''Weight)
 
-newtype Duration = Duration {unDuration :: Int }
-  deriving (Eq, Show, PersistField, Num)
+newtype Details = Details {unDetails :: Text }
+  deriving (Eq, Show, PersistField)
 
-$(deriveJSON AO.defaultOptions { unwrapUnaryRecords = True } ''Duration)
+$(deriveJSON AO.defaultOptions { unwrapUnaryRecords = True } ''Details)
 
 newtype Score = Score {unScore :: Int }
   deriving (Eq, Show, Num)
@@ -132,10 +138,12 @@ data EvalAttrs = EvalAttrs
   { _eaReason :: Reason
   , _eaEvaluator :: UserName
   , _eaAgentName :: UserName
+  , _eaSupervisor :: Maybe FullName
   , _eaService :: ServiceTypeValue
-  , _eaCustomer :: CustomerNumber
+  , _eaCustomerTel :: Telephone
   , _eaComment :: Maybe Comment
-  , _eaDuration :: Maybe Duration
+  , _eaDetails :: Maybe Details
+  , _eaBranch :: Maybe BranchName
   , _eaDate :: UTCTime
   } deriving (Show)
 
