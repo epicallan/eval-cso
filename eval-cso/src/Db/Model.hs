@@ -66,7 +66,7 @@ share
     serviceType    ServiceId
     reason         E.Reason             sqltype=text
     comment        E.Comment     Maybe  sqltype=text
-    details        E.Details    Maybe  sqltype=text
+    details        E.Details     Maybe  sqltype=text
     customerTel    E.Telephone          sqltype=text
     createdAt   UTCTime  sqltype=timestamptz sql=created_at default=CURRENT_TIMESTAMP
     updatedAt   UTCTime  sqltype=timestamptz sql=updated_at default=CURRENT_TIMESTAMP
