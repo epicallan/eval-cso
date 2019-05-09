@@ -20,9 +20,9 @@ type ClaimScoreTuple =
   ( Entity Claim
   , Entity ClaimType
   , Entity User
-  , Entity User
-  , Maybe (Entity User)
   , Maybe (Entity Branch)
+  , Maybe (Entity User)
+  , Entity User
   )
 
 claimModel :: forall r m . CanDb m r => ClaimModel m
@@ -38,16 +38,16 @@ claimModel = ClaimModel
      claimData :: [ClaimScoreTuple] <- runInDb $
        select $
          from $ \(claim `InnerJoin` claimType `InnerJoin` agent
-                 `InnerJoin` evaluator `InnerJoin` supervisor
-                 `InnerJoin` branch `InnerJoin` agentProfile `InnerJoin` users
+                 `InnerJoin` agentProfile `InnerJoin` branch
+                 `InnerJoin` supervisor `InnerJoin` evaluator
                  ) -> do
-            on (agentProfile ^. AgentBranch ==. branch ?. BranchId)
-            on (agentProfile ^. AgentSupervisorId ==.  users ?. UserId)
-            on (agent ^. UserId ==. agentProfile ^. AgentUserId)
             on (evaluator ^. UserId ==. claim ^. ClaimEvaluator)
+            on (agentProfile ^. AgentSupervisorId ==. supervisor ?. UserId)
+            on (agentProfile ^. AgentBranch ==. branch ?. BranchId)
+            on (agentProfile ^. AgentUserId ==. claim ^. ClaimAgent)
             on (agent ^. UserId ==. claim ^. ClaimAgent)
             on (claimType ^. ClaimTypeId ==. claim ^. ClaimClaimType)
-            return (claim, claimType, agent, evaluator, supervisor, branch)
+            return (claim, claimType, agent, branch, supervisor, evaluator)
      return $ toClaimScore <$> claimData
 
   , cmGetClaimtypes = do
@@ -82,13 +82,13 @@ mkClaimType ClaimTypeRecord{..} = do
     }
 
 toClaimScore :: ClaimScoreTuple -> ClaimScore
-toClaimScore (eClaim, eClaimType, eAgent, eEvaluator, supervisor, branch) = ClaimScore
+toClaimScore (eClaim, eClaimType, eAgent, mBranch, mSupervisor, eEvaluator) = ClaimScore
   { _csClaim = entityVal eClaim
   , _csEvaluator = entityVal eEvaluator
   , _csAgent = entityVal eAgent
   , _csClaimType = entityVal eClaimType
-  , _csSupervisor = entityVal <$> supervisor
-  , _csBranch = branchName . entityVal <$> branch
+  , _csSupervisor = entityVal <$> mSupervisor
+  , _csBranch = branchName . entityVal <$> mBranch
   }
 
 mkClaim :: MonadTime m => UserId -> CreateClaim -> ExceptClaimM m Claim

@@ -18,9 +18,9 @@ type ExceptNpsM m a = forall r. CanDb m r => ExceptT NpsErrors m a
 type NpsData =
   ( Entity Nps
   , Entity User
-  , Entity User
-  , Maybe (Entity User)
   , Maybe (Entity Branch)
+  , Maybe (Entity User)
+  , Entity User
   )
 
 npsModel :: forall r m . CanDb m r => NpsModel m
@@ -34,15 +34,15 @@ npsModel = NpsModel
   , nmGetNpss = do
      npsData :: [NpsData] <- runInDb $
        select $
-         from $ \(nps `InnerJoin` agent `InnerJoin` evaluator `InnerJoin` supervisor
-                  `InnerJoin` branch `InnerJoin` users `InnerJoin` agentProfile
+         from $ \(nps `InnerJoin` agent `InnerJoin` agentProfile `InnerJoin` branch
+                  `InnerJoin` supervisor `InnerJoin` evaluator
                  ) -> do
-            on (agentProfile ^. AgentBranch ==. branch ?. BranchId)
-            on (agentProfile ^. AgentSupervisorId ==.  users ?. UserId)
-            on (agent ^. UserId ==. agentProfile ^. AgentUserId)
             on (evaluator ^. UserId ==. nps ^. NpsEvaluator)
+            on (agentProfile ^. AgentSupervisorId ==. supervisor ?. UserId)
+            on (agentProfile ^. AgentBranch ==. branch ?. BranchId)
+            on (agent ^. UserId ==. agentProfile ^. AgentUserId)
             on (agent ^. UserId ==. nps ^. NpsAgent)
-            return (nps, agent, evaluator, supervisor, branch)
+            return (nps, agent, branch, supervisor, evaluator)
      return $ toNpsDbRecord <$> npsData
 
   , nmGetEvaluatorId = \uname -> do
@@ -56,7 +56,7 @@ getUserId name = do
   ExceptT $ pure . maybe (Left $ UserNameNotFound name) (Right . view uiId) $ mUserWithId
 
 toNpsDbRecord :: NpsData -> NpsDbRecord
-toNpsDbRecord (eNps, eAgent, eEvaluator, eSupervisor, eBranch) = NpsDbRecord
+toNpsDbRecord (eNps, eAgent, eBranch, eSupervisor, eEvaluator) = NpsDbRecord
   { ndrNps = entityVal eNps
   , ndrEvaluator = entityVal eEvaluator
   , ndrAgent = entityVal eAgent

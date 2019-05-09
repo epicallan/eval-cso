@@ -18,10 +18,10 @@ type EvaluationData =
   [(
     Entity Evaluation
   , Entity Parameter
+  , Entity User
   , Maybe (Entity Branch)
-  , Entity User
-  , Entity User
   , Maybe (Entity User)
+  , Entity User
   )]
 
 evalModel :: forall r m . CanDb m r => EvalModel m
@@ -49,21 +49,21 @@ evalModel = EvalModel
      evalData :: EvaluationData <- runInDb $
        select $
          from $ \(service `InnerJoin` evaluation `InnerJoin` parameterScore
-                 `InnerJoin` parameter `InnerJoin` branch `InnerJoin` agentProfile
-                 `InnerJoin` agent `InnerJoin` evaluator `InnerJoin` supervisor `InnerJoin` users
+                 `InnerJoin` parameter `InnerJoin` agent `InnerJoin` agentProfile
+                 `InnerJoin` branch `InnerJoin` supervisor `InnerJoin` evaluator
                  ) -> do
-            on (agentProfile ^. AgentSupervisorId ==.  users ?. UserId)
             on (evaluator ^. UserId ==. evaluation ^. EvaluationEvaluator)
-            on (agent ^. UserId ==. evaluation ^. EvaluationAgent)
-            on (agent ^. UserId ==. agentProfile ^. AgentUserId)
+            on (agentProfile ^. AgentSupervisorId ==. supervisor ?. UserId)
             on (agentProfile ^. AgentBranch ==. branch ?. BranchId)
+            on (agent ^. UserId ==. agentProfile ^. AgentUserId)
+            on (agent ^. UserId ==. evaluation ^. EvaluationAgent)
             on (parameter ^. ParameterId ==. parameterScore ^. ParameterScoreParameter)
             on (parameterScore ^. ParameterScoreEvaluation ==. evaluation ^. EvaluationId)
             on (service ^. ServiceId  ==. evaluation ^. EvaluationServiceType)
             where_ (service ^. ServiceId ==. val serviceId)
-            return (evaluation, parameter, branch, agent, evaluator, supervisor)
+            return (evaluation, parameter, agent, branch, supervisor, evaluator)
 
-     return $ evalData <&> \(evaluation, parameter, branch, agent, evaluator, supervisor) -> EvaluationScore
+     return $ evalData <&> \(evaluation, parameter, agent, branch, supervisor, evaluator) -> EvaluationScore
                                { _esEvaluation = entityVal evaluation
                                , _esParameter = entityVal parameter
                                , _esAgent = entityVal agent
