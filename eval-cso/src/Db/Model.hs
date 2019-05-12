@@ -95,21 +95,21 @@ share
 
   Nps sql=nps
    evaluator                UserId
-   customerTel              E.Telephone Maybe sqltype=int default Null
+   customerTel              E.Telephone          Maybe sqltype=int default Null
    agent                    UserId
-   date                     UTCTime
-   touchPoint               N.TouchPoint      sqltype=text
-   reason                   E.Reason          sqltype=text
-   waitTime                 N.WaitTime        sqltype=int
-   duration                 N.Duration        sqltype=int
+   date                     UTCTime                    sqltype=timestamptz
+   touchPoint               N.TouchPoint               sqltype=text
+   reason                   E.Reason                   sqltype=text
+   waitTime                 N.WaitTime                 sqltype=int
+   duration                 N.Duration                 sqltype=int
    issueResolved            Bool
    furtherInformationGiven  Bool
-   rating                   N.Rating             sqltype=int
-   ratingReason             N.RatingReason Maybe sqltype=text default=Null
-   crmCaptureCorrect        Bool
-   crmCaptureReason         N.CRMCaptureReason  Maybe sqltype=text default=Null
-   frontLineRatingReason    N.FrontLineRatingReason sqltype=text
-   backOfficeReason         N.BackOfficeReason sqltype=text
+   rating                   N.Rating                    sqltype=int
+   ratingReason             N.RatingReason        Maybe sqltype=text default=Null
+   crmCaptureCorrect        N.CaptureCorrectState       sqltype=text
+   crmCaptureReason         N.CRMCaptureReason    Maybe sqltype=text default=Null
+   frontLineRatingReasons   [N.FrontLineRatingReason]
+   backOfficeReasons        [N.BackOfficeReason]
    createdAt   UTCTime  sqltype=timestamptz sql=created_at default=CURRENT_TIMESTAMP
    updatedAt   UTCTime  sqltype=timestamptz sql=updated_at default=CURRENT_TIMESTAMP
    deriving Show

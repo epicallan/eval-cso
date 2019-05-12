@@ -9,7 +9,7 @@ import Servant (err400, err404)
 
 import Common.Errors (MonadThrowLogger, throwSError)
 import Db.Model (User(..))
-import User.Types (Email, Role(..), UserName, UserErrors(..), UserResponse(..))
+import User.Types (Email, Role(..), UserErrors(..), UserName, UserResponse(..))
 
 throwInvalidUserName :: MonadThrowLogger m => UserName -> m a
 throwInvalidUserName = throwSError err404 . UserNameNotFound
@@ -33,6 +33,7 @@ runProtectedAction logedInUser urole action = do
   let uemail = userEmail logedInUser
   case userRole logedInUser of
     Admin -> action
+    Supervisor -> if urole /= Admin then action else throwUserNotAuthorized uemail
     Evaluator -> if urole == CSOAgent
                     then action
                     else throwUserNotAuthorized uemail

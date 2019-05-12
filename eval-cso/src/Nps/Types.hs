@@ -5,6 +5,7 @@ module Nps.Types
         , RatingReason (..)
         , Rating (..)
         , CRMCaptureReason (..)
+        , CaptureCorrectState (..)
         , FrontLineRatingReason (..)
         , BackOfficeReason (..)
         , Reason (..)
@@ -19,6 +20,7 @@ import Data.Aeson.Options as AO (defaultOptions)
 import Data.Aeson.TH (Options(..), deriveJSON)
 import Data.Time (UTCTime)
 import Database.Persist.Sql (PersistField)
+import Database.Persist.TH (derivePersistField)
 import Evaluation.Types (BranchName(..), Reason(..), Telephone(..))
 import User.Types (FullName, UserName)
 
@@ -63,6 +65,12 @@ newtype BackOfficeReason = BackOfficeReason { unBackOfficeReason :: Text }
 
 $(deriveJSON AO.defaultOptions { unwrapUnaryRecords = True } ''BackOfficeReason)
 
+data CaptureCorrectState = Fair | Good | Bad
+  deriving (Eq, Read, Show)
+$(deriveJSON AO.defaultOptions ''CaptureCorrectState)
+
+derivePersistField "CaptureCorrectState"
+
 data NpsErrors =
     NpsTypeNotFound TouchPoint
   | UserNameNotFound UserName
@@ -83,10 +91,10 @@ data CreateNps = CreateNps
   , cnIssueResolved :: Bool
   , cnFurtherInformationGiven :: Bool
   , cnRatingReason :: Maybe RatingReason
-  , cnCrmCaptureCorrect :: Bool
+  , cnCrmCaptureCorrect :: CaptureCorrectState
   , cnCrmCaptureReason :: Maybe CRMCaptureReason
-  , cnFrontLineRatingReason :: FrontLineRatingReason
-  , cnBackOfficeReason :: BackOfficeReason
+  , cnFrontLineRatingReasons :: [FrontLineRatingReason]
+  , cnBackOfficeReasons :: [BackOfficeReason]
   } deriving (Show)
 
 $(deriveJSON AO.defaultOptions ''CreateNps)
@@ -106,10 +114,10 @@ data NpsRecord = NpsRecord
   , nrIssueResolved :: Bool
   , nrFurtherInformationGinven :: Bool
   , nrRatingReason :: Maybe RatingReason
-  , nrCrmCaptureCorrect :: Bool
+  , nrCrmCaptureCorrect :: CaptureCorrectState
   , nrCrmCaptureReason :: Maybe CRMCaptureReason
-  , nrFrontLineRatingReason :: FrontLineRatingReason
-  , nrBackOfficeReason :: BackOfficeReason
+  , nrFrontLineRatingReasons :: [FrontLineRatingReason]
+  , nrBackOfficeReasons :: [BackOfficeReason]
   , nrCreatedAt :: UTCTime
   } deriving (Show)
 

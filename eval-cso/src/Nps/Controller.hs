@@ -50,7 +50,7 @@ toNpsRecord NpsDbRecord{..} =
       nrRatingReason = npsRatingReason ndrNps
       nrCrmCaptureCorrect = npsCrmCaptureCorrect ndrNps
       nrCrmCaptureReason = npsCrmCaptureReason ndrNps
-      nrFrontLineRatingReason = npsFrontLineRatingReason ndrNps
-      nrBackOfficeReason = npsBackOfficeReason ndrNps
+      nrFrontLineRatingReasons = npsFrontLineRatingReasons ndrNps
+      nrBackOfficeReasons = npsBackOfficeReasons ndrNps
       nrCreatedAt = npsCreatedAt ndrNps
   in NpsRecord{..}

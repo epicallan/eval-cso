@@ -93,12 +93,12 @@ toClaimScore (eClaim, eClaimType, eAgent, mBranch, mSupervisor, eEvaluator) = Cl
 
 mkClaim :: MonadTime m => UserId -> CreateClaim -> ExceptClaimM m Claim
 mkClaim claimEvaluator CreateClaim {..} = do
-  claimCreatedAt <- currentTime
   claimAgent <- getUserId _ccAgentName
   claimClaimType <- getClaimTypeId _ccClaimType
   let claimAllParametersMet = _ccAllParametersMet
       claimWorkflowNumber = _ccWorkflowNumber
       claimDetails = _ccDetails
       claimComment = _ccComment
-      claimUpdatedAt = claimCreatedAt
+      claimCreatedAt = _ccDate
+      claimUpdatedAt = _ccDate
   pure $ Claim {..}

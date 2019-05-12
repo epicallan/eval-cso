@@ -79,8 +79,8 @@ mkNps npsEvaluator CreateNps {..} = do
       npsFurtherInformationGiven = cnFurtherInformationGiven
       npsRatingReason = cnRatingReason
       npsCrmCaptureCorrect = cnCrmCaptureCorrect
-      npsFrontLineRatingReason = cnFrontLineRatingReason
+      npsFrontLineRatingReasons = cnFrontLineRatingReasons
       npsCrmCaptureReason = cnCrmCaptureReason
-      npsBackOfficeReason = cnBackOfficeReason
+      npsBackOfficeReasons = cnBackOfficeReasons
       npsUpdatedAt = npsCreatedAt
   pure $ Nps {..}

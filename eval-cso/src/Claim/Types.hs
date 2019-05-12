@@ -58,6 +58,7 @@ data CreateClaim = CreateClaim
   , _ccComment :: Maybe Comment
   , _ccClaimType :: ClaimTypeValue
   , _ccDetails :: Maybe Details
+  , _ccDate :: UTCTime
   } deriving (Show)
 
 $(deriveJSON AO.defaultOptions ''CreateClaim)
