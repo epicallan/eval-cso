@@ -97,6 +97,7 @@ mkClaim claimEvaluator CreateClaim {..} = do
   claimClaimType <- getClaimTypeId _ccClaimType
   let claimAllParametersMet = _ccAllParametersMet
       claimWorkflowNumber = _ccWorkflowNumber
+      claimReason = _ccReason
       claimDetails = _ccDetails
       claimComment = _ccComment
       claimCreatedAt = _ccDate

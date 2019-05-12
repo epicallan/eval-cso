@@ -84,10 +84,11 @@ share
     evaluator        UserId
     agent            UserId
     allParametersMet C.AllParametersMet
-    comment          E.Comment  Maybe   sqltype=text default=Null
+    comment          C.Comment  Maybe   sqltype=text default=Null
     workflowNumber   C.WorkflowNumber   sqltype=int
     claimType        ClaimTypeId
-    details          E.Details    Maybe  sqltype=text
+    details          C.Details    Maybe  sqltype=text
+    reason           C.Reason            sqltype=text
     UniqueWorkflowNumber workflowNumber
     createdAt   UTCTime  sqltype=timestamptz sql=created_at default=CURRENT_TIMESTAMP
     updatedAt   UTCTime  sqltype=timestamptz sql=updated_at default=CURRENT_TIMESTAMP

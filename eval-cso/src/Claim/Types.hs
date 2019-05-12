@@ -13,6 +13,7 @@ module Claim.Types
         , Score (..)
         , Details (..)
         , BranchName (..)
+        , Reason (..)
         ) where
 
 import Data.Aeson.Options as AO (defaultOptions)
@@ -21,7 +22,8 @@ import Data.Time (UTCTime)
 import Database.Persist.Sql (PersistField)
 import Lens.Micro.Platform (makeClassy)
 
-import Evaluation.Types (BranchName(..), Comment(..), Details(..), Score(..))
+import Evaluation.Types
+  (BranchName(..), Comment(..), Details(..), Reason(..), Score(..))
 import User.Types (FullName, UserName)
 
 type AllParametersMet = Bool
@@ -30,7 +32,6 @@ newtype ClaimTypeName = ClaimTypeName { unClaimTypeName :: Text }
   deriving (Eq, Show, PersistField)
 
 $(deriveJSON AO.defaultOptions { unwrapUnaryRecords = True } ''ClaimTypeName)
-
 
 newtype ClaimTypeValue = ClaimTypeValue { unClaimTypeValue :: Text }
   deriving (Eq, Show, PersistField)
@@ -58,6 +59,7 @@ data CreateClaim = CreateClaim
   , _ccComment :: Maybe Comment
   , _ccClaimType :: ClaimTypeValue
   , _ccDetails :: Maybe Details
+  , _ccReason :: Reason
   , _ccDate :: UTCTime
   } deriving (Show)
 
@@ -74,6 +76,7 @@ data ClaimRecord = ClaimRecord
   , _crComment :: Maybe Comment
   , _crClaimType :: ClaimTypeName
   , _crDetails :: Maybe Details
+  , _crReason :: Reason
   , _crDate :: UTCTime
   } deriving (Show)
 
