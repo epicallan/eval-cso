@@ -59,7 +59,7 @@ data CreateClaim = CreateClaim
   , _ccComment :: Maybe Comment
   , _ccClaimType :: ClaimTypeValue
   , _ccDetails :: Maybe Details
-  , _ccReason :: Reason
+  , _ccReason :: Maybe Reason
   , _ccDate :: UTCTime
   } deriving (Show)
 
@@ -76,7 +76,7 @@ data ClaimRecord = ClaimRecord
   , _crComment :: Maybe Comment
   , _crClaimType :: ClaimTypeName
   , _crDetails :: Maybe Details
-  , _crReason :: Reason
+  , _crReason :: Maybe Reason
   , _crDate :: UTCTime
   } deriving (Show)
 

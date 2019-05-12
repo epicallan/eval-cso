@@ -88,7 +88,7 @@ share
     workflowNumber   C.WorkflowNumber   sqltype=int
     claimType        ClaimTypeId
     details          C.Details    Maybe  sqltype=text
-    reason           C.Reason            sqltype=text
+    reason           C.Reason     Maybe  sqltype=text
     UniqueWorkflowNumber workflowNumber
     createdAt   UTCTime  sqltype=timestamptz sql=created_at default=CURRENT_TIMESTAMP
     updatedAt   UTCTime  sqltype=timestamptz sql=updated_at default=CURRENT_TIMESTAMP
