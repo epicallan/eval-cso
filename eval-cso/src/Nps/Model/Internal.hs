@@ -42,12 +42,19 @@ npsModel = NpsModel
             on (agentProfile ^. AgentBranch ==. branch ?. BranchId)
             on (agent ^. UserId ==. agentProfile ^. AgentUserId)
             on (agent ^. UserId ==. nps ^. NpsAgent)
+            where_ (nps ^. NpsDeleted ==. val (Just False))
             return (nps, agent, branch, supervisor, evaluator)
      return $ toNpsDbRecord <$> npsData
 
   , nmGetEvaluatorId = \uname -> do
       mUserWithId <- umGetUserByName userModel uname
       pure $ maybe (Left $ UserNameNotFound uname) (Right . view uiId) mUserWithId
+
+  , nmDeleteNps = \npsId ->
+      runInDb $
+        update $ \nps -> do
+          set nps [NpsDeleted =. val (Just True) ]
+          where_ $ nps ^. NpsId ==. val npsId
   }
 
 getUserId :: U.UserName -> ExceptNpsM m UserId
@@ -58,6 +65,7 @@ getUserId name = do
 toNpsDbRecord :: NpsData -> NpsDbRecord
 toNpsDbRecord (eNps, eAgent, eBranch, eSupervisor, eEvaluator) = NpsDbRecord
   { ndrNps = entityVal eNps
+  , ndrNpsId = entityKey eNps
   , ndrEvaluator = entityVal eEvaluator
   , ndrAgent = entityVal eAgent
   , ndrSupervisor = entityVal <$> eSupervisor
@@ -82,5 +90,6 @@ mkNps npsEvaluator CreateNps {..} = do
       npsFrontLineRatingReasons = cnFrontLineRatingReasons
       npsCrmCaptureReason = cnCrmCaptureReason
       npsBackOfficeReasons = cnBackOfficeReasons
+      npsDeleted = Just False
       npsUpdatedAt = npsCreatedAt
   pure $ Nps {..}

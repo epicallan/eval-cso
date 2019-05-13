@@ -59,6 +59,7 @@ updateAgent agentModel logedInUser name attrs = do
   eitherSError err400 =<< runProtectedAction
     logedInUser
     CSOAgent
+    userName
     (amUpdateAgent agentModel userName attrs)
 
 getAgentByUserName

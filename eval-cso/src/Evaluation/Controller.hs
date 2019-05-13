@@ -3,22 +3,23 @@ module Evaluation.Controller
        , saveEvaluation
        , getServiceEvaluations
        , getServiceParamters
+       , deleteEvaluation
        ) where
 import Data.List (groupBy)
-import Database.Persist.Postgresql (fromSqlKey)
-import Servant (err400, err401)
+import Database.Persist.Postgresql (fromSqlKey, toSqlKey)
+import Servant (err400)
 
-import Common.Errors (MonadThrowLogger, eitherSError, throwSError)
-import Common.Types (Id(..))
+import Common.Errors (MonadThrowLogger, eitherSError)
+import Common.Types (Id(..), RecordId(..))
 import Db.Model (Evaluation(..), Parameter(..), User(..))
 import Evaluation.Model.Types
   (EvalModel(..), EvaluationScore(..), HasEvaluationScore(..),
   HasServiceWithId(..))
 import Evaluation.Types
-  (Category(ZeroRated), CreateEvaluation, EvalAttrs(..), EvalErrors(..),
-  EvalRecord(..), HasParameterAttrs(..), ParameterAttrs(..),
-  ServiceParameters(..), ServiceTypeValue(..))
-import User.Types (Role(..))
+  (Category(ZeroRated), CreateEvaluation, EvalAttrs(..), EvalRecord(..),
+  HasParameterAttrs(..), ParameterAttrs(..), ServiceParameters(..),
+  ServiceTypeValue(..))
+import User.Helper (runAdminAction, runEvaluatorAction)
 
 getServiceEvaluations
   :: (MonadThrowLogger m)
@@ -39,14 +40,16 @@ getServiceEvaluations evalModel serviceType = do
           totalScore =  sum $ view paWeight <$> _erParameters
           isZeroRated = any (\para -> para ^. paCategory == ZeroRated) _erParameters
           _erScore = if isZeroRated then 0 else 100 - totalScore
+          _erId = RecordId . fromSqlKey $ firstScore ^. esEvaluationId
       in Just EvalRecord {..}
 
     toEvalRecord [] = Nothing
 
+
 createParameters
   :: MonadThrowLogger m
   => EvalModel m -> User -> ServiceParameters -> m ()
-createParameters evalModel user sp = protectedAction user $
+createParameters evalModel user sp = runEvaluatorAction user $
    emCreateParameters evalModel sp >>= eitherSError err400
 
 getServiceParamters
@@ -57,18 +60,18 @@ getServiceParamters evalModel serviceType = do
    parameters <- emGetServiceParameters evalModel service >>= eitherSError err400
    pure $ toParameterAttr <$> parameters
 
+deleteEvaluation
+  :: MonadThrowLogger m
+  => EvalModel m -> User -> Int64 -> m ()
+deleteEvaluation evalModel user eId = runAdminAction user $
+  emDeleteEvaluation evalModel (toSqlKey eId) -- TODO first check evaluation Exists
+
 saveEvaluation
   :: MonadThrowLogger m
   => EvalModel m -> User -> CreateEvaluation -> m Id
-saveEvaluation evalModel user ce = protectedAction user $ do
+saveEvaluation evalModel user ce = runEvaluatorAction  user $ do
   evalId <- emCreateEvaluation evalModel ce >>= eitherSError err400
   pure . Id $ fromSqlKey evalId
-
-protectedAction :: MonadThrowLogger m => User -> m a -> m a
-protectedAction User{..} action = case userRole of
-  Evaluator -> action
-  Admin     -> action
-  _         -> throwSError err401 $ ActionIsForEvaluatorsOnly userName
 
 toParameterAttr ::  Parameter -> ParameterAttrs
 toParameterAttr parameter =

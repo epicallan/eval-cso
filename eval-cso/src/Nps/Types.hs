@@ -21,6 +21,8 @@ import Data.Aeson.TH (Options(..), deriveJSON)
 import Data.Time (UTCTime)
 import Database.Persist.Sql (PersistField)
 import Database.Persist.TH (derivePersistField)
+
+import Common.Types (RecordId)
 import Evaluation.Types (BranchName(..), Reason(..), Telephone(..))
 import User.Types (FullName, UserName)
 
@@ -118,6 +120,7 @@ data NpsRecord = NpsRecord
   , nrCrmCaptureReason :: Maybe CRMCaptureReason
   , nrFrontLineRatingReasons :: [FrontLineRatingReason]
   , nrBackOfficeReasons :: [BackOfficeReason]
+  , nrId :: RecordId
   , nrCreatedAt :: UTCTime
   } deriving (Show)
 

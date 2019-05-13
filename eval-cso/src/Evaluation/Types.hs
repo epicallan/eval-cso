@@ -33,6 +33,7 @@ import Database.Persist.Sql (PersistField)
 import Database.Persist.TH (derivePersistField)
 import Lens.Micro.Platform (makeClassy)
 
+import Common.Types (RecordId)
 import User.Types (FullName, UserName)
 
 data Category = ZeroRated | Deviation
@@ -118,6 +119,7 @@ data EvalErrors =
   | UserNameNotFound UserName
   | ParameterNotFound Paravalue
   | ActionIsForEvaluatorsOnly UserName
+  | ActionIsForAdminOnly UserName
   deriving Show
 
 instance Exception EvalErrors
@@ -154,6 +156,7 @@ data EvalRecord = EvalRecord
   { _erParameters :: [ParameterAttrs]
   , _erEvalAttrs :: EvalAttrs
   , _erScore :: Weight
+  , _erId :: RecordId
   } deriving (Show)
 
 $(deriveJSON AO.defaultOptions ''EvalRecord)

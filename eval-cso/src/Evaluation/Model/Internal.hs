@@ -14,15 +14,14 @@ import Evaluation.Types
   Paravalue, ServiceAttrs(..), ServiceParameters(..), ServiceTypeValue)
 import qualified User.Types as U (UserName)
 
-type EvaluationData =
-  [(
-    Entity Evaluation
+type EvaluationScoreTuple =
+  ( Entity Evaluation
   , Entity Parameter
   , Entity User
   , Maybe (Entity Branch)
   , Maybe (Entity User)
   , Entity User
-  )]
+  )
 
 evalModel :: forall r m . CanDb m r => EvalModel m
 evalModel = EvalModel
@@ -46,7 +45,7 @@ evalModel = EvalModel
          pure $ Right evalId
 
   , emGetEvaluationByService = \serviceId -> do
-     evalData :: EvaluationData <- runInDb $
+     evalData :: [EvaluationScoreTuple] <- runInDb $
        select $
          from $ \(service `InnerJoin` evaluation `InnerJoin` parameterScore
                  `InnerJoin` parameter `InnerJoin` agent `InnerJoin` agentProfile
@@ -61,20 +60,15 @@ evalModel = EvalModel
             on (parameterScore ^. ParameterScoreEvaluation ==. evaluation ^. EvaluationId)
             on (service ^. ServiceId  ==. evaluation ^. EvaluationServiceType)
             where_ (service ^. ServiceId ==. val serviceId)
+            where_ (evaluation ^. EvaluationDeleted ==.  val (Just False))
             return (evaluation, parameter, agent, branch, supervisor, evaluator)
 
-     return $ evalData <&> \(evaluation, parameter, agent, branch, supervisor, evaluator) -> EvaluationScore
-                               { _esEvaluation = entityVal evaluation
-                               , _esParameter = entityVal parameter
-                               , _esAgent = entityVal agent
-                               , _esEvaluator = entityVal evaluator
-                               , _esSupervisor = entityVal <$> supervisor
-                               , _esBranch = branchName . entityVal <$> branch
-                               , _esEvaluationId = entityKey evaluation
-                               }
+     return $ evalData <&> toEvaluationScore
+
   , emGetService = \ serviceValue -> do
       eServiceEntity <- getService serviceValue
       pure $ second (\(Entity siId siService) -> ServiceWithId siService siId) eServiceEntity
+
   , emCreateService = \(ServiceAttrs name value) -> do
       utcTime <- currentTime
       serviceId <- runInDb $ insert
@@ -85,6 +79,7 @@ evalModel = EvalModel
                               , serviceUpdatedAt = utcTime
                               }
       pure . Id $ fromSqlKey serviceId
+
   , emGetServiceParameters = \serviceValue -> do
       eServiceEntity <- getService serviceValue
       case eServiceEntity of
@@ -96,6 +91,30 @@ evalModel = EvalModel
                  where_ $ parameter ^. ParameterServiceType ==. val serviceId
                  return parameter
           pure . Right $ entityVal <$> parameters
+
+  , emDeleteEvaluation = \evaluationId ->
+      runInDb $
+        update $ \evaluation -> do
+          set evaluation [EvaluationDeleted =. val (Just True) ]
+          where_ $ evaluation ^. EvaluationId ==. val evaluationId
+
+  , emGetEvaluationById = \evaluationId -> do
+      evalData :: [EvaluationScoreTuple] <- runInDb $
+         select $
+           from $ \(evaluation `InnerJoin` parameterScore
+                   `InnerJoin` parameter `InnerJoin` agent `InnerJoin` agentProfile
+                   `InnerJoin` branch `InnerJoin` supervisor `InnerJoin` evaluator
+                   ) -> do
+              on (evaluator ^. UserId ==. evaluation ^. EvaluationEvaluator)
+              on (agentProfile ^. AgentSupervisorId ==. supervisor ?. UserId)
+              on (agentProfile ^. AgentBranch ==. branch ?. BranchId)
+              on (agent ^. UserId ==. agentProfile ^. AgentUserId)
+              on (agent ^. UserId ==. evaluation ^. EvaluationAgent)
+              on (parameter ^. ParameterId ==. parameterScore ^. ParameterScoreParameter)
+              on (parameterScore ^. ParameterScoreEvaluation ==. evaluation ^. EvaluationId)
+              where_ (evaluation ^. EvaluationId ==. val evaluationId)
+              return (evaluation, parameter, agent, branch, supervisor, evaluator)
+      return $ toEvaluationScore <$> evalData
   }
   where
     mkEvaluation :: EvalAttrs -> ExceptT EvalErrors m Evaluation
@@ -111,6 +130,7 @@ evalModel = EvalModel
         , evaluationReason = _eaReason
         , evaluationComment = _eaComment
         , evaluationDetails = _eaDetails
+        , evaluationDeleted = Just False
         , evaluationCustomerTel = _eaCustomerTel
         , evaluationCreatedAt = utcTime
         , evaluationUpdatedAt = utcTime
@@ -157,3 +177,14 @@ evalModel = EvalModel
         , parameterUpdatedAt = utcTime
         , parameterCreatedAt = utcTime
         }
+
+    toEvaluationScore :: EvaluationScoreTuple -> EvaluationScore
+    toEvaluationScore (evaluation, parameter, agent, branch, supervisor, evaluator) = EvaluationScore
+       { _esEvaluation = entityVal evaluation
+       , _esParameter = entityVal parameter
+       , _esAgent = entityVal agent
+       , _esEvaluator = entityVal evaluator
+       , _esSupervisor = entityVal <$> supervisor
+       , _esBranch = branchName . entityVal <$> branch
+       , _esEvaluationId = entityKey evaluation
+       }

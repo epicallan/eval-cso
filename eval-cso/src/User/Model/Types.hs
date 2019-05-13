@@ -6,7 +6,7 @@ module User.Model.Types
 import Lens.Micro.Platform (makeClassy)
 
 import Db.Model (User, UserId)
-import User.Types (Email, PasswordHash, UserName, UserEdits)
+import User.Types (Email, PasswordHash, UserEdits, UserName)
 
 data UserWithId = UserWithId
   { _uiUser :: User
@@ -22,4 +22,5 @@ data UserModel (m :: * -> *) = UserModel
   , umGetUserByName :: UserName -> m (Maybe UserWithId)
   , umUpdateUser :: UserId -> UserEdits -> m User
   , umSetPassword :: UserId -> PasswordHash -> m ()
+  , umDeleteUser :: UserId -> m ()
   }

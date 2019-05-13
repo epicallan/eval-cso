@@ -5,6 +5,7 @@ module User.Controller
        , listUsers
        , loginUser
        , signupUser
+       , deleteUser
        , generateUser
        , setPassword
        ) where
@@ -21,7 +22,8 @@ import Common.Types (Id(..))
 import Db.Model (User(..))
 import Foundation (HasSettings)
 import User.Helper
-  (runProtectedAction, throwInvalidUserName, throwUserExists, toUserResponse)
+  (runAdminAction, runProtectedAction, throwInvalidUserName, throwUserExists,
+  toUserResponse)
 import User.Model.Types (HasUserWithId(..), UserModel(..), UserWithId(..))
 import User.Password (hashPassword, validatePassword)
 import User.Types
@@ -50,7 +52,7 @@ setPassword usModel logedInUser nameTxt pwd = do
   let uName = U.UserName nameTxt
   (UserWithId user userId) <- getUserByName' usModel uName
   let mkPassword = hashPassword (Password pwd) >>= umSetPassword usModel userId
-  runProtectedAction logedInUser (userRole user) mkPassword
+  runProtectedAction logedInUser (userRole user) uName mkPassword
   pure . Id $ fromSqlKey userId
 
 generateUser
@@ -62,7 +64,7 @@ generateUser
 generateUser usModel logedInUser attrs = do
   defaultPassword <- liftIO $ randomString' randomASCII (1 % 2) (2 % 3) 7 <&> toText
   let createU = createUser usModel attrs  $ Password defaultPassword
-  runProtectedAction logedInUser (attrs ^. role) createU
+  runProtectedAction logedInUser (attrs ^. role) (attrs ^. U.userName) createU
 
 updateUser
   :: MonadThrowLogger m
@@ -76,7 +78,7 @@ updateUser usModel logedInUser nameTxt edits = do
   (UserWithId user userId) <- getUserByName' usModel uName
   let update = toUserResponse <$> umUpdateUser usModel userId edits
   if | uName == userName logedInUser -> update
-     | otherwise -> runProtectedAction logedInUser (userRole user) update
+     | otherwise -> runProtectedAction logedInUser (userRole user) (userName user) update
 
 listUsers
   :: Functor m
@@ -142,10 +144,16 @@ createUser usModel userAttrs pwd = do
          , userFullName = userAttrs ^. fullName
          , userEmail = userAttrs ^. email
          , userPassword = hpwd
+         , userDeleted = Just False
          , userCreatedAt = utcTime
          , userUpdatedAt = utcTime
          }
   Id . fromSqlKey <$> maybe (throwUserExists uName) pure mUserId
+
+deleteUser :: MonadThrowLogger m => UserModel m -> User -> Text -> m ()
+deleteUser usModel logedInUser uName = do
+  (UserWithId _ userId) <- getUserByName' usModel $ U.UserName uName
+  runAdminAction logedInUser $ umDeleteUser usModel userId
 
 getUserByName' :: MonadThrowLogger m => UserModel m -> U.UserName -> m UserWithId
 getUserByName' usModel uName = do

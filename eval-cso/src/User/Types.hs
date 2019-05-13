@@ -32,11 +32,11 @@ import Common.Types (Id)
 import User.Password (Password(..), PasswordHash(..))
 
 data Role =
-    Admin
-  | CSOAgent
+    CSOAgent
   | Evaluator
   | Supervisor
-  deriving (Eq, Show, Read)
+  | Admin
+  deriving (Eq, Ord, Show, Read)
 
 $(deriveJSON AO.defaultOptions ''Role)
 derivePersistField "Role"

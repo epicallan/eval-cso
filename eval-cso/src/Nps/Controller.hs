@@ -1,15 +1,17 @@
 module Nps.Controller
        ( getNpsRecords
        , saveNps
+       , deleteNps
        ) where
+import Database.Persist.Postgresql (fromSqlKey, toSqlKey)
 import Servant (err400, err401)
 
-import Common.Errors (MonadThrowLogger, eitherSError, throwSError)
-import Common.Types (Id(..))
+import Common.Errors (MonadThrowLogger, eitherSError)
+import Common.Types (Id, RecordId(..))
 import Db.Model (Nps(..), User(..))
 import Nps.Model.Types (NpsDbRecord(..), NpsModel(..))
-import Nps.Types (CreateNps, NpsErrors(..), NpsRecord(..))
-import User.Types (Role(..))
+import Nps.Types (CreateNps, NpsRecord(..))
+import User.Helper (runAdminAction, runEvaluatorAction)
 
 getNpsRecords
   :: MonadThrowLogger m
@@ -22,15 +24,15 @@ getNpsRecords npsModel = do
 saveNps
   :: MonadThrowLogger m
   => NpsModel m -> User -> CreateNps -> m Id
-saveNps npsModel user nps = protectedAction user $ do
+saveNps npsModel user nps = runEvaluatorAction user $ do
   evaluatorId <- nmGetEvaluatorId npsModel (userName user) >>= eitherSError err401
   nmCreateNps npsModel evaluatorId nps >>= eitherSError err400
 
-protectedAction :: MonadThrowLogger m => User -> m a -> m a
-protectedAction User{..} action = case userRole of
-  Evaluator -> action
-  Admin     -> action
-  _         -> throwSError err401 $ ActionIsForEvaluators userName
+deleteNps
+  :: MonadThrowLogger m
+  => NpsModel m -> User -> Int64 -> m ()
+deleteNps npsModel user npsId = runAdminAction user $
+  nmDeleteNps npsModel (toSqlKey npsId)
 
 toNpsRecord :: NpsDbRecord -> NpsRecord
 toNpsRecord NpsDbRecord{..} =
@@ -52,5 +54,6 @@ toNpsRecord NpsDbRecord{..} =
       nrCrmCaptureReason = npsCrmCaptureReason ndrNps
       nrFrontLineRatingReasons = npsFrontLineRatingReasons ndrNps
       nrBackOfficeReasons = npsBackOfficeReasons ndrNps
+      nrId = RecordId $ fromSqlKey ndrNpsId
       nrCreatedAt = npsCreatedAt ndrNps
   in NpsRecord{..}

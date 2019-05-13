@@ -22,6 +22,7 @@ import Data.Time (UTCTime)
 import Database.Persist.Sql (PersistField)
 import Lens.Micro.Platform (makeClassy)
 
+import Common.Types (RecordId)
 import Evaluation.Types
   (BranchName(..), Comment(..), Details(..), Reason(..), Score(..))
 import User.Types (FullName, UserName)
@@ -77,6 +78,7 @@ data ClaimRecord = ClaimRecord
   , _crClaimType :: ClaimTypeName
   , _crDetails :: Maybe Details
   , _crReason :: Maybe Reason
+  , _crId :: RecordId
   , _crDate :: UTCTime
   } deriving (Show)
 

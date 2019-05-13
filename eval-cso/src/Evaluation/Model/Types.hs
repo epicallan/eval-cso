@@ -37,4 +37,6 @@ data EvalModel m = EvalModel
   , emGetService :: ServiceTypeValue -> m (Either EvalErrors ServiceWithId)
   , emCreateService :: ServiceAttrs -> m Id
   , emGetServiceParameters :: ServiceTypeValue -> m (Either EvalErrors [Parameter])
+  , emDeleteEvaluation :: EvaluationId ->  m ()
+  , emGetEvaluationById :: EvaluationId -> m [EvaluationScore]
   }

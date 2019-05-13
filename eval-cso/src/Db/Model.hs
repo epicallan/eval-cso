@@ -25,10 +25,11 @@ share
   ] [persistLowerCase|
   User sql=users
     name           U.UserName     sqltype=text
-    fullName       U.FullName    sqltype=text
+    fullName       U.FullName     sqltype=text
     email          U.Email        sqltype=text
     role           U.Role         sqltype=text
     password       U.PasswordHash sqltype=text
+    deleted        Bool    Maybe  default=False
     createdAt      UTCTime  sqltype=timestamptz sql=created_at default=CURRENT_TIMESTAMP
     updatedAt      UTCTime  sqltype=timestamptz sql=updated_at default=CURRENT_TIMESTAMP
     UniqueUserName  name
@@ -68,6 +69,7 @@ share
     comment        E.Comment     Maybe  sqltype=text
     details        E.Details     Maybe  sqltype=text
     customerTel    E.Telephone          sqltype=text
+    deleted        Bool          Maybe  default=False
     createdAt   UTCTime  sqltype=timestamptz sql=created_at default=CURRENT_TIMESTAMP
     updatedAt   UTCTime  sqltype=timestamptz sql=updated_at default=CURRENT_TIMESTAMP
     deriving Show
@@ -84,11 +86,12 @@ share
     evaluator        UserId
     agent            UserId
     allParametersMet C.AllParametersMet
-    comment          C.Comment  Maybe   sqltype=text default=Null
+    comment          C.Comment    Maybe   sqltype=text default=Null
     workflowNumber   C.WorkflowNumber   sqltype=int
     claimType        ClaimTypeId
     details          C.Details    Maybe  sqltype=text
     reason           C.Reason     Maybe  sqltype=text
+    deleted          Bool         Maybe  default=False
     UniqueWorkflowNumber workflowNumber
     createdAt   UTCTime  sqltype=timestamptz sql=created_at default=CURRENT_TIMESTAMP
     updatedAt   UTCTime  sqltype=timestamptz sql=updated_at default=CURRENT_TIMESTAMP
@@ -111,6 +114,7 @@ share
    crmCaptureReason         N.CRMCaptureReason    Maybe sqltype=text default=Null
    frontLineRatingReasons   [N.FrontLineRatingReason]
    backOfficeReasons        [N.BackOfficeReason]
+   deleted                  Bool                  Maybe  default=False
    createdAt   UTCTime  sqltype=timestamptz sql=created_at default=CURRENT_TIMESTAMP
    updatedAt   UTCTime  sqltype=timestamptz sql=updated_at default=CURRENT_TIMESTAMP
    deriving Show

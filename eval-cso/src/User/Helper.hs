@@ -1,10 +1,11 @@
 module User.Helper
        ( runProtectedAction
+       , runAdminAction
+       , runEvaluatorAction
        , toUserResponse
        , throwInvalidUserName
        , throwUserExists
        ) where
-
 import Servant (err400, err404)
 
 import Common.Errors (MonadThrowLogger, throwSError)
@@ -21,23 +22,39 @@ throwUserNotAuthorized uemail  =
 throwUserExists :: MonadThrowLogger m => UserName ->  m a
 throwUserExists = throwSError err400 . UserExistsError
 
--- | An admin can do anything, an evaluator can do anything for an agent
--- Agent can only access own account
+runEvaluatorAction :: MonadThrowLogger m => User -> m a -> m a
+runEvaluatorAction User{..} action = case userRole of
+  Evaluator -> action
+  Admin     -> action
+  _         -> throwUserNotAuthorized userEmail
+
 runProtectedAction
   :: MonadThrowLogger m
   => User -- ^ current logged in user
-  -> Role -- ^ role of the user who consumes the action
+  -> Role -- ^ role for user who consumes the action
+  -> UserName -- ^ name for user who consumes the action
   -> m a -- ^ action to run
   -> m a
-runProtectedAction logedInUser urole action = do
-  let uemail = userEmail logedInUser
+runProtectedAction logedInUser consumerRole consumerUserName action =
   case userRole logedInUser of
-    Admin -> action
-    Supervisor -> if urole /= Admin then action else throwUserNotAuthorized uemail
-    Evaluator -> if urole == CSOAgent
+    CSOAgent -> if userName logedInUser == consumerUserName
+                   then action
+                   else throwUserNotAuthorized uemail
+    _        -> if consumerRole <= userRole logedInUser
                     then action
                     else throwUserNotAuthorized uemail
-    _   -> throwUserNotAuthorized uemail
+   where
+      uemail = userEmail logedInUser
+
+runAdminAction
+  :: MonadThrowLogger m
+  => User -- ^ current logged in user
+  -> m a -- ^ action to run
+  -> m a
+runAdminAction User{..} action =
+  case userRole of
+    Admin -> action
+    _     -> throwUserNotAuthorized userEmail
 
 toUserResponse :: User -> UserResponse
 toUserResponse User{..} =

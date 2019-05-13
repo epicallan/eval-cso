@@ -4,9 +4,7 @@ import Prelude hiding (get, on, set, (^.))
 
 import Control.Monad.Time (currentTime)
 import Database.Esqueleto
-  (Entity, InnerJoin(..), entityKey, entityVal, from, in_, on, select, set,
-  update, val, valList, where_, (=.), (==.), (^.))
-import Database.Persist.Postgresql (fromSqlKey, get, getBy, insert)
+import qualified Database.Persist.Postgresql as P (upsert, (=.))
 
 import Agent.Model.Types (AgentData(..), AgentModel(..))
 import Agent.Types (AgentAttrs(..), AgentErrors(..))
@@ -46,14 +44,20 @@ agentModel = AgentModel
          mSupervisorId <- getSupervisorId _aaSupervisor
          mBranchId <- getBranchId _aaBranch
          userId <- getUserId userName
-         lift $ runInDb $ update $ \agent -> do
-                         set agent [ AgentSupervisorId =. val mSupervisorId
-                                   , AgentServices =. val _aaServices
-                                   , AgentBranch =. val mBranchId
-                                   , AgentUpdatedAt =. val utcTime
-                                   ]
-                         where_ (agent ^. AgentUserId ==. val userId)
-
+         let newAgent = Agent
+                         { agentUserId = userId
+                         , agentSupervisorId = mSupervisorId
+                         , agentServices = Nothing
+                         , agentBranch = mBranchId
+                         , agentCreatedAt = utcTime
+                         , agentUpdatedAt = utcTime
+                         }
+         let agentUpdates = [ AgentSupervisorId P.=. mSupervisorId
+                            , AgentServices P.=.  _aaServices
+                            , AgentBranch P.=. mBranchId
+                            , AgentUpdatedAt P.=. utcTime
+                            ]
+         void $ lift $ runInDb $ P.upsert newAgent agentUpdates
 
    , amAgentServices = \serviceTypeValues -> do
        services :: [Entity Service] <- runInDb $
@@ -73,7 +77,7 @@ agentModel = AgentModel
                                { branchName = bname
                                , branchCreatedAt = utcTime
                                , branchUpdatedAt = utcTime
-                               }
+                                }
         pure . Id . fromSqlKey $ branchId
     , amGetAgentData = do
         eBranches :: [Entity Branch] <- runInDb $

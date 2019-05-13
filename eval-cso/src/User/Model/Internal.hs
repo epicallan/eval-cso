@@ -19,7 +19,7 @@ userModel = UserModel
   , umSetPassword = \userId hpwd -> runInDb $ update userId [UserPassword =. hpwd]
 
   , umAllUsers = do
-      users :: [Entity User] <- runInDb (selectList [] [])
+      users :: [Entity User] <- runInDb (selectList [UserDeleted ==. Just False] [])
       pure (entityVal <$> users)
 
   , umGetUserByEmail = \email ->  do
@@ -31,6 +31,8 @@ userModel = UserModel
        pure $ case mUser of
          Nothing -> Nothing
          Just (Entity userId user) -> Just $ UserWithId user userId
+
+  , umDeleteUser = \userId -> runInDb $ update userId [UserDeleted =. Just True]
 
    , umGetUserById = runInDb . get
 

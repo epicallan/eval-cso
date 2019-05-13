@@ -6,11 +6,12 @@ import Lens.Micro.Platform (makeClassy)
 
 import Claim.Types (ClaimErrors, CreateClaim, ClaimTypeRecord, BranchName)
 import Common.Types (Id)
-import Db.Model (Claim, ClaimType, User, UserId)
+import Db.Model (Claim, ClaimType, User, UserId, ClaimId)
 import User.Types (UserName)
 
 data ClaimScore = ClaimScore
   { _csClaim :: Claim
+  , _csClaimId :: ClaimId
   , _csEvaluator :: User
   , _csAgent :: User
   , _csSupervisor :: Maybe User
@@ -26,4 +27,5 @@ data ClaimModel m = ClaimModel
   , cmGetClaims :: m [ClaimScore]
   , cmGetClaimtypes :: m [ClaimType]
   , cmGetEvaluatorId :: UserName -> m (Either ClaimErrors UserId)
+  , cmDeleteClaim :: ClaimId -> m ()
   }

@@ -47,6 +47,7 @@ claimModel = ClaimModel
             on (agentProfile ^. AgentUserId ==. claim ^. ClaimAgent)
             on (agent ^. UserId ==. claim ^. ClaimAgent)
             on (claimType ^. ClaimTypeId ==. claim ^. ClaimClaimType)
+            where_ (claim ^. ClaimDeleted ==. val (Just False))
             return (claim, claimType, agent, branch, supervisor, evaluator)
      return $ toClaimScore <$> claimData
 
@@ -57,6 +58,12 @@ claimModel = ClaimModel
   , cmGetEvaluatorId = \uname -> do
       mUserWithId <- umGetUserByName userModel uname
       pure $ maybe (Left $ UserNameNotFound uname) (Right . view uiId) mUserWithId
+
+  , cmDeleteClaim = \claimId ->
+      runInDb $
+        update $ \evaluation -> do
+          set evaluation [ClaimDeleted =. val (Just True)]
+          where_ $ evaluation ^. ClaimId ==. val claimId
   }
 
 
@@ -84,6 +91,7 @@ mkClaimType ClaimTypeRecord{..} = do
 toClaimScore :: ClaimScoreTuple -> ClaimScore
 toClaimScore (eClaim, eClaimType, eAgent, mBranch, mSupervisor, eEvaluator) = ClaimScore
   { _csClaim = entityVal eClaim
+  , _csClaimId = entityKey eClaim
   , _csEvaluator = entityVal eEvaluator
   , _csAgent = entityVal eAgent
   , _csClaimType = entityVal eClaimType
@@ -100,6 +108,7 @@ mkClaim claimEvaluator CreateClaim {..} = do
       claimReason = _ccReason
       claimDetails = _ccDetails
       claimComment = _ccComment
+      claimDeleted = Just False
       claimCreatedAt = _ccDate
       claimUpdatedAt = _ccDate
   pure $ Claim {..}

@@ -3,16 +3,17 @@ module Claim.Controller
        , saveClaim
        , saveClaimTypes
        , getClaimTypes
+       , deleteClaim
        ) where
+import Database.Persist.Postgresql (fromSqlKey, toSqlKey)
 import Servant (err400, err401)
 
 import Claim.Model.Types (ClaimModel(..), ClaimScore(..))
-import Claim.Types
-  (ClaimErrors(..), ClaimRecord(..), ClaimTypeRecord(..), CreateClaim)
-import Common.Errors (MonadThrowLogger, eitherSError, throwSError)
-import Common.Types (Id(..))
+import Claim.Types (ClaimRecord(..), ClaimTypeRecord(..), CreateClaim)
+import Common.Errors (MonadThrowLogger, eitherSError)
+import Common.Types (Id(..), RecordId(..))
 import Db.Model (Claim(..), ClaimType(..), User(..))
-import User.Types (Role(..))
+import User.Helper (runAdminAction, runEvaluatorAction)
 
 getClaims
   :: MonadThrowLogger m
@@ -25,7 +26,7 @@ getClaims claimModel = do
 saveClaim
   :: MonadThrowLogger m
   => ClaimModel m -> User -> CreateClaim -> m Id
-saveClaim claimModel user claim = protectedAction user $ do
+saveClaim claimModel user claim = runEvaluatorAction user $ do
   evaluatorId <- cmGetEvaluatorId claimModel (userName user) >>= eitherSError err401
   cmCreateClaim claimModel evaluatorId claim >>= eitherSError err400
 
@@ -39,20 +40,14 @@ getClaimTypes claimModel = do
 saveClaimTypes
   :: MonadThrowLogger m
   => ClaimModel m -> User -> [ClaimTypeRecord] -> m ()
-saveClaimTypes claimModel user claimTypes =
-  adminAction user $ cmCreateClaimtypes claimModel claimTypes
+saveClaimTypes claimModel user claimTypes = runAdminAction user $
+  cmCreateClaimtypes claimModel claimTypes
 
-
-adminAction :: MonadThrowLogger m => User -> m a -> m a
-adminAction User{..} action = case userRole of
-  Admin     -> action
-  _         -> throwSError err401 $ ActionIsForAdmins userName
-
-protectedAction :: MonadThrowLogger m => User -> m a -> m a
-protectedAction User{..} action = case userRole of
-  Evaluator -> action
-  Admin     -> action
-  _         -> throwSError err401 $ ActionIsForEvaluators userName
+deleteClaim
+  :: MonadThrowLogger m
+  => ClaimModel m -> User -> Int64 -> m ()
+deleteClaim claimModel user cId = runAdminAction user $
+  cmDeleteClaim claimModel (toSqlKey cId) -- TODO: check claim ID exists
 
 toClaimTypeRecord :: ClaimType -> ClaimTypeRecord
 toClaimTypeRecord ClaimType {..} = ClaimTypeRecord
@@ -73,4 +68,5 @@ toClaimRecord ClaimScore{..} =
       _crWorkflowNumber = claimWorkflowNumber _csClaim
       _crDetails = claimDetails _csClaim
       _crReason = claimReason _csClaim
+      _crId = RecordId $  fromSqlKey _csClaimId
   in ClaimRecord{..}

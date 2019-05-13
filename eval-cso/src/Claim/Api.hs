@@ -5,7 +5,8 @@ module Claim.Api
 import Servant
 import Servant.Auth.Server
 
-import Claim.Controller (getClaimTypes, getClaims, saveClaim, saveClaimTypes)
+import Claim.Controller
+  (deleteClaim, getClaimTypes, getClaims, saveClaim, saveClaimTypes)
 import Claim.Model.Internal (claimModel)
 import Claim.Types (ClaimRecord, ClaimTypeRecord, CreateClaim)
 import Common.Types (Id)
@@ -19,6 +20,7 @@ type ClaimTypeApi =
 type ProtectedApi =
          Get '[JSON] [ClaimRecord]
     :<|> ReqBody '[JSON] CreateClaim :> Post '[JSON] Id
+    :<|> Capture "claimId" Int64 :> Delete '[JSON] ()
     :<|> "types" :> ClaimTypeApi
 
 type ClaimApi auths = "claims" :> Auth auths User :> ProtectedApi
@@ -29,8 +31,10 @@ protectedServer
 protectedServer (Authenticated user) =
          getClaims claimModel
     :<|> saveClaim claimModel user
+    :<|> deleteClaim claimModel user
     :<|> saveClaimTypes claimModel user
     :<|> getClaimTypes claimModel
+
 
 protectedServer _ = throwAll err401
 
