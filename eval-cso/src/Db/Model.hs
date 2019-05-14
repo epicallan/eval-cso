@@ -99,7 +99,7 @@ share
 
   Nps sql=nps
    evaluator                UserId
-   customerTel              E.Telephone          Maybe sqltype=int default Null
+   customerTel              E.Telephone         Maybe sqltype=text default Null
    agent                    UserId
    date                     UTCTime                    sqltype=timestamptz
    touchPoint               N.TouchPoint               sqltype=text
@@ -110,7 +110,7 @@ share
    furtherInformationGiven  Bool
    rating                   N.Rating                    sqltype=int
    ratingReason             N.RatingReason        Maybe sqltype=text default=Null
-   crmCaptureCorrect        N.CaptureCorrectState       sqltype=text
+   crmCaptureCorrect        N.CrmCaptureCorrect       sqltype=text
    crmCaptureReason         N.CRMCaptureReason    Maybe sqltype=text default=Null
    frontLineRatingReasons   [N.FrontLineRatingReason]
    backOfficeReasons        [N.BackOfficeReason]

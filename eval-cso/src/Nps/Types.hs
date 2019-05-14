@@ -5,7 +5,7 @@ module Nps.Types
         , RatingReason (..)
         , Rating (..)
         , CRMCaptureReason (..)
-        , CaptureCorrectState (..)
+        , CrmCaptureCorrect (..)
         , FrontLineRatingReason (..)
         , BackOfficeReason (..)
         , Reason (..)
@@ -20,7 +20,6 @@ import Data.Aeson.Options as AO (defaultOptions)
 import Data.Aeson.TH (Options(..), deriveJSON)
 import Data.Time (UTCTime)
 import Database.Persist.Sql (PersistField)
-import Database.Persist.TH (derivePersistField)
 
 import Common.Types (RecordId)
 import Evaluation.Types (BranchName(..), Reason(..), Telephone(..))
@@ -67,11 +66,11 @@ newtype BackOfficeReason = BackOfficeReason { unBackOfficeReason :: Text }
 
 $(deriveJSON AO.defaultOptions { unwrapUnaryRecords = True } ''BackOfficeReason)
 
-data CaptureCorrectState = Fair | Good | Bad
-  deriving (Eq, Read, Show)
-$(deriveJSON AO.defaultOptions ''CaptureCorrectState)
+newtype CrmCaptureCorrect = CrmCaptureCorrect { crmCaptureCorrect :: Text }
+  deriving (Eq, Show, PersistField)
 
-derivePersistField "CaptureCorrectState"
+$(deriveJSON AO.defaultOptions { unwrapUnaryRecords = True } ''CrmCaptureCorrect)
+
 
 data NpsErrors =
     NpsTypeNotFound TouchPoint
@@ -93,7 +92,7 @@ data CreateNps = CreateNps
   , cnIssueResolved :: Bool
   , cnFurtherInformationGiven :: Bool
   , cnRatingReason :: Maybe RatingReason
-  , cnCrmCaptureCorrect :: CaptureCorrectState
+  , cnCrmCaptureCorrect :: CrmCaptureCorrect
   , cnCrmCaptureReason :: Maybe CRMCaptureReason
   , cnFrontLineRatingReasons :: [FrontLineRatingReason]
   , cnBackOfficeReasons :: [BackOfficeReason]
@@ -116,7 +115,7 @@ data NpsRecord = NpsRecord
   , nrIssueResolved :: Bool
   , nrFurtherInformationGinven :: Bool
   , nrRatingReason :: Maybe RatingReason
-  , nrCrmCaptureCorrect :: CaptureCorrectState
+  , nrCrmCaptureCorrect :: CrmCaptureCorrect
   , nrCrmCaptureReason :: Maybe CRMCaptureReason
   , nrFrontLineRatingReasons :: [FrontLineRatingReason]
   , nrBackOfficeReasons :: [BackOfficeReason]

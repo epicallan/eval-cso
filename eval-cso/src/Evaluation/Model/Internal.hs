@@ -97,24 +97,6 @@ evalModel = EvalModel
         update $ \evaluation -> do
           set evaluation [EvaluationDeleted =. val (Just True) ]
           where_ $ evaluation ^. EvaluationId ==. val evaluationId
-
-  , emGetEvaluationById = \evaluationId -> do
-      evalData :: [EvaluationScoreTuple] <- runInDb $
-         select $
-           from $ \(evaluation `InnerJoin` parameterScore
-                   `InnerJoin` parameter `InnerJoin` agent `InnerJoin` agentProfile
-                   `InnerJoin` branch `InnerJoin` supervisor `InnerJoin` evaluator
-                   ) -> do
-              on (evaluator ^. UserId ==. evaluation ^. EvaluationEvaluator)
-              on (agentProfile ^. AgentSupervisorId ==. supervisor ?. UserId)
-              on (agentProfile ^. AgentBranch ==. branch ?. BranchId)
-              on (agent ^. UserId ==. agentProfile ^. AgentUserId)
-              on (agent ^. UserId ==. evaluation ^. EvaluationAgent)
-              on (parameter ^. ParameterId ==. parameterScore ^. ParameterScoreParameter)
-              on (parameterScore ^. ParameterScoreEvaluation ==. evaluation ^. EvaluationId)
-              where_ (evaluation ^. EvaluationId ==. val evaluationId)
-              return (evaluation, parameter, agent, branch, supervisor, evaluator)
-      return $ toEvaluationScore <$> evalData
   }
   where
     mkEvaluation :: EvalAttrs -> ExceptT EvalErrors m Evaluation
