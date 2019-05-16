@@ -9,7 +9,7 @@ services:
       - /bin/bash
       - -c
       - |
-        /src/eval-migrate
+        /src/wait-for postgres:5432 -- /src/eval-migrate
         /src/eval-ex
     environment:
       DB_NAME: ${APP_DB_NAME}
@@ -26,7 +26,7 @@ services:
     image: postgres:11.2-alpine
     restart: always
     volumes:
-      - ${APP_DATA}:/var/lib/postgresql/data
+      - dbdata:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD", "pg_isready", "-U", $APP_DB_USER]
       interval: 5s
@@ -42,3 +42,5 @@ services:
     restart: always
     ports:
       - 8080:8080
+volumes:
+  dbdata:
