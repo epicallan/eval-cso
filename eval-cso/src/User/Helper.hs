@@ -37,9 +37,7 @@ runProtectedAction
   -> m a
 runProtectedAction logedInUser consumerRole consumerUserName action =
   case userRole logedInUser of
-    CSOAgent -> if userName logedInUser == consumerUserName
-                   then action
-                   else throwUserNotAuthorized uemail
+    CSOAgent | userName logedInUser == consumerUserName -> action
     _        -> if consumerRole <= userRole logedInUser
                     then action
                     else throwUserNotAuthorized uemail

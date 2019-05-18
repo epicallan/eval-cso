@@ -28,6 +28,7 @@ import Database.Persist.Sql (PersistField)
 import Database.Persist.TH (derivePersistField)
 import Lens.Micro.Platform (makeFields)
 
+
 import Common.Types (Id)
 import User.Password (Password(..), PasswordHash(..))
 
@@ -139,7 +140,6 @@ data UserLoginResponse = UserLoginResponse
   } deriving Show
 
 $(deriveJSON AO.defaultOptions ''UserLoginResponse)
-
 
 type HasUserAttrs a =
   ( HasUserName a UserName
