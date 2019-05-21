@@ -13,12 +13,13 @@ import Agent.Types (AgentAttrs, AgentDataResponse, AgentResponse, CreateAgent)
 import Common.Types (Id)
 import Db.Model (User)
 import Foundation (App)
+import User.Types (UserName)
 import User.Model.Internal (userModel)
 
 type ProtectedApi =
-         Capture "userName" Text :> Get '[JSON] AgentResponse
+         Capture "userName" UserName :> Get '[JSON] AgentResponse
     :<|> ReqBody '[JSON] CreateAgent :> Post '[JSON] Id
-    :<|> Capture "userName" Text :> ReqBody '[JSON] AgentAttrs :> Put '[JSON] ()
+    :<|> Capture "userName" UserName :> ReqBody '[JSON] AgentAttrs :> Put '[JSON] ()
 
 type AgentApi auths = "agents" :>
    (    "data" :> Get '[JSON] AgentDataResponse

@@ -20,7 +20,7 @@ type ClaimTypeApi =
 type ProtectedApi =
          Get '[JSON] [ClaimRecord]
     :<|> ReqBody '[JSON] CreateClaim :> Post '[JSON] Id
-    :<|> Capture "claimId" Int64 :> Delete '[JSON] ()
+    :<|> Capture "claimId" Id :> Delete '[JSON] ()
     :<|> "types" :> ClaimTypeApi
 
 type ClaimApi auths = "claims" :> Auth auths User :> ProtectedApi

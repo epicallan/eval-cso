@@ -11,6 +11,7 @@ library:
     - esqueleto
     - ekg
     - http-types
+    - http-api-data
     - microlens-platform
     - monad-logger
     - monad-time

@@ -50,12 +50,10 @@ updateAgent
   :: MonadThrowLogger m
   => AgentModel m
   -> User -- ^ The current logged in user
-  -> Text -- ^ Agent User name
+  -> U.UserName
   -> AgentAttrs
   -> m ()
-updateAgent agentModel logedInUser name attrs = do
-  let userName = U.UserName name
-
+updateAgent agentModel logedInUser userName attrs =
   eitherSError err400 =<< runProtectedAction
     logedInUser
     CSOAgent
@@ -65,10 +63,9 @@ updateAgent agentModel logedInUser name attrs = do
 getAgentByUserName
   :: MonadThrowLogger m
   => AgentModel m
-  -> Text -- ^ Agent user name
+  -> U.UserName
   -> m AgentResponse
-getAgentByUserName agentModel name = do
-  let userName = U.UserName name
+getAgentByUserName agentModel userName = do
   agentUser <- eitherSError err400 =<< amGetAgentByName agentModel userName
   uncurry (toAgentResponse agentModel) agentUser
 

@@ -14,7 +14,8 @@ import User.Controller
   (deleteUser, generateUser, getUserByName, listUsers, loginUser, setPassword,
   signupUser, updateUser)
 import User.Model.Internal (userModel)
-import User.Types (Login, Signup, UserEdits, UserLoginResponse, UserResponse)
+import User.Types
+  (Login, Signup, UserEdits, UserLoginResponse, UserName, UserResponse)
 
 type LoginApi =
  "login"
@@ -27,10 +28,10 @@ type SignupApi =
 type ProtectedUserApi =
        Get '[JSON] [UserResponse]
   :<|> ReqBody '[JSON] UserEdits :> Post '[JSON] Id
-  :<|> Capture "userName" Text :> ReqBody '[JSON] UserEdits :> Put '[JSON] UserResponse
-  :<|> Capture "userName" Text :> Get '[JSON] UserResponse
-  :<|> Capture "userName" Text :> Capture "password" Text :> Patch '[JSON] Id
-  :<|> Capture "userName" Text :> Delete '[JSON] ()
+  :<|> Capture "userName" UserName :> ReqBody '[JSON] UserEdits :> Put '[JSON] UserResponse
+  :<|> Capture "userName" UserName :> Get '[JSON] UserResponse
+  :<|> Capture "userName" UserName :> Capture "password" Text :> Patch '[JSON] Id
+  :<|> Capture "userName" UserName :> Delete '[JSON] ()
 
 
 type UserApi auths = "users" :>

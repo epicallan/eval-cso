@@ -15,7 +15,7 @@ import Nps.Types
 type ProtectedApi =
          Get '[JSON] [NpsRecord]
     :<|> ReqBody '[JSON] CreateNps :> Post '[JSON] Id
-    :<|> Capture "npsId" Int64 :> Delete '[JSON] ()
+    :<|> Capture "npsId" Id :> Delete '[JSON] ()
 
 type NpsApi auths = "nps" :> Auth auths User :> ProtectedApi
 

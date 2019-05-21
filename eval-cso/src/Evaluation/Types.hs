@@ -32,6 +32,7 @@ import Data.Time (UTCTime)
 import Database.Persist.Sql (PersistField)
 import Database.Persist.TH (derivePersistField)
 import Lens.Micro.Platform (makeClassy)
+import Web.HttpApiData (FromHttpApiData)
 
 import Common.Types (RecordId)
 import User.Types (FullName, UserName)
@@ -99,7 +100,7 @@ newtype ServiceType = ServiceType { unServiceType :: Text }
 $(deriveJSON AO.defaultOptions { unwrapUnaryRecords = True } ''ServiceType)
 
 newtype ServiceTypeValue = ServiceTypeValue { unServiceTypeValue :: Text }
-  deriving (Eq, Show, PersistField)
+  deriving (Eq, Show, PersistField, FromHttpApiData)
 
 $(deriveJSON AO.defaultOptions { unwrapUnaryRecords = True } ''ServiceTypeValue)
 

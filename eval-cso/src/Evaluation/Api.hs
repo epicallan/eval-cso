@@ -12,17 +12,18 @@ import Evaluation.Controller
   getServiceParamters, saveEvaluation)
 import Evaluation.Model.Internal (evalModel)
 import Evaluation.Types
-  (CreateEvaluation, EvalRecord, ParameterAttrs, ServiceParameters)
+  (CreateEvaluation, EvalRecord, ParameterAttrs, ServiceParameters,
+  ServiceTypeValue)
 import Foundation (App)
 
 type ServiceApi =
          ReqBody '[JSON] ServiceParameters :> Post '[JSON] ()
-    :<|> Capture "services" Text :> Get '[JSON] [ParameterAttrs]
+    :<|> Capture "services" ServiceTypeValue :> Get '[JSON] [ParameterAttrs]
 
 type ProtectedApi =
-         Capture "service" Text :> Get '[JSON] [EvalRecord]
+         Capture "service" ServiceTypeValue :> Get '[JSON] [EvalRecord]
     :<|> ReqBody '[JSON] CreateEvaluation :> Post '[JSON] Id
-    :<|> Capture "evaluationId" Int64 :> Delete '[JSON] ()
+    :<|> Capture "evaluationId" Id :> Delete '[JSON] ()
     :<|> "services" :> ServiceApi
 
 type EvaluationApi auths = "evaluations" :> Auth auths User :> ProtectedApi

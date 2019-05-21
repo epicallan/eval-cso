@@ -7,7 +7,7 @@ import Database.Persist.Postgresql (fromSqlKey, toSqlKey)
 import Servant (err400, err401)
 
 import Common.Errors (MonadThrowLogger, eitherSError)
-import Common.Types (Id, RecordId(..))
+import Common.Types (Id(..), RecordId(..))
 import Db.Model (Nps(..), User(..))
 import Nps.Model.Types (NpsDbRecord(..), NpsModel(..))
 import Nps.Types (CreateNps, NpsRecord(..))
@@ -30,9 +30,9 @@ saveNps npsModel user nps = runEvaluatorAction user $ do
 
 deleteNps
   :: MonadThrowLogger m
-  => NpsModel m -> User -> Int64 -> m ()
+  => NpsModel m -> User -> Id -> m ()
 deleteNps npsModel user npsId = runAdminAction user $
-  nmDeleteNps npsModel (toSqlKey npsId)
+  nmDeleteNps npsModel . toSqlKey $ unId npsId
 
 toNpsRecord :: NpsDbRecord -> NpsRecord
 toNpsRecord NpsDbRecord{..} =

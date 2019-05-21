@@ -35,21 +35,19 @@ import qualified User.Types as U (UserName(..), userName)
 getUserByName
   :: forall m .(MonadThrowLogger m)
   => UserModel m
-  -> Text -- ^ userName
+  -> U.UserName
   -> m UserResponse
-getUserByName usModel nameTxt =
-  let uName = U.UserName nameTxt
-  in toUserResponse . view uiUser <$> getUserByName' usModel uName
+getUserByName usModel uName =
+  toUserResponse . view uiUser <$> getUserByName' usModel uName
 
 setPassword
   :: (MonadThrowLogger m, HasSettings r, MonadReader r m)
   => UserModel m
   -> User
-  -> Text -- ^ userName
+  -> U.UserName
   -> Text
   -> m Id
-setPassword usModel logedInUser nameTxt pwd = do
-  let uName = U.UserName nameTxt
+setPassword usModel logedInUser uName pwd = do
   (UserWithId user userId) <- getUserByName' usModel uName
   let mkPassword = hashPassword (Password pwd) >>= umSetPassword usModel userId
   runProtectedAction logedInUser (userRole user) uName mkPassword
@@ -70,11 +68,11 @@ updateUser
   :: MonadThrowLogger m
   => UserModel m
   -> User
-  -> Text -- ^ userName
+  -> U.UserName
   -> UserEdits
   -> m UserResponse
-updateUser usModel logedInUser nameTxt edits = do
-  let uName = U.UserName nameTxt
+updateUser usModel logedInUser uName edits = do
+  -- let uName = U.UserName nameTxt
   (UserWithId user userId) <- getUserByName' usModel uName
   let update = toUserResponse <$> umUpdateUser usModel userId edits
   if | uName == userName logedInUser -> update
@@ -150,9 +148,9 @@ createUser usModel userAttrs pwd = do
          }
   Id . fromSqlKey <$> maybe (throwUserExists uName) pure mUserId
 
-deleteUser :: MonadThrowLogger m => UserModel m -> User -> Text -> m ()
+deleteUser :: MonadThrowLogger m => UserModel m -> User -> U.UserName -> m ()
 deleteUser usModel logedInUser uName = do
-  (UserWithId _ userId) <- getUserByName' usModel $ U.UserName uName
+  (UserWithId _ userId) <- getUserByName' usModel uName
   runAdminAction logedInUser $ umDeleteUser usModel userId
 
 getUserByName' :: MonadThrowLogger m => UserModel m -> U.UserName -> m UserWithId

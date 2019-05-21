@@ -16,7 +16,6 @@ module User.Types
         , UserResponse (..)
         , UserLoginResponse (..)
         ) where
-
 import Data.Aeson (FromJSON(..), ToJSON(..), genericParseJSON, genericToJSON)
 import Data.Aeson.Options as AO (defaultOptions)
 import Data.Aeson.TH (Options(..), deriveJSON)
@@ -27,7 +26,7 @@ import Data.Time (UTCTime)
 import Database.Persist.Sql (PersistField)
 import Database.Persist.TH (derivePersistField)
 import Lens.Micro.Platform (makeFields)
-
+import Web.HttpApiData (FromHttpApiData)
 
 import Common.Types (Id)
 import User.Password (Password(..), PasswordHash(..))
@@ -47,7 +46,7 @@ newtype UserToken = UserToken { unUserToken :: Text }
 $(deriveJSON AO.defaultOptions  { unwrapUnaryRecords = True } ''UserToken)
 
 newtype UserName = UserName {unUname :: Text}
-  deriving (Eq, Show, PersistField)
+  deriving (Eq, Show, PersistField, FromHttpApiData)
 
 $(deriveJSON AO.defaultOptions  { unwrapUnaryRecords = True } ''UserName)
 

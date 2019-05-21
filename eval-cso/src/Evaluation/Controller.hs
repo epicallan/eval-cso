@@ -24,10 +24,10 @@ import User.Helper (runAdminAction, runEvaluatorAction)
 getServiceEvaluations
   :: (MonadThrowLogger m)
   => EvalModel m
-  -> Text
+  -> ServiceTypeValue
   -> m [EvalRecord]
 getServiceEvaluations evalModel serviceType = do
-  service <- emGetService evalModel (ServiceTypeValue serviceType) >>= eitherSError err400
+  service <- emGetService evalModel serviceType >>= eitherSError err400
   evalScores <- emGetEvaluationByService evalModel (service ^. siId)
   let evalScoresById :: [[EvaluationScore]] =
         groupBy (\es1 es2 -> es1 ^. esEvaluationId == es2 ^. esEvaluationId) evalScores
@@ -35,7 +35,7 @@ getServiceEvaluations evalModel serviceType = do
   where
     toEvalRecord :: [EvaluationScore] -> Maybe EvalRecord
     toEvalRecord groupScores@(firstScore : _) =
-      let _erEvalAttrs = toEvalAttr (ServiceTypeValue serviceType) firstScore
+      let _erEvalAttrs = toEvalAttr serviceType firstScore
           _erParameters = toParameterAttr . view esParameter <$> groupScores
           totalScore =  sum $ view paWeight <$> _erParameters
           isZeroRated = any (\para -> para ^. paCategory == ZeroRated) _erParameters
@@ -54,17 +54,16 @@ createParameters evalModel user sp = runEvaluatorAction user $
 
 getServiceParamters
   :: MonadThrowLogger m
-  => EvalModel m -> Text -> m [ParameterAttrs]
+  => EvalModel m -> ServiceTypeValue -> m [ParameterAttrs]
 getServiceParamters evalModel serviceType = do
-   let service = ServiceTypeValue serviceType
-   parameters <- emGetServiceParameters evalModel service >>= eitherSError err400
+   parameters <- emGetServiceParameters evalModel serviceType >>= eitherSError err400
    pure $ toParameterAttr <$> parameters
 
 deleteEvaluation
   :: MonadThrowLogger m
-  => EvalModel m -> User -> Int64 -> m ()
+  => EvalModel m -> User -> Id -> m ()
 deleteEvaluation evalModel user eId = runAdminAction user $
-  emDeleteEvaluation evalModel (toSqlKey eId) -- TODO first check evaluation Exists
+  emDeleteEvaluation evalModel . toSqlKey $ unId eId -- TODO first check evaluation Exists
 
 saveEvaluation
   :: MonadThrowLogger m

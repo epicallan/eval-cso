@@ -45,9 +45,9 @@ saveClaimTypes claimModel user claimTypes = runAdminAction user $
 
 deleteClaim
   :: MonadThrowLogger m
-  => ClaimModel m -> User -> Int64 -> m ()
+  => ClaimModel m -> User -> Id -> m ()
 deleteClaim claimModel user cId = runAdminAction user $
-  cmDeleteClaim claimModel (toSqlKey cId) -- TODO: check claim ID exists
+  cmDeleteClaim claimModel . toSqlKey $ unId cId
 
 toClaimTypeRecord :: ClaimType -> ClaimTypeRecord
 toClaimTypeRecord ClaimType {..} = ClaimTypeRecord
