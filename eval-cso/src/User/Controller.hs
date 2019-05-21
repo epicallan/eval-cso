@@ -45,11 +45,11 @@ setPassword
   => UserModel m
   -> User
   -> U.UserName
-  -> Text
+  -> Password
   -> m Id
 setPassword usModel logedInUser uName pwd = do
   (UserWithId user userId) <- getUserByName' usModel uName
-  let mkPassword = hashPassword (Password pwd) >>= umSetPassword usModel userId
+  let mkPassword = hashPassword pwd >>= umSetPassword usModel userId
   runProtectedAction logedInUser (userRole user) uName mkPassword
   pure . Id $ fromSqlKey userId
 

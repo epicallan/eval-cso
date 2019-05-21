@@ -76,9 +76,6 @@ data UserErrors =
 
 instance Exception UserErrors
 
-newtype PasswordPlain = PasswordPlain {unPasswordPlain :: Text}
-  deriving (Eq, Show, PersistField)
-
 data Login = Login
   { _loginEmail :: Email
   , _loginPassword :: Password

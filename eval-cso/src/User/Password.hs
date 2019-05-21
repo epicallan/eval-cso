@@ -11,6 +11,7 @@ import Data.Aeson.Options as AO (defaultOptions)
 import Data.Aeson.TH (Options(..), deriveJSON)
 import Data.ByteString (ByteString)
 import Database.Persist.Sql (PersistField)
+import Web.HttpApiData (FromHttpApiData)
 
 import Foundation (HasSettings(..))
 
@@ -20,7 +21,7 @@ newtype PasswordHash = PasswordHash { unPasswordHash :: Text }
 $(deriveJSON AO.defaultOptions { unwrapUnaryRecords = True } ''PasswordHash)
 
 newtype Password = Password {unPassword :: Text }
-  deriving (Show)
+  deriving (Show, FromHttpApiData)
 
 $(deriveJSON AO.defaultOptions { unwrapUnaryRecords = True } ''Password)
 
