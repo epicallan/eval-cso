@@ -10,7 +10,6 @@ import Database.Esqueleto
 import Database.Persist.Sql (SqlPersistT, runMigration, runSqlPool)
 import Database.Persist.TH
   (mkMigrate, mkPersist, persistLowerCase, share, sqlSettings)
-import Servant.Auth.Server (FromJWT, ToJWT)
 
 import qualified Agent.Types as A
 import qualified Claim.Types as C
@@ -148,9 +147,6 @@ $(deriveJSON defaultOptions ''Agent)
 $(deriveJSON defaultOptions ''Parameter)
 $(deriveJSON defaultOptions ''ParameterScore)
 $(deriveJSON defaultOptions ''Evaluation)
-
-instance ToJWT User
-instance FromJWT User
 
 type CanDb m r = (MonadIO m, MonadReader r m, HasPool r, MonadTime m)
 

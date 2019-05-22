@@ -6,10 +6,10 @@ import Servant
 import Servant.Auth.Server
 
 import Common.Types (Id)
-import Db.Model (User)
 import Foundation (App)
 import Nps.Controller (deleteNps, getNpsRecords, saveNps)
 import Nps.Model.Internal (npsModel)
+import User.Model.Types (LoggedInUser)
 import Nps.Types
 
 type ProtectedApi =
@@ -17,10 +17,10 @@ type ProtectedApi =
     :<|> ReqBody '[JSON] CreateNps :> Post '[JSON] Id
     :<|> Capture "npsId" Id :> Delete '[JSON] ()
 
-type NpsApi auths = "nps" :> Auth auths User :> ProtectedApi
+type NpsApi auths = "nps" :> Auth auths LoggedInUser :> ProtectedApi
 
 protectedServer
-  :: AuthResult User
+  :: AuthResult LoggedInUser
   -> ServerT ProtectedApi App
 protectedServer (Authenticated user) =
          getNpsRecords npsModel

@@ -1,12 +1,28 @@
+{-# LANGUAGE DeriveAnyClass, DerivingStrategies #-}
 module User.Model.Types
        ( UserModel(..)
        , UserWithId (..)
        , HasUserWithId (..)
+       , SafeUser (..)
+       , UserState (..)
+       , LoggedInUser
+       , LoggedOutUser
        ) where
+import Data.Aeson (FromJSON, ToJSON)
 import Lens.Micro.Platform (makeClassy)
+import Servant.Auth.Server (FromJWT, ToJWT)
 
 import Db.Model (User, UserId)
 import User.Types (Email, PasswordHash, UserEdits, UserName)
+
+data UserState = LoggedIn | LoggedOut
+
+newtype SafeUser (a :: UserState) = SafeUser { unSafeUser :: User }
+  deriving (Show, Generic)
+  deriving anyclass (ToJSON, FromJSON, ToJWT, FromJWT)
+
+type LoggedInUser = SafeUser 'LoggedIn
+type LoggedOutUser = SafeUser 'LoggedOut
 
 data UserWithId = UserWithId
   { _uiUser :: User

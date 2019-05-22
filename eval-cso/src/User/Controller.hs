@@ -24,7 +24,9 @@ import Foundation (HasSettings)
 import User.Helper
   (runAdminAction, runProtectedAction, throwInvalidUserName, throwUserExists,
   toUserResponse)
-import User.Model.Types (HasUserWithId(..), UserModel(..), UserWithId(..))
+import User.Model.Types
+  (HasUserWithId(..), LoggedInUser, LoggedOutUser, SafeUser(..), UserModel(..),
+  UserWithId(..))
 import User.Password (hashPassword, validatePassword)
 import User.Types
   (Email, HasCreateUserAttrs, HasUserAttrs, Login, Password(..), UserEdits(..),
@@ -43,7 +45,7 @@ getUserByName usModel uName =
 setPassword
   :: (MonadThrowLogger m, HasSettings r, MonadReader r m)
   => UserModel m
-  -> User
+  -> LoggedInUser
   -> U.UserName
   -> Password
   -> m Id
@@ -56,7 +58,7 @@ setPassword usModel logedInUser uName pwd = do
 generateUser
   :: (HasSettings r, MonadReader r m, MonadTime m, MonadThrowLogger m, MonadIO m)
   => UserModel m
-  -> User
+  -> LoggedInUser
   -> UserEdits
   -> m Id
 generateUser usModel logedInUser attrs = do
@@ -67,16 +69,16 @@ generateUser usModel logedInUser attrs = do
 updateUser
   :: MonadThrowLogger m
   => UserModel m
-  -> User
+  -> LoggedInUser
   -> U.UserName
   -> UserEdits
   -> m UserResponse
-updateUser usModel logedInUser uName edits = do
-  -- let uName = U.UserName nameTxt
+updateUser usModel safeUser uName edits = do
+  let logedInUser = unSafeUser safeUser
   (UserWithId user userId) <- getUserByName' usModel uName
   let update = toUserResponse <$> umUpdateUser usModel userId edits
   if | uName == userName logedInUser -> update
-     | otherwise -> runProtectedAction logedInUser (userRole user) (userName user) update
+     | otherwise -> runProtectedAction safeUser (userRole user) (userName user) update
 
 listUsers
   :: Functor m
@@ -104,7 +106,7 @@ loginUser usModel cs jws loginData = do
    let uemail = loginData ^. email
    dbUser <- umGetUserByEmail usModel uemail >>= throwInvalidEmail uemail
    validUser <- if validatePassword (loginData ^. password) (userPassword dbUser)
-                   then pure dbUser
+                   then pure (SafeUser dbUser :: LoggedOutUser)
                    else throwSError err401 (IncorrectPassword uemail)
    acceptLogin cs jws validUser
 
@@ -116,10 +118,11 @@ acceptLogin
   :: (MonadThrowLogger m, MonadIO m)
   => CookieSettings
   -> JWTSettings
-  -> User
+  -> LoggedOutUser
   -> m UserLoginResponse
-acceptLogin cs jws user = do
-  ejwt <- liftIO $ makeJWT user jws (cookieExpires cs)
+acceptLogin cs jws safeUser = do
+  let user = unSafeUser safeUser
+  ejwt <- liftIO $ makeJWT safeUser jws (cookieExpires cs)
   case ejwt of
     Left err -> throwSError err400 . CookieSetupError $ show err
     Right jwt -> pure . UserLoginResponse
@@ -148,10 +151,12 @@ createUser usModel userAttrs pwd = do
          }
   Id . fromSqlKey <$> maybe (throwUserExists uName) pure mUserId
 
-deleteUser :: MonadThrowLogger m => UserModel m -> User -> U.UserName -> m ()
-deleteUser usModel logedInUser uName = do
+deleteUser
+  :: MonadThrowLogger m
+  => UserModel m -> LoggedInUser -> U.UserName -> m ()
+deleteUser usModel safeUser uName = do
   (UserWithId _ userId) <- getUserByName' usModel uName
-  runAdminAction logedInUser $ umDeleteUser usModel userId
+  runAdminAction safeUser $ umDeleteUser usModel userId
 
 getUserByName' :: MonadThrowLogger m => UserModel m -> U.UserName -> m UserWithId
 getUserByName' usModel uName = do

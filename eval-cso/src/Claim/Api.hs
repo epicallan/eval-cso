@@ -10,8 +10,8 @@ import Claim.Controller
 import Claim.Model.Internal (claimModel)
 import Claim.Types (ClaimRecord, ClaimTypeRecord, CreateClaim)
 import Common.Types (Id)
-import Db.Model (User)
 import Foundation (App)
+import User.Model.Types (LoggedInUser)
 
 type ClaimTypeApi =
          ReqBody '[JSON] [ClaimTypeRecord] :> Post '[JSON] ()
@@ -23,10 +23,10 @@ type ProtectedApi =
     :<|> Capture "claimId" Id :> Delete '[JSON] ()
     :<|> "types" :> ClaimTypeApi
 
-type ClaimApi auths = "claims" :> Auth auths User :> ProtectedApi
+type ClaimApi auths = "claims" :> Auth auths LoggedInUser :> ProtectedApi
 
 protectedServer
-  :: AuthResult User
+  :: AuthResult LoggedInUser
   -> ServerT ProtectedApi App
 protectedServer (Authenticated user) =
          getClaims claimModel

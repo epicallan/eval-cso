@@ -8,12 +8,12 @@ import Servant
 import Servant.Auth.Server
 
 import Common.Types (Id)
-import Db.Model (User)
 import Foundation (App)
 import User.Controller
   (deleteUser, generateUser, getUserByName, listUsers, loginUser, setPassword,
   signupUser, updateUser)
 import User.Model.Internal (userModel)
+import User.Model.Types (LoggedInUser)
 import User.Types
   (Login, Password, Signup, UserEdits, UserLoginResponse, UserName,
   UserResponse)
@@ -38,7 +38,7 @@ type ProtectedUserApi =
 type UserApi auths = "users" :>
   (    LoginApi
   :<|> SignupApi
-  :<|> Auth auths User :> ProtectedUserApi
+  :<|> Auth auths LoggedInUser :> ProtectedUserApi
   )
 
 
@@ -49,7 +49,7 @@ loginHandler
 loginHandler = loginUser userModel
 
 protected
-  :: AuthResult User
+  :: AuthResult LoggedInUser
   -> ServerT ProtectedUserApi App
 protected (Authenticated user) =
          listUsers userModel

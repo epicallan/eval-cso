@@ -6,7 +6,6 @@ import Servant
 import Servant.Auth.Server
 
 import Common.Types (Id)
-import Db.Model (User)
 import Evaluation.Controller
   (createParameters, deleteEvaluation, getServiceEvaluations,
   getServiceParamters, saveEvaluation)
@@ -15,6 +14,7 @@ import Evaluation.Types
   (CreateEvaluation, EvalRecord, ParameterAttrs, ServiceParameters,
   ServiceTypeValue)
 import Foundation (App)
+import User.Model.Types (LoggedInUser)
 
 type ServiceApi =
          ReqBody '[JSON] ServiceParameters :> Post '[JSON] ()
@@ -26,10 +26,10 @@ type ProtectedApi =
     :<|> Capture "evaluationId" Id :> Delete '[JSON] ()
     :<|> "services" :> ServiceApi
 
-type EvaluationApi auths = "evaluations" :> Auth auths User :> ProtectedApi
+type EvaluationApi auths = "evaluations" :> Auth auths LoggedInUser :> ProtectedApi
 
 protectedServer
-  :: AuthResult User
+  :: AuthResult LoggedInUser
   -> ServerT ProtectedApi App
 protectedServer (Authenticated user) =
          getServiceEvaluations evalModel

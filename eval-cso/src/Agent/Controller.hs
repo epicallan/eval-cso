@@ -19,7 +19,7 @@ import Db.Model (Agent(..), Branch(..), Service(..), User)
 import Foundation (HasSettings)
 import User.Controller (generateUser)
 import User.Helper (runProtectedAction, toUserResponse)
-import User.Model.Types (UserModel(..))
+import User.Model.Types (LoggedInUser, UserModel(..))
 import User.Types (Role(CSOAgent), UserEdits(..))
 import qualified User.Types as U (UserName(..))
 
@@ -29,7 +29,7 @@ createAgentProfile
      )
   => AgentModel m
   -> UserModel m
-  -> User -- ^ logged in user
+  -> LoggedInUser
   -> CreateAgent
   -> m Id
 createAgentProfile agentModel usModel logedInUser attrs = do
@@ -49,7 +49,7 @@ createAgentProfile agentModel usModel logedInUser attrs = do
 updateAgent
   :: MonadThrowLogger m
   => AgentModel m
-  -> User -- ^ The current logged in user
+  -> LoggedInUser
   -> U.UserName
   -> AgentAttrs
   -> m ()

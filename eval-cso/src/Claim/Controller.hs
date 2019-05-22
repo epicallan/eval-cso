@@ -14,6 +14,7 @@ import Common.Errors (MonadThrowLogger, eitherSError)
 import Common.Types (Id(..), RecordId(..))
 import Db.Model (Claim(..), ClaimType(..), User(..))
 import User.Helper (runAdminAction, runEvaluatorAction)
+import User.Model.Types (LoggedInUser, SafeUser(..))
 
 getClaims
   :: MonadThrowLogger m
@@ -25,10 +26,12 @@ getClaims claimModel = do
 
 saveClaim
   :: MonadThrowLogger m
-  => ClaimModel m -> User -> CreateClaim -> m Id
-saveClaim claimModel user claim = runEvaluatorAction user $ do
+  => ClaimModel m -> LoggedInUser -> CreateClaim -> m Id
+saveClaim claimModel loggedInUser claim = runEvaluatorAction loggedInUser $ do
   evaluatorId <- cmGetEvaluatorId claimModel (userName user) >>= eitherSError err401
   cmCreateClaim claimModel evaluatorId claim >>= eitherSError err400
+  where
+    user = unSafeUser loggedInUser
 
 getClaimTypes
   :: MonadThrowLogger m
@@ -39,13 +42,13 @@ getClaimTypes claimModel = do
 
 saveClaimTypes
   :: MonadThrowLogger m
-  => ClaimModel m -> User -> [ClaimTypeRecord] -> m ()
+  => ClaimModel m -> LoggedInUser -> [ClaimTypeRecord] -> m ()
 saveClaimTypes claimModel user claimTypes = runAdminAction user $
   cmCreateClaimtypes claimModel claimTypes
 
 deleteClaim
   :: MonadThrowLogger m
-  => ClaimModel m -> User -> Id -> m ()
+  => ClaimModel m -> LoggedInUser -> Id -> m ()
 deleteClaim claimModel user cId = runAdminAction user $
   cmDeleteClaim claimModel . toSqlKey $ unId cId
 

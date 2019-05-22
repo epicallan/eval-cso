@@ -20,6 +20,7 @@ import Evaluation.Types
   HasParameterAttrs(..), ParameterAttrs(..), ServiceParameters(..),
   ServiceTypeValue(..))
 import User.Helper (runAdminAction, runEvaluatorAction)
+import User.Model.Types (LoggedInUser)
 
 getServiceEvaluations
   :: (MonadThrowLogger m)
@@ -48,7 +49,7 @@ getServiceEvaluations evalModel serviceType = do
 
 createParameters
   :: MonadThrowLogger m
-  => EvalModel m -> User -> ServiceParameters -> m ()
+  => EvalModel m -> LoggedInUser -> ServiceParameters -> m ()
 createParameters evalModel user sp = runEvaluatorAction user $
    emCreateParameters evalModel sp >>= eitherSError err400
 
@@ -61,13 +62,13 @@ getServiceParamters evalModel serviceType = do
 
 deleteEvaluation
   :: MonadThrowLogger m
-  => EvalModel m -> User -> Id -> m ()
+  => EvalModel m -> LoggedInUser -> Id -> m ()
 deleteEvaluation evalModel user eId = runAdminAction user $
   emDeleteEvaluation evalModel . toSqlKey $ unId eId -- TODO first check evaluation Exists
 
 saveEvaluation
   :: MonadThrowLogger m
-  => EvalModel m -> User -> CreateEvaluation -> m Id
+  => EvalModel m -> LoggedInUser -> CreateEvaluation -> m Id
 saveEvaluation evalModel user ce = runEvaluatorAction  user $ do
   evalId <- emCreateEvaluation evalModel ce >>= eitherSError err400
   pure . Id $ fromSqlKey evalId

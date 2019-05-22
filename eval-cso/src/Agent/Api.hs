@@ -11,10 +11,10 @@ import Agent.Controller
 import Agent.Model.Internal (agentModel)
 import Agent.Types (AgentAttrs, AgentDataResponse, AgentResponse, CreateAgent)
 import Common.Types (Id)
-import Db.Model (User)
 import Foundation (App)
-import User.Types (UserName)
 import User.Model.Internal (userModel)
+import User.Model.Types (LoggedInUser)
+import User.Types (UserName)
 
 type ProtectedApi =
          Capture "userName" UserName :> Get '[JSON] AgentResponse
@@ -23,11 +23,11 @@ type ProtectedApi =
 
 type AgentApi auths = "agents" :>
    (    "data" :> Get '[JSON] AgentDataResponse
-   :<|> Auth auths User :> ProtectedApi
+   :<|> Auth auths LoggedInUser :> ProtectedApi
    )
 
 protectedServer
-  :: AuthResult User
+  :: AuthResult LoggedInUser
   -> ServerT ProtectedApi App
 protectedServer (Authenticated user) =
          getAgentByUserName agentModel

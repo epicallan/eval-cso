@@ -11,7 +11,6 @@ module User.Types
         , FullName (..)
         , UserErrors(..)
         , UserEdits(..)
-        , UserType (..)
         , UserToken (..)
         , UserResponse (..)
         , UserLoginResponse (..)
@@ -20,7 +19,6 @@ import Data.Aeson (FromJSON(..), ToJSON(..), genericParseJSON, genericToJSON)
 import Data.Aeson.Options as AO (defaultOptions)
 import Data.Aeson.TH (Options(..), deriveJSON)
 import Data.Char (toLower)
-import Data.Kind (Type)
 import Data.List (stripPrefix)
 import Data.Time (UTCTime)
 import Database.Persist.Sql (PersistField)
@@ -28,7 +26,6 @@ import Database.Persist.TH (derivePersistField)
 import Lens.Micro.Platform (makeFields)
 import Web.HttpApiData (FromHttpApiData)
 
-import Common.Types (Id)
 import User.Password (Password(..), PasswordHash(..))
 
 data Role =
@@ -54,11 +51,6 @@ newtype FullName = FullName {unFullName :: Text}
   deriving (Eq, Show, PersistField)
 
 $(deriveJSON AO.defaultOptions  { unwrapUnaryRecords = True } ''FullName)
-
-data UserType a :: Type where
-  CSOAgentUser :: Id -> UserType 'CSOAgent
-  AdminUser :: Id -> UserType 'Admin
-  EvaluatorUser :: Id -> UserType 'Evaluator
 
 newtype Email = Email {unEmail :: Text}
   deriving (Eq, Show, PersistField)

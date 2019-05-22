@@ -12,6 +12,7 @@ import Db.Model (Nps(..), User(..))
 import Nps.Model.Types (NpsDbRecord(..), NpsModel(..))
 import Nps.Types (CreateNps, NpsRecord(..))
 import User.Helper (runAdminAction, runEvaluatorAction)
+import User.Model.Types (LoggedInUser, SafeUser(..))
 
 getNpsRecords
   :: MonadThrowLogger m
@@ -23,14 +24,16 @@ getNpsRecords npsModel = do
 
 saveNps
   :: MonadThrowLogger m
-  => NpsModel m -> User -> CreateNps -> m Id
-saveNps npsModel user nps = runEvaluatorAction user $ do
+  => NpsModel m -> LoggedInUser -> CreateNps -> m Id
+saveNps npsModel loggedInUser nps = runEvaluatorAction loggedInUser $ do
   evaluatorId <- nmGetEvaluatorId npsModel (userName user) >>= eitherSError err401
   nmCreateNps npsModel evaluatorId nps >>= eitherSError err400
+  where
+    user = unSafeUser loggedInUser
 
 deleteNps
   :: MonadThrowLogger m
-  => NpsModel m -> User -> Id -> m ()
+  => NpsModel m -> LoggedInUser -> Id -> m ()
 deleteNps npsModel user npsId = runAdminAction user $
   nmDeleteNps npsModel . toSqlKey $ unId npsId
 
