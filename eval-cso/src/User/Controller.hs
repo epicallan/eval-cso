@@ -26,7 +26,7 @@ import User.Helper
   toUserResponse)
 import User.Model.Types
   (HasUserWithId(..), LoggedInUser, LoggedOutUser, SafeUser(..), UserModel(..),
-  UserWithId(..))
+  UserState(LoggedOut), UserWithId(..))
 import User.Password (hashPassword, validatePassword)
 import User.Types
   (Email, HasCreateUserAttrs, HasUserAttrs, Login, Password(..), UserEdits(..),
@@ -73,8 +73,7 @@ updateUser
   -> U.UserName
   -> UserEdits
   -> m UserResponse
-updateUser usModel safeUser uName edits = do
-  let logedInUser = unSafeUser safeUser
+updateUser usModel safeUser@(unSafeUser -> logedInUser) uName edits = do
   (UserWithId user userId) <- getUserByName' usModel uName
   let update = toUserResponse <$> umUpdateUser usModel userId edits
   if | uName == userName logedInUser -> update
@@ -106,7 +105,7 @@ loginUser usModel cs jws loginData = do
    let uemail = loginData ^. email
    dbUser <- umGetUserByEmail usModel uemail >>= throwInvalidEmail uemail
    validUser <- if validatePassword (loginData ^. password) (userPassword dbUser)
-                   then pure (SafeUser dbUser :: LoggedOutUser)
+                   then pure $ SafeUser @'LoggedOut dbUser
                    else throwSError err401 (IncorrectPassword uemail)
    acceptLogin cs jws validUser
 
@@ -120,8 +119,7 @@ acceptLogin
   -> JWTSettings
   -> LoggedOutUser
   -> m UserLoginResponse
-acceptLogin cs jws safeUser = do
-  let user = unSafeUser safeUser
+acceptLogin cs jws safeUser@(unSafeUser -> user) = do
   ejwt <- liftIO $ makeJWT safeUser jws (cookieExpires cs)
   case ejwt of
     Left err -> throwSError err400 . CookieSetupError $ show err

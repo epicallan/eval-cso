@@ -24,12 +24,10 @@ throwUserExists :: MonadThrowLogger m => UserName ->  m a
 throwUserExists = throwSError err400 . UserExistsError
 
 runEvaluatorAction :: MonadThrowLogger m => LoggedInUser -> m a -> m a
-runEvaluatorAction loggedInUser action = case userRole user of
+runEvaluatorAction (unSafeUser -> user) action = case userRole user of
   Evaluator -> action
   Admin     -> action
   _         -> throwUserNotAuthorized $ userEmail user
-  where
-    user = unSafeUser loggedInUser
 
 runProtectedAction
   :: MonadThrowLogger m
@@ -38,30 +36,22 @@ runProtectedAction
   -> UserName -- ^ name for user who consumes the action
   -> m a -- ^ action to run
   -> m a
-runProtectedAction safeUser consumerRole consumerUserName action =
+runProtectedAction (unSafeUser -> logedInUser) consumerRole consumerUserName action =
   case userRole logedInUser of
     CSOAgent | userName logedInUser == consumerUserName -> action
     _        -> if consumerRole <= userRole logedInUser
                     then action
-                    else throwUserNotAuthorized uemail
-   where
-      logedInUser :: User
-      logedInUser = unSafeUser safeUser
-
-      uemail :: Email
-      uemail = userEmail logedInUser
+                    else throwUserNotAuthorized $ userEmail logedInUser
 
 runAdminAction
   :: MonadThrowLogger m
   => LoggedInUser
   -> m a -- ^ action to run
   -> m a
-runAdminAction logedInUser action =
+runAdminAction (unSafeUser -> user) action =
   case userRole user of
     Admin -> action
     _     -> throwUserNotAuthorized $ userEmail user
-  where
-    user = unSafeUser logedInUser
 
 toUserResponse :: User -> UserResponse
 toUserResponse User{..} =
