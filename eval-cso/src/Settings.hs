@@ -120,4 +120,3 @@ parseSettings settingsFile = do
   let fileSettings = fromRight mempty efileSettings
   let combined = defaultSettings <> fileSettings <> envSettings
   either throwM pure $ mkSettings combined
-
