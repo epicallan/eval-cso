@@ -1,8 +1,7 @@
 version: '3.5'
 services:
   api:
-    build: epicallan/eval-cso-server
-    image: eval-app
+    image: epicallan/eval-cso-server
     ports:
       - "8888:8888"
     command:
