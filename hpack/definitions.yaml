@@ -4,7 +4,7 @@
 _definitions:
   _top-level:
     - &meta
-        version:            '1.0.7'
+        version:            '1.0.8'
         description:        'Please see the README on Github at <https://github.com/epicallan/eval-cso#readme>'
         homepage:           'https://github.com/epicallan/eval-cso#readme'
         bug-reports:        https://github.com/epicallan/eval-cso/issues
@@ -56,7 +56,6 @@ _definitions:
 
     - &dependencies
         - base-noprelude >= 4.7 && < 5
-        - loot-prelude
         - universum
 
     - &ghc-options
