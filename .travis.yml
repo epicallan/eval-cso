@@ -28,9 +28,10 @@ script:
 - stack build --test --bench --no-run-benchmarks --no-terminal --ghc-options=-Werror
 - curl -sSL https://raw.github.com/ndmitchell/neil/master/misc/travis.sh | sh -s --
   hlint .
+- stack install
 - mkdir deploy
-- mv .stack-work/install/x86_64-linux/lts-12.26/8.4.4/bin/eval-ex deploy/
-- mv .stack-work/install/x86_64-linux/lts-12.26/8.4.4/bin/eval-migrate deploy/
+- mv ~/.local/bin/eval-ex deploy/
+- mv  ~/.local/bin/eval-migrate deploy/
 - zip -q -r eval-build.zip deploy
 notifications:
   email: false
