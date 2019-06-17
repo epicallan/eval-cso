@@ -1,11 +1,627 @@
-{ "user": {"userName": "admin", "fullName": "John Doe", "password": "admin", "email": "admin@nssfug.org"},
+{
+  "user": {
+    "userName": "admin",
+    "fullName": "John Doe",
+    "password": "admin",
+    "email": "admin@nssfug.org"
+  },
   "branches": ["Kampala", "Ntinda"],
+  "agents": [{
+    "agent": {
+      "supervisor": null,
+      "branch": null,
+      "services": null
+    },
+    "user": {
+      "userName": "dakello",
+      "fullName": "Doreen Akello",
+      "email": "dakello@nssfug.org"
+    }
+  }, {
+    "agent": {
+      "supervisor": null,
+      "branch": null,
+      "services": null
+    },
+    "user": {
+      "userName": "samongi",
+      "fullName": "Sandra Amongi",
+      "email": "samongi@nssfug.org"
+    }
+  }, {
+    "agent": {
+      "supervisor": null,
+      "branch": null,
+      "services": null
+    },
+    "user": {
+      "userName": "gamuge",
+      "fullName": "Grace Amuge",
+      "email": "gamuge@nssfug.org"
+    }
+  }, {
+    "agent": {
+      "supervisor": null,
+      "branch": null,
+      "services": null
+    },
+    "user": {
+      "userName": "mashaba-aheebwa",
+      "fullName": "Marion Ashaba-Aheebwa",
+      "email": "maheebwa@nssfug.org"
+    }
+  }, {
+    "agent": {
+      "supervisor": null,
+      "branch": null,
+      "services": null
+    },
+    "user": {
+      "userName": "natenia",
+      "fullName": "Norah Atenia",
+      "email": "natenia@nssfug.org"
+    }
+  }, {
+    "agent": {
+      "supervisor": null,
+      "branch": null,
+      "services": null
+    },
+    "user": {
+      "userName": "satuheire",
+      "fullName": "Shibbah Atuheire",
+      "email": "satuheire@nssfug.org"
+    }
+  }, {
+    "agent": {
+      "supervisor": null,
+      "branch": null,
+      "services": null
+    },
+    "user": {
+      "userName": "pawino",
+      "fullName": "Priscilla Awino",
+      "email": "pawino@nssfug.org"
+    }
+  }, {
+    "agent": {
+      "supervisor": null,
+      "branch": null,
+      "services": null
+    },
+    "user": {
+      "userName": "hayikoru",
+      "fullName": "Harriet Ayikoru",
+      "email": "hayikoru@nssfug.org"
+    }
+  }, {
+    "agent": {
+      "supervisor": null,
+      "branch": null,
+      "services": null
+    },
+    "user": {
+      "userName": "jbaineki",
+      "fullName": "Jacqueline Baineki",
+      "email": "jbaineki@nssfug.org"
+    }
+  }, {
+    "agent": {
+      "supervisor": null,
+      "branch": null,
+      "services": null
+    },
+    "user": {
+      "userName": "ybaranga",
+      "fullName": "Yvonne Baranga",
+      "email": "ybaranga@nssfug.org"
+    }
+  }, {
+    "agent": {
+      "supervisor": null,
+      "branch": null,
+      "services": null
+    },
+    "user": {
+      "userName": "mbirabwa",
+      "fullName": "Marjorie Birabwa",
+      "email": "mbirabwa@nssfug.org"
+    }
+  }, {
+    "agent": {
+      "supervisor": null,
+      "branch": null,
+      "services": null
+    },
+    "user": {
+      "userName": "mbyanyima",
+      "fullName": "Melody Byanyima",
+      "email": "mbyanyima@nssfug.org"
+    }
+  }, {
+    "agent": {
+      "supervisor": null,
+      "branch": null,
+      "services": null
+    },
+    "user": {
+      "userName": "rjjuuko",
+      "fullName": "Ronald Jjuuko",
+      "email": "rjjuuko@nssfug.org"
+    }
+  }, {
+    "agent": {
+      "supervisor": null,
+      "branch": null,
+      "services": null
+    },
+    "user": {
+      "userName": "wkababiito",
+      "fullName": "Winfred Kababiito",
+      "email": "wkababiito@nssfug.org"
+    }
+  }, {
+    "agent": {
+      "supervisor": null,
+      "branch": null,
+      "services": null
+    },
+    "user": {
+      "userName": "skamuli",
+      "fullName": "Sarah Kamuli",
+      "email": "skamuli@nssfug.org"
+    }
+  }, {
+    "agent": {
+      "supervisor": null,
+      "branch": null,
+      "services": null
+    },
+    "user": {
+      "userName": "jkansiime",
+      "fullName": "Joy Kansiime",
+      "email": "jkansiime@nssfug.org"
+    }
+  }, {
+    "agent": {
+      "supervisor": null,
+      "branch": null,
+      "services": null
+    },
+    "user": {
+      "userName": "mkantono",
+      "fullName": "Miriam Kantono",
+      "email": "mkantono@nssfug.org"
+    }
+  }, {
+    "agent": {
+      "supervisor": null,
+      "branch": null,
+      "services": null
+    },
+    "user": {
+      "userName": "rrebeccakauma",
+      "fullName": "Ruth RebeccaKauma",
+      "email": "rrebeccakauma@nssfug.org"
+    }
+  }, {
+    "agent": {
+      "supervisor": null,
+      "branch": null,
+      "services": null
+    },
+    "user": {
+      "userName": "ikigala",
+      "fullName": "Isaac Kigala",
+      "email": "ikigala@nssfug.org"
+    }
+  }, {
+    "agent": {
+      "supervisor": null,
+      "branch": null,
+      "services": null
+    },
+    "user": {
+      "userName": "ekinyera",
+      "fullName": "Emmanuel Kinyera",
+      "email": "ekinyera@nssfug.org"
+    }
+  }, {
+    "agent": {
+      "supervisor": null,
+      "branch": null,
+      "services": null
+    },
+    "user": {
+      "userName": "lkisaakye",
+      "fullName": "Lydia Kisaakye",
+      "email": "lkisaakye@nssfug.org"
+    }
+  }, {
+    "agent": {
+      "supervisor": null,
+      "branch": null,
+      "services": null
+    },
+    "user": {
+      "userName": "jkitamirike",
+      "fullName": "Joel Kitamirike",
+      "email": "jkitamirike@nssfug.org"
+    }
+  }, {
+    "agent": {
+      "supervisor": null,
+      "branch": null,
+      "services": null
+    },
+    "user": {
+      "userName": "skobusinge",
+      "fullName": "Scovia Kobusinge",
+      "email": "skobusinge@nssfug.org"
+    }
+  }, {
+    "agent": {
+      "supervisor": null,
+      "branch": null,
+      "services": null
+    },
+    "user": {
+      "userName": "pkomuhendo",
+      "fullName": "Patricia Komuhendo",
+      "email": "pkomuhendo@nssfug.org"
+    }
+  }, {
+    "agent": {
+      "supervisor": null,
+      "branch": null,
+      "services": null
+    },
+    "user": {
+      "userName": "pkyomugisha",
+      "fullName": "Poover Kyomugisha",
+      "email": "pkyomugisha@nssfug.org"
+    }
+  }, {
+    "agent": {
+      "supervisor": null,
+      "branch": null,
+      "services": null
+    },
+    "user": {
+      "userName": "akyomuhendo",
+      "fullName": "Agnes Kyomuhendo",
+      "email": "akyomuhendo@nssfug.org"
+    }
+  }, {
+    "agent": {
+      "supervisor": null,
+      "branch": null,
+      "services": null
+    },
+    "user": {
+      "userName": "wkyomuhendo",
+      "fullName": "Winnie Kyomuhendo",
+      "email": "wkyomuhendo@nssfug.org"
+    }
+  }, {
+    "agent": {
+      "supervisor": null,
+      "branch": null,
+      "services": null
+    },
+    "user": {
+      "userName": "kmariam",
+      "fullName": "Kigongo Mariam",
+      "email": "kmariam@nssfug.org"
+    }
+  }, {
+    "agent": {
+      "supervisor": null,
+      "branch": null,
+      "services": null
+    },
+    "user": {
+      "userName": "rmugarura",
+      "fullName": "Richard Mugarura",
+      "email": "rmugarura@nssfug.org"
+    }
+  }, {
+    "agent": {
+      "supervisor": null,
+      "branch": null,
+      "services": null
+    },
+    "user": {
+      "userName": "rmuhigwa",
+      "fullName": "Richard Muhigwa",
+      "email": "rmuhigwa@nssfug.org"
+    }
+  }, {
+    "agent": {
+      "supervisor": null,
+      "branch": null,
+      "services": null
+    },
+    "user": {
+      "userName": "gmusinguzi",
+      "fullName": "Geoffrey Musinguzi",
+      "email": "gmusinguzi@nssfug.org"
+    }
+  }, {
+    "agent": {
+      "supervisor": null,
+      "branch": null,
+      "services": null
+    },
+    "user": {
+      "userName": "nmusisi",
+      "fullName": "Naila Musisi",
+      "email": "nmusisi@nssfug.org"
+    }
+  }, {
+    "agent": {
+      "supervisor": null,
+      "branch": null,
+      "services": null
+    },
+    "user": {
+      "userName": "mnabisubi",
+      "fullName": "Mary Nabisubi",
+      "email": "mnabisubi@nssfug.org"
+    }
+  }, {
+    "agent": {
+      "supervisor": null,
+      "branch": null,
+      "services": null
+    },
+    "user": {
+      "userName": "agift",
+      "fullName": "Aisha Gift",
+      "email": "agift@nssfug.org"
+    }
+  }, {
+    "agent": {
+      "supervisor": null,
+      "branch": null,
+      "services": null
+    },
+    "user": {
+      "userName": "jnagasha",
+      "fullName": "Jackline Nagasha",
+      "email": "jnagasha@nssfug.org"
+    }
+  }, {
+    "agent": {
+      "supervisor": null,
+      "branch": null,
+      "services": null
+    },
+    "user": {
+      "userName": "cnaggayi",
+      "fullName": "Claire Naggayi",
+      "email": "cnaggayi@nssfug.org"
+    }
+  }, {
+    "agent": {
+      "supervisor": null,
+      "branch": null,
+      "services": null
+    },
+    "user": {
+      "userName": "anagujja",
+      "fullName": "Anitah Nagujja",
+      "email": "anagujja@nssfug.org"
+    }
+  }, {
+    "agent": {
+      "supervisor": null,
+      "branch": null,
+      "services": null
+    },
+    "user": {
+      "userName": "vnajjingo",
+      "fullName": "Violet Najjingo",
+      "email": "vnajjingo@nssfug.org"
+    }
+  }, {
+    "agent": {
+      "supervisor": null,
+      "branch": null,
+      "services": null
+    },
+    "user": {
+      "userName": "anakanwagi",
+      "fullName": "Aisha Nakanwagi",
+      "email": "anakanwagi@nssfug.org"
+    }
+  }, {
+    "agent": {
+      "supervisor": null,
+      "branch": null,
+      "services": null
+    },
+    "user": {
+      "userName": "enakato",
+      "fullName": "Eseza Nakato",
+      "email": "enakato@nssfug.org"
+    }
+  }, {
+    "agent": {
+      "supervisor": null,
+      "branch": null,
+      "services": null
+    },
+    "user": {
+      "userName": "rnakato",
+      "fullName": "Rose Nakato",
+      "email": "rnakato@nssfug.org"
+    }
+  }, {
+    "agent": {
+      "supervisor": null,
+      "branch": null,
+      "services": null
+    },
+    "user": {
+      "userName": "pnakimbugwe",
+      "fullName": "Phiona Nakimbugwe",
+      "email": "pnakimbugwe@nssfug.org"
+    }
+  }, {
+    "agent": {
+      "supervisor": null,
+      "branch": null,
+      "services": null
+    },
+    "user": {
+      "userName": "cnakuti",
+      "fullName": "Claire Nakuti",
+      "email": "cnakuti@nssfug.org"
+    }
+  }, {
+    "agent": {
+      "supervisor": null,
+      "branch": null,
+      "services": null
+    },
+    "user": {
+      "userName": "jnalubega",
+      "fullName": "Jacqueline Nalubega",
+      "email": "jnalubega@nssfug.org"
+    }
+  }, {
+    "agent": {
+      "supervisor": null,
+      "branch": null,
+      "services": null
+    },
+    "user": {
+      "userName": "snalule",
+      "fullName": "Sarah Nalule",
+      "email": "snalule@nssfug.org"
+    }
+  }, {
+    "agent": {
+      "supervisor": null,
+      "branch": null,
+      "services": null
+    },
+    "user": {
+      "userName": "rnalwoga",
+      "fullName": "Robinah Nalwoga",
+      "email": "rnalwoga@nssfug.org"
+    }
+  }, {
+    "agent": {
+      "supervisor": null,
+      "branch": null,
+      "services": null
+    },
+    "user": {
+      "userName": "nnamayanja",
+      "fullName": "Najia Namayanja",
+      "email": "nnamayanja@nssfug.org"
+    }
+  }, {
+    "agent": {
+      "supervisor": null,
+      "branch": null,
+      "services": null
+    },
+    "user": {
+      "userName": "aocen",
+      "fullName": "Alfred Ocen",
+      "email": "aocen@nssfug.org"
+    }
+  }, {
+    "agent": {
+      "supervisor": null,
+      "branch": null,
+      "services": null
+    },
+    "user": {
+      "userName": "pojiambo",
+      "fullName": "Patricia Ojiambo",
+      "email": "pojiambo@nssfug.org"
+    }
+  }, {
+    "agent": {
+      "supervisor": null,
+      "branch": null,
+      "services": null
+    },
+    "user": {
+      "userName": "mokiror",
+      "fullName": "Moses Okiror",
+      "email": "mokiror@nssfug.org"
+    }
+  }, {
+    "agent": {
+      "supervisor": null,
+      "branch": null,
+      "services": null
+    },
+    "user": {
+      "userName": "topio",
+      "fullName": "Timothy Opio",
+      "email": "topio@nssfug.org"
+    }
+  }, {
+    "agent": {
+      "supervisor": null,
+      "branch": null,
+      "services": null
+    },
+    "user": {
+      "userName": "sosuwat",
+      "fullName": "Samson Osuwat",
+      "email": "sosuwat@nssfug.org"
+    }
+  }, {
+    "agent": {
+      "supervisor": null,
+      "branch": null,
+      "services": null
+    },
+    "user": {
+      "userName": "eserunjogi",
+      "fullName": "Ezekiel Serunjogi",
+      "email": "eserunjogi@nssfug.org"
+    }
+  }, {
+    "agent": {
+      "supervisor": null,
+      "branch": null,
+      "services": null
+    },
+    "user": {
+      "userName": "rssonko",
+      "fullName": "Ritah Ssonko",
+      "email": "rssonko@nssfug.org"
+    }
+  }, {
+    "agent": {
+      "supervisor": null,
+      "branch": null,
+      "services": null
+    },
+    "user": {
+      "userName": "gsuubi",
+      "fullName": "Grace Suubi",
+      "email": "gsuubi@nssfug.org"
+    }
+  }],
   "services": [
     {"value": "call", "name": "Call"},
     {"value": "email", "name": "Email"},
     {"value": "sms", "name": "SMS"},
     {"value": "web", "name": "WEB"},
     {"value": "whatsapp", "name": "Whatsapp"},
-    {"value": "look_and_feel", "name": "Look and Feel"}
+    {"value": "look_and_feel", "name": "Look and Feel"},
+    { "value": "twitter", "name": "Twitter" },
+    { "name": "Mystery call", "value": "mystery_call" },
+    { "name": "OutBound Call", "value": "outbound_call" },
+    { "name": "Facebook", "value": "facebook" }
   ]
 }

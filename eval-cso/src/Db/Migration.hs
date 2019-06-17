@@ -11,9 +11,10 @@ import Data.Aeson.TH (deriveJSON)
 import Data.Pool (destroyAllResources)
 import Lens.Micro.Platform (makeLenses)
 
+import Agent.Controller (createAgentProfile_)
 import Agent.Model.Internal (agentModel)
 import Agent.Model.Types (AgentModel(amCreateBranch))
-import Agent.Types (BranchName)
+import Agent.Types (BranchName, CreateAgent)
 import Common.Errors (MonadThrowLogger)
 import Db.Model (CanDb, runMigrations)
 import Evaluation.Model.Internal (evalModel)
@@ -58,6 +59,7 @@ instance HasPassword AdminUser Password where
 
 data SeedData = SeedData
   { _sdUser :: Signup
+  , _sdAgents :: [CreateAgent]
   , _sdBranches :: [BranchName]
   , _sdServices :: [ServiceAttrs]
   } deriving (Show)
@@ -76,6 +78,9 @@ mkBranches = mapM_ (amCreateBranch agentModel)
 mkAdminUser :: (CanMigrate m r, HasSettings r) => AdminUser -> m ()
 mkAdminUser us = signupUser userModel us >> pass
 
+mkAgents :: (CanMigrate m r, HasSettings r) => [CreateAgent] -> m ()
+mkAgents = mapM_ (createAgentProfile_ agentModel userModel)
+
 mkServices :: CanMigrate m r => [ServiceAttrs] -> m ()
 mkServices = mapM_ (emCreateService evalModel)
 
@@ -83,6 +88,7 @@ startSeeder :: Config -> IO ()
 startSeeder conf = do
   seedData <- readSeedJson
   runStderrLoggingT $ usingReaderT conf $ do
+    mkAgents $ seedData ^. sdAgents
     mkAdminUser $ AdminUser $ seedData ^. sdUser
     mkBranches $ seedData ^. sdBranches
     mkServices $ seedData ^. sdServices

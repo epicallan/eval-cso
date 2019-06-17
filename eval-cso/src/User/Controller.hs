@@ -7,6 +7,7 @@ module User.Controller
        , signupUser
        , deleteUser
        , generateUser
+       , generateUser_
        , setPassword
        ) where
 import Control.Monad.Time (MonadTime, currentTime)
@@ -61,10 +62,20 @@ generateUser
   -> LoggedInUser
   -> UserEdits
   -> m Id
-generateUser usModel logedInUser attrs = do
+generateUser usModel logedInUser attrs =
+  runProtectedAction
+    logedInUser
+    (attrs ^. role)
+    (attrs ^. U.userName) $ generateUser_ usModel attrs
+
+generateUser_
+  :: (HasSettings r, MonadReader r m, MonadTime m, MonadThrowLogger m, MonadIO m)
+  => UserModel m
+  -> UserEdits
+  -> m Id
+generateUser_ usModel attrs = do
   defaultPassword <- liftIO $ randomString' randomASCII (1 % 2) (2 % 3) 7 <&> toText
-  let createU = createUser usModel attrs  $ Password defaultPassword
-  runProtectedAction logedInUser (attrs ^. role) (attrs ^. U.userName) createU
+  createUser usModel attrs  $ Password defaultPassword
 
 updateUser
   :: MonadThrowLogger m

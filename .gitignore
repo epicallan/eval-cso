@@ -60,3 +60,4 @@ dev.yaml
 prod.yaml
 test.yaml
 deploy.sh
+setup-docker.sh
