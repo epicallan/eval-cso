@@ -45,7 +45,7 @@ $(deriveJSON AO.defaultOptions ''CreateAgentUser)
 data CreateAgent = CreateAgent
   { _caAgent :: AgentAttrs
   , _caUser :: CreateAgentUser
-  }
+  } deriving Show
 
 $(deriveJSON AO.defaultOptions ''CreateAgent)
 makeClassy ''CreateAgent
