@@ -5,11 +5,11 @@
     "password": "admin",
     "email": "admin@nssfug.org"
   },
-  "branches": ["Kampala", "Ntinda"],
+  "branches": ["Kampala"],
   "agents": [{
     "agent": {
-      "supervisor": null,
-      "branch": null,
+      "supervisor": "admin",
+      "branch": "kampala",
       "services": null
     },
     "user": {
@@ -19,8 +19,8 @@
     }
   }, {
     "agent": {
-      "supervisor": null,
-      "branch": null,
+      "supervisor": "admin",
+      "branch": "kampala",
       "services": null
     },
     "user": {
@@ -30,8 +30,8 @@
     }
   }, {
     "agent": {
-      "supervisor": null,
-      "branch": null,
+      "supervisor": "admin",
+      "branch": "kampala",
       "services": null
     },
     "user": {
@@ -41,8 +41,8 @@
     }
   }, {
     "agent": {
-      "supervisor": null,
-      "branch": null,
+      "supervisor": "admin",
+      "branch": "kampala",
       "services": null
     },
     "user": {
@@ -52,8 +52,8 @@
     }
   }, {
     "agent": {
-      "supervisor": null,
-      "branch": null,
+      "supervisor": "admin",
+      "branch": "kampala",
       "services": null
     },
     "user": {
@@ -63,8 +63,8 @@
     }
   }, {
     "agent": {
-      "supervisor": null,
-      "branch": null,
+      "supervisor": "admin",
+      "branch": "kampala",
       "services": null
     },
     "user": {
@@ -74,8 +74,8 @@
     }
   }, {
     "agent": {
-      "supervisor": null,
-      "branch": null,
+      "supervisor": "admin",
+      "branch": "kampala",
       "services": null
     },
     "user": {
@@ -85,8 +85,8 @@
     }
   }, {
     "agent": {
-      "supervisor": null,
-      "branch": null,
+      "supervisor": "admin",
+      "branch": "kampala",
       "services": null
     },
     "user": {
@@ -96,8 +96,8 @@
     }
   }, {
     "agent": {
-      "supervisor": null,
-      "branch": null,
+      "supervisor": "admin",
+      "branch": "kampala",
       "services": null
     },
     "user": {
@@ -107,8 +107,8 @@
     }
   }, {
     "agent": {
-      "supervisor": null,
-      "branch": null,
+      "supervisor": "admin",
+      "branch": "kampala",
       "services": null
     },
     "user": {
@@ -118,8 +118,8 @@
     }
   }, {
     "agent": {
-      "supervisor": null,
-      "branch": null,
+      "supervisor": "admin",
+      "branch": "kampala",
       "services": null
     },
     "user": {
@@ -129,8 +129,8 @@
     }
   }, {
     "agent": {
-      "supervisor": null,
-      "branch": null,
+      "supervisor": "admin",
+      "branch": "kampala",
       "services": null
     },
     "user": {
@@ -140,8 +140,8 @@
     }
   }, {
     "agent": {
-      "supervisor": null,
-      "branch": null,
+      "supervisor": "admin",
+      "branch": "kampala",
       "services": null
     },
     "user": {
@@ -151,8 +151,8 @@
     }
   }, {
     "agent": {
-      "supervisor": null,
-      "branch": null,
+      "supervisor": "admin",
+      "branch": "kampala",
       "services": null
     },
     "user": {
@@ -162,8 +162,8 @@
     }
   }, {
     "agent": {
-      "supervisor": null,
-      "branch": null,
+      "supervisor": "admin",
+      "branch": "kampala",
       "services": null
     },
     "user": {
@@ -173,8 +173,8 @@
     }
   }, {
     "agent": {
-      "supervisor": null,
-      "branch": null,
+      "supervisor": "admin",
+      "branch": "kampala",
       "services": null
     },
     "user": {
@@ -184,8 +184,8 @@
     }
   }, {
     "agent": {
-      "supervisor": null,
-      "branch": null,
+      "supervisor": "admin",
+      "branch": "kampala",
       "services": null
     },
     "user": {
@@ -195,8 +195,8 @@
     }
   }, {
     "agent": {
-      "supervisor": null,
-      "branch": null,
+      "supervisor": "admin",
+      "branch": "kampala",
       "services": null
     },
     "user": {
@@ -206,8 +206,8 @@
     }
   }, {
     "agent": {
-      "supervisor": null,
-      "branch": null,
+      "supervisor": "admin",
+      "branch": "kampala",
       "services": null
     },
     "user": {
@@ -217,8 +217,8 @@
     }
   }, {
     "agent": {
-      "supervisor": null,
-      "branch": null,
+      "supervisor": "admin",
+      "branch": "kampala",
       "services": null
     },
     "user": {
@@ -228,8 +228,8 @@
     }
   }, {
     "agent": {
-      "supervisor": null,
-      "branch": null,
+      "supervisor": "admin",
+      "branch": "kampala",
       "services": null
     },
     "user": {
@@ -239,8 +239,8 @@
     }
   }, {
     "agent": {
-      "supervisor": null,
-      "branch": null,
+      "supervisor": "admin",
+      "branch": "kampala",
       "services": null
     },
     "user": {
@@ -250,8 +250,8 @@
     }
   }, {
     "agent": {
-      "supervisor": null,
-      "branch": null,
+      "supervisor": "admin",
+      "branch": "kampala",
       "services": null
     },
     "user": {
@@ -261,8 +261,8 @@
     }
   }, {
     "agent": {
-      "supervisor": null,
-      "branch": null,
+      "supervisor": "admin",
+      "branch": "kampala",
       "services": null
     },
     "user": {
@@ -272,8 +272,8 @@
     }
   }, {
     "agent": {
-      "supervisor": null,
-      "branch": null,
+      "supervisor": "admin",
+      "branch": "kampala",
       "services": null
     },
     "user": {
@@ -283,8 +283,8 @@
     }
   }, {
     "agent": {
-      "supervisor": null,
-      "branch": null,
+      "supervisor": "admin",
+      "branch": "kampala",
       "services": null
     },
     "user": {
@@ -294,8 +294,8 @@
     }
   }, {
     "agent": {
-      "supervisor": null,
-      "branch": null,
+      "supervisor": "admin",
+      "branch": "kampala",
       "services": null
     },
     "user": {
@@ -305,8 +305,8 @@
     }
   }, {
     "agent": {
-      "supervisor": null,
-      "branch": null,
+      "supervisor": "admin",
+      "branch": "kampala",
       "services": null
     },
     "user": {
@@ -316,8 +316,8 @@
     }
   }, {
     "agent": {
-      "supervisor": null,
-      "branch": null,
+      "supervisor": "admin",
+      "branch": "kampala",
       "services": null
     },
     "user": {
@@ -327,8 +327,8 @@
     }
   }, {
     "agent": {
-      "supervisor": null,
-      "branch": null,
+      "supervisor": "admin",
+      "branch": "kampala",
       "services": null
     },
     "user": {
@@ -338,8 +338,8 @@
     }
   }, {
     "agent": {
-      "supervisor": null,
-      "branch": null,
+      "supervisor": "admin",
+      "branch": "kampala",
       "services": null
     },
     "user": {
@@ -349,8 +349,8 @@
     }
   }, {
     "agent": {
-      "supervisor": null,
-      "branch": null,
+      "supervisor": "admin",
+      "branch": "kampala",
       "services": null
     },
     "user": {
@@ -360,8 +360,8 @@
     }
   }, {
     "agent": {
-      "supervisor": null,
-      "branch": null,
+      "supervisor": "admin",
+      "branch": "kampala",
       "services": null
     },
     "user": {
@@ -371,8 +371,8 @@
     }
   }, {
     "agent": {
-      "supervisor": null,
-      "branch": null,
+      "supervisor": "admin",
+      "branch": "kampala",
       "services": null
     },
     "user": {
@@ -382,8 +382,8 @@
     }
   }, {
     "agent": {
-      "supervisor": null,
-      "branch": null,
+      "supervisor": "admin",
+      "branch": "kampala",
       "services": null
     },
     "user": {
@@ -393,8 +393,8 @@
     }
   }, {
     "agent": {
-      "supervisor": null,
-      "branch": null,
+      "supervisor": "admin",
+      "branch": "kampala",
       "services": null
     },
     "user": {
@@ -404,8 +404,8 @@
     }
   }, {
     "agent": {
-      "supervisor": null,
-      "branch": null,
+      "supervisor": "admin",
+      "branch": "kampala",
       "services": null
     },
     "user": {
@@ -415,8 +415,8 @@
     }
   }, {
     "agent": {
-      "supervisor": null,
-      "branch": null,
+      "supervisor": "admin",
+      "branch": "kampala",
       "services": null
     },
     "user": {
@@ -426,8 +426,8 @@
     }
   }, {
     "agent": {
-      "supervisor": null,
-      "branch": null,
+      "supervisor": "admin",
+      "branch": "kampala",
       "services": null
     },
     "user": {
@@ -437,8 +437,8 @@
     }
   }, {
     "agent": {
-      "supervisor": null,
-      "branch": null,
+      "supervisor": "admin",
+      "branch": "kampala",
       "services": null
     },
     "user": {
@@ -448,8 +448,8 @@
     }
   }, {
     "agent": {
-      "supervisor": null,
-      "branch": null,
+      "supervisor": "admin",
+      "branch": "kampala",
       "services": null
     },
     "user": {
@@ -459,8 +459,8 @@
     }
   }, {
     "agent": {
-      "supervisor": null,
-      "branch": null,
+      "supervisor": "admin",
+      "branch": "kampala",
       "services": null
     },
     "user": {
@@ -470,8 +470,8 @@
     }
   }, {
     "agent": {
-      "supervisor": null,
-      "branch": null,
+      "supervisor": "admin",
+      "branch": "kampala",
       "services": null
     },
     "user": {
@@ -481,8 +481,8 @@
     }
   }, {
     "agent": {
-      "supervisor": null,
-      "branch": null,
+      "supervisor": "admin",
+      "branch": "kampala",
       "services": null
     },
     "user": {
@@ -492,8 +492,8 @@
     }
   }, {
     "agent": {
-      "supervisor": null,
-      "branch": null,
+      "supervisor": "admin",
+      "branch": "kampala",
       "services": null
     },
     "user": {
@@ -503,8 +503,8 @@
     }
   }, {
     "agent": {
-      "supervisor": null,
-      "branch": null,
+      "supervisor": "admin",
+      "branch": "kampala",
       "services": null
     },
     "user": {
@@ -514,8 +514,8 @@
     }
   }, {
     "agent": {
-      "supervisor": null,
-      "branch": null,
+      "supervisor": "admin",
+      "branch": "kampala",
       "services": null
     },
     "user": {
@@ -525,8 +525,8 @@
     }
   }, {
     "agent": {
-      "supervisor": null,
-      "branch": null,
+      "supervisor": "admin",
+      "branch": "kampala",
       "services": null
     },
     "user": {
@@ -536,8 +536,8 @@
     }
   }, {
     "agent": {
-      "supervisor": null,
-      "branch": null,
+      "supervisor": "admin",
+      "branch": "kampala",
       "services": null
     },
     "user": {
@@ -547,8 +547,8 @@
     }
   }, {
     "agent": {
-      "supervisor": null,
-      "branch": null,
+      "supervisor": "admin",
+      "branch": "kampala",
       "services": null
     },
     "user": {
@@ -558,8 +558,8 @@
     }
   }, {
     "agent": {
-      "supervisor": null,
-      "branch": null,
+      "supervisor": "admin",
+      "branch": "kampala",
       "services": null
     },
     "user": {
@@ -569,8 +569,8 @@
     }
   }, {
     "agent": {
-      "supervisor": null,
-      "branch": null,
+      "supervisor": "admin",
+      "branch": "kampala",
       "services": null
     },
     "user": {
@@ -580,8 +580,8 @@
     }
   }, {
     "agent": {
-      "supervisor": null,
-      "branch": null,
+      "supervisor": "admin",
+      "branch": "kampala",
       "services": null
     },
     "user": {
@@ -591,8 +591,8 @@
     }
   }, {
     "agent": {
-      "supervisor": null,
-      "branch": null,
+      "supervisor": "admin",
+      "branch": "kampala",
       "services": null
     },
     "user": {
@@ -602,8 +602,8 @@
     }
   }, {
     "agent": {
-      "supervisor": null,
-      "branch": null,
+      "supervisor": "admin",
+      "branch": "kampala",
       "services": null
     },
     "user": {
