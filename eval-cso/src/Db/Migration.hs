@@ -88,9 +88,9 @@ startSeeder :: Config -> IO ()
 startSeeder conf = do
   seedData <- readSeedJson
   runStderrLoggingT $ usingReaderT conf $ do
-    mkAgents $ seedData ^. sdAgents
     mkAdminUser $ AdminUser $ seedData ^. sdUser
     mkBranches $ seedData ^. sdBranches
+    mkAgents $ seedData ^. sdAgents
     mkServices $ seedData ^. sdServices
 
 shutdownMigration :: Config -> IO ()
