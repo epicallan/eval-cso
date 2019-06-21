@@ -616,11 +616,12 @@
     {"value": "call", "name": "Call"},
     {"value": "email", "name": "Email"},
     {"value": "sms", "name": "SMS"},
-    {"value": "web", "name": "WEB"},
+    {"value": "chat", "name": "Chat"},
     {"value": "whatsapp", "name": "Whatsapp"},
     {"value": "look_and_feel", "name": "Look and Feel"},
     { "value": "twitter", "name": "Twitter" },
     { "name": "Mystery call", "value": "mystery_call" },
+    { "name": "Mystery mail", "value": "mystery_mail" },
     { "name": "OutBound Call", "value": "outbound_call" },
     { "name": "Facebook", "value": "facebook" }
   ]
