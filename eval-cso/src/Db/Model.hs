@@ -62,12 +62,14 @@ share
 
   Evaluation sql=evaluation
     evaluator      UserId
-    agent          UserId
+    agent          UserId        
     serviceType    ServiceId
     reason         E.Reason             sqltype=text
     comment        E.Comment     Maybe  sqltype=text
     details        E.Details     Maybe  sqltype=text
-    customerTel    E.Telephone          sqltype=text
+    customerTel    E.Telephone   Maybe  sqltype=text
+    customerEmail  U.Email       Maybe  sqltype=text
+    branch         A.BranchName  Maybe  sqltype=text
     deleted        Bool          Maybe  default=False
     createdAt   UTCTime  sqltype=timestamptz sql=created_at default=CURRENT_TIMESTAMP
     updatedAt   UTCTime  sqltype=timestamptz sql=updated_at default=CURRENT_TIMESTAMP
@@ -101,7 +103,7 @@ share
    customerTel              E.Telephone         Maybe sqltype=text default Null
    agent                    UserId
    date                     UTCTime                    sqltype=timestamptz
-   touchPoint               N.TouchPoint               sqltype=text
+   branch                   A.BranchName               sqltype=text
    reason                   E.Reason                   sqltype=text
    waitTime                 N.WaitTime                 sqltype=int
    duration                 N.Duration                 sqltype=int

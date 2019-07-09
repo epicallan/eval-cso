@@ -84,7 +84,7 @@ data CreateNps = CreateNps
   { cnCustomerTel :: Maybe Telephone
   , cnAgentName :: UserName
   , cnDate :: UTCTime
-  , cnTouchPoint :: TouchPoint
+  , cnBranch :: BranchName
   , cnRating :: Rating
   , cnReason :: Reason
   , cnWaitTime :: WaitTime
@@ -105,9 +105,8 @@ data NpsRecord = NpsRecord
   , nrEvaluator :: UserName
   , nrAgentName :: UserName
   , nrSupervisor :: Maybe FullName
-  , nrBranch :: Maybe BranchName
+  , nrBranch :: BranchName
   , nrDate :: UTCTime
-  , nrTouchPoint :: TouchPoint
   , nrRating :: Rating
   , nrReason :: Reason
   , nrWaitTime :: WaitTime

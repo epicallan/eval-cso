@@ -18,7 +18,6 @@ type ExceptNpsM m a = forall r. CanDb m r => ExceptT NpsErrors m a
 type NpsData =
   ( Entity Nps
   , Entity User
-  , Maybe (Entity Branch)
   , Maybe (Entity User)
   , Entity User
   )
@@ -34,16 +33,15 @@ npsModel = NpsModel
   , nmGetNpss = do
      npsData :: [NpsData] <- runInDb $
        select $
-         from $ \(nps `InnerJoin` agent `InnerJoin` agentProfile `InnerJoin` branch
+         from $ \(nps `InnerJoin` agent `InnerJoin` agentProfile
                   `InnerJoin` supervisor `InnerJoin` evaluator
                  ) -> do
             on (evaluator ^. UserId ==. nps ^. NpsEvaluator)
             on (agentProfile ^. AgentSupervisorId ==. supervisor ?. UserId)
-            on (agentProfile ^. AgentBranch ==. branch ?. BranchId)
             on (agent ^. UserId ==. agentProfile ^. AgentUserId)
             on (agent ^. UserId ==. nps ^. NpsAgent)
             where_ (nps ^. NpsDeleted ==. val (Just False))
-            return (nps, agent, branch, supervisor, evaluator)
+            return (nps, agent, supervisor, evaluator)
      return $ toNpsDbRecord <$> npsData
 
   , nmGetEvaluatorId = \uname -> do
@@ -63,13 +61,12 @@ getUserId name = do
   ExceptT $ pure . maybe (Left $ UserNameNotFound name) (Right . view uiId) $ mUserWithId
 
 toNpsDbRecord :: NpsData -> NpsDbRecord
-toNpsDbRecord (eNps, eAgent, eBranch, eSupervisor, eEvaluator) = NpsDbRecord
+toNpsDbRecord (eNps, eAgent, eSupervisor, eEvaluator) = NpsDbRecord
   { ndrNps = entityVal eNps
   , ndrNpsId = entityKey eNps
   , ndrEvaluator = entityVal eEvaluator
   , ndrAgent = entityVal eAgent
   , ndrSupervisor = entityVal <$> eSupervisor
-  , ndrBranch = branchName . entityVal <$> eBranch
   }
 
 mkNps :: MonadTime m => UserId -> CreateNps -> ExceptNpsM m Nps
@@ -78,7 +75,7 @@ mkNps npsEvaluator CreateNps {..} = do
   npsAgent <- getUserId cnAgentName
   let npsCustomerTel = cnCustomerTel
       npsDate = cnDate
-      npsTouchPoint = cnTouchPoint
+      npsBranch = cnBranch
       npsRating = cnRating
       npsReason = cnReason
       npsWaitTime = cnWaitTime

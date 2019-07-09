@@ -35,7 +35,7 @@ import Lens.Micro.Platform (makeClassy)
 import Web.HttpApiData (FromHttpApiData)
 
 import Common.Types (RecordId)
-import User.Types (FullName, UserName)
+import User.Types (Email, FullName, UserName)
 
 data Category = ZeroRated | Deviation
   deriving (Eq, Read, Show)
@@ -143,9 +143,11 @@ data EvalAttrs = EvalAttrs
   , _eaAgentName :: UserName
   , _eaSupervisor :: Maybe FullName
   , _eaService :: ServiceTypeValue
-  , _eaCustomerTel :: Telephone
+  , _eaCustomerTel :: Maybe Telephone
+  , _eaCustomerEmail :: Maybe Email
   , _eaComment :: Maybe Comment
   , _eaDetails :: Maybe Details
+  , _eaAgentBranch :: Maybe BranchName
   , _eaBranch :: Maybe BranchName
   , _eaDate :: UTCTime
   } deriving (Show)

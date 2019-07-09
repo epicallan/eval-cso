@@ -98,9 +98,11 @@ toEvalAttr service firstScore =
        , _eaAgentName = userName agent
        , _eaSupervisor = userFullName <$> supervisor
        , _eaCustomerTel = evaluationCustomerTel evaluation
+       , _eaCustomerEmail = evaluationCustomerEmail evaluation
        , _eaService = service
        , _eaDetails = evaluationDetails evaluation
-       , _eaBranch =  firstScore ^. esBranch
+       , _eaAgentBranch =  firstScore ^. esBranch
+       , _eaBranch = evaluationBranch evaluation
        , _eaComment = evaluationComment evaluation
        , _eaDate = evaluationUpdatedAt evaluation
        }
