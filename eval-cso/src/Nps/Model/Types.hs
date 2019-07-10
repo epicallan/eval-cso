@@ -4,7 +4,7 @@ module Nps.Model.Types
        ) where
 import Common.Types (Id)
 import Db.Model (Nps, NpsId, User, UserId)
-import Nps.Types (BranchName, CreateNps, NpsErrors)
+import Nps.Types (CreateNps, NpsErrors)
 import User.Types (UserName)
 
 data NpsDbRecord = NpsDbRecord
@@ -13,7 +13,6 @@ data NpsDbRecord = NpsDbRecord
   , ndrEvaluator :: User
   , ndrAgent :: User
   , ndrSupervisor :: Maybe User
-  , ndrBranch :: Maybe BranchName
   }
 
 data NpsModel m = NpsModel

@@ -114,6 +114,8 @@ evalModel = EvalModel
         , evaluationDetails = _eaDetails
         , evaluationDeleted = Just False
         , evaluationCustomerTel = _eaCustomerTel
+        , evaluationCustomerEmail = _eaCustomerEmail
+        , evaluationBranch = _eaBranch
         , evaluationCreatedAt = utcTime
         , evaluationUpdatedAt = utcTime
         }

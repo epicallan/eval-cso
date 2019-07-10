@@ -5,11 +5,39 @@
     "password": "admin",
     "email": "admin@nssfug.org"
   },
-  "branches": ["Kampala"],
+  "branches": [
+    "Acacia",
+    "Arua",
+    "Bakuli",
+    "Bugolobi",
+    "Call Centre",
+    "Customer Service Center",
+    "DMU registration",
+    "Entebbe",
+    "Gulu",
+    "Hoima",
+    "Lira",
+    "Masindi",
+    "Corporate",
+    "Voluntary",
+    "Mukono",
+    "Lugazi",
+    "Jinja",
+    "Mbale",
+    "Tororo",
+    "Soroti",
+    "Fortpotal",
+    "Ishaka",
+    "Kabale",
+    "Mbarara",
+    "Masaka",
+    "Reception",
+    "Others"
+  ],
   "agents": [{
     "agent": {
       "supervisor": "admin",
-      "branch": "Kampala",
+      "branch": "Customer Service Center",
       "services": null
     },
     "user": {
@@ -20,7 +48,7 @@
   }, {
     "agent": {
       "supervisor": "admin",
-      "branch": "Kampala",
+      "branch": "Customer Service Center",
       "services": null
     },
     "user": {
@@ -31,7 +59,7 @@
   }, {
     "agent": {
       "supervisor": "admin",
-      "branch": "Kampala",
+      "branch": "Customer Service Center",
       "services": null
     },
     "user": {
@@ -42,7 +70,7 @@
   }, {
     "agent": {
       "supervisor": "admin",
-      "branch": "Kampala",
+      "branch": "Customer Service Center",
       "services": null
     },
     "user": {
@@ -53,7 +81,7 @@
   }, {
     "agent": {
       "supervisor": "admin",
-      "branch": "Kampala",
+      "branch": "Customer Service Center",
       "services": null
     },
     "user": {
@@ -64,7 +92,7 @@
   }, {
     "agent": {
       "supervisor": "admin",
-      "branch": "Kampala",
+      "branch": "Customer Service Center",
       "services": null
     },
     "user": {
@@ -75,7 +103,7 @@
   }, {
     "agent": {
       "supervisor": "admin",
-      "branch": "Kampala",
+      "branch": "Customer Service Center",
       "services": null
     },
     "user": {
@@ -86,7 +114,7 @@
   }, {
     "agent": {
       "supervisor": "admin",
-      "branch": "Kampala",
+      "branch": "Customer Service Center",
       "services": null
     },
     "user": {
@@ -97,7 +125,7 @@
   }, {
     "agent": {
       "supervisor": "admin",
-      "branch": "Kampala",
+      "branch": "Customer Service Center",
       "services": null
     },
     "user": {
@@ -108,7 +136,7 @@
   }, {
     "agent": {
       "supervisor": "admin",
-      "branch": "Kampala",
+      "branch": "Customer Service Center",
       "services": null
     },
     "user": {
@@ -119,7 +147,7 @@
   }, {
     "agent": {
       "supervisor": "admin",
-      "branch": "Kampala",
+      "branch": "Customer Service Center",
       "services": null
     },
     "user": {
@@ -130,7 +158,7 @@
   }, {
     "agent": {
       "supervisor": "admin",
-      "branch": "Kampala",
+      "branch": "Customer Service Center",
       "services": null
     },
     "user": {
@@ -141,7 +169,7 @@
   }, {
     "agent": {
       "supervisor": "admin",
-      "branch": "Kampala",
+      "branch": "Customer Service Center",
       "services": null
     },
     "user": {
@@ -152,7 +180,7 @@
   }, {
     "agent": {
       "supervisor": "admin",
-      "branch": "Kampala",
+      "branch": "Customer Service Center",
       "services": null
     },
     "user": {
@@ -163,7 +191,7 @@
   }, {
     "agent": {
       "supervisor": "admin",
-      "branch": "Kampala",
+      "branch": "Customer Service Center",
       "services": null
     },
     "user": {
@@ -174,7 +202,7 @@
   }, {
     "agent": {
       "supervisor": "admin",
-      "branch": "Kampala",
+      "branch": "Customer Service Center",
       "services": null
     },
     "user": {
@@ -185,7 +213,7 @@
   }, {
     "agent": {
       "supervisor": "admin",
-      "branch": "Kampala",
+      "branch": "Customer Service Center",
       "services": null
     },
     "user": {
@@ -196,7 +224,7 @@
   }, {
     "agent": {
       "supervisor": "admin",
-      "branch": "Kampala",
+      "branch": "Customer Service Center",
       "services": null
     },
     "user": {
@@ -207,7 +235,7 @@
   }, {
     "agent": {
       "supervisor": "admin",
-      "branch": "Kampala",
+      "branch": "Customer Service Center",
       "services": null
     },
     "user": {
@@ -218,7 +246,7 @@
   }, {
     "agent": {
       "supervisor": "admin",
-      "branch": "Kampala",
+      "branch": "Customer Service Center",
       "services": null
     },
     "user": {
@@ -229,7 +257,7 @@
   }, {
     "agent": {
       "supervisor": "admin",
-      "branch": "Kampala",
+      "branch": "Customer Service Center",
       "services": null
     },
     "user": {
@@ -240,7 +268,7 @@
   }, {
     "agent": {
       "supervisor": "admin",
-      "branch": "Kampala",
+      "branch": "Customer Service Center",
       "services": null
     },
     "user": {
@@ -251,7 +279,7 @@
   }, {
     "agent": {
       "supervisor": "admin",
-      "branch": "Kampala",
+      "branch": "Customer Service Center",
       "services": null
     },
     "user": {
@@ -262,7 +290,7 @@
   }, {
     "agent": {
       "supervisor": "admin",
-      "branch": "Kampala",
+      "branch": "Customer Service Center",
       "services": null
     },
     "user": {
@@ -273,7 +301,7 @@
   }, {
     "agent": {
       "supervisor": "admin",
-      "branch": "Kampala",
+      "branch": "Customer Service Center",
       "services": null
     },
     "user": {
@@ -284,7 +312,7 @@
   }, {
     "agent": {
       "supervisor": "admin",
-      "branch": "Kampala",
+      "branch": "Customer Service Center",
       "services": null
     },
     "user": {
@@ -295,7 +323,7 @@
   }, {
     "agent": {
       "supervisor": "admin",
-      "branch": "Kampala",
+      "branch": "Customer Service Center",
       "services": null
     },
     "user": {
@@ -306,7 +334,7 @@
   }, {
     "agent": {
       "supervisor": "admin",
-      "branch": "Kampala",
+      "branch": "Customer Service Center",
       "services": null
     },
     "user": {
@@ -317,7 +345,7 @@
   }, {
     "agent": {
       "supervisor": "admin",
-      "branch": "Kampala",
+      "branch": "Customer Service Center",
       "services": null
     },
     "user": {
@@ -328,7 +356,7 @@
   }, {
     "agent": {
       "supervisor": "admin",
-      "branch": "Kampala",
+      "branch": "Customer Service Center",
       "services": null
     },
     "user": {
@@ -339,7 +367,7 @@
   }, {
     "agent": {
       "supervisor": "admin",
-      "branch": "Kampala",
+      "branch": "Customer Service Center",
       "services": null
     },
     "user": {
@@ -350,7 +378,7 @@
   }, {
     "agent": {
       "supervisor": "admin",
-      "branch": "Kampala",
+      "branch": "Customer Service Center",
       "services": null
     },
     "user": {
@@ -361,7 +389,7 @@
   }, {
     "agent": {
       "supervisor": "admin",
-      "branch": "Kampala",
+      "branch": "Customer Service Center",
       "services": null
     },
     "user": {
@@ -372,7 +400,7 @@
   }, {
     "agent": {
       "supervisor": "admin",
-      "branch": "Kampala",
+      "branch": "Customer Service Center",
       "services": null
     },
     "user": {
@@ -383,7 +411,7 @@
   }, {
     "agent": {
       "supervisor": "admin",
-      "branch": "Kampala",
+      "branch": "Customer Service Center",
       "services": null
     },
     "user": {
@@ -394,7 +422,7 @@
   }, {
     "agent": {
       "supervisor": "admin",
-      "branch": "Kampala",
+      "branch": "Customer Service Center",
       "services": null
     },
     "user": {
@@ -405,7 +433,7 @@
   }, {
     "agent": {
       "supervisor": "admin",
-      "branch": "Kampala",
+      "branch": "Customer Service Center",
       "services": null
     },
     "user": {
@@ -416,7 +444,7 @@
   }, {
     "agent": {
       "supervisor": "admin",
-      "branch": "Kampala",
+      "branch": "Customer Service Center",
       "services": null
     },
     "user": {
@@ -427,7 +455,7 @@
   }, {
     "agent": {
       "supervisor": "admin",
-      "branch": "Kampala",
+      "branch": "Customer Service Center",
       "services": null
     },
     "user": {
@@ -438,7 +466,7 @@
   }, {
     "agent": {
       "supervisor": "admin",
-      "branch": "Kampala",
+      "branch": "Customer Service Center",
       "services": null
     },
     "user": {
@@ -449,7 +477,7 @@
   }, {
     "agent": {
       "supervisor": "admin",
-      "branch": "Kampala",
+      "branch": "Customer Service Center",
       "services": null
     },
     "user": {
@@ -460,7 +488,7 @@
   }, {
     "agent": {
       "supervisor": "admin",
-      "branch": "Kampala",
+      "branch": "Customer Service Center",
       "services": null
     },
     "user": {
@@ -471,7 +499,7 @@
   }, {
     "agent": {
       "supervisor": "admin",
-      "branch": "Kampala",
+      "branch": "Customer Service Center",
       "services": null
     },
     "user": {
@@ -482,7 +510,7 @@
   }, {
     "agent": {
       "supervisor": "admin",
-      "branch": "Kampala",
+      "branch": "Customer Service Center",
       "services": null
     },
     "user": {
@@ -493,7 +521,7 @@
   }, {
     "agent": {
       "supervisor": "admin",
-      "branch": "Kampala",
+      "branch": "Customer Service Center",
       "services": null
     },
     "user": {
@@ -504,7 +532,7 @@
   }, {
     "agent": {
       "supervisor": "admin",
-      "branch": "Kampala",
+      "branch": "Customer Service Center",
       "services": null
     },
     "user": {
@@ -515,7 +543,7 @@
   }, {
     "agent": {
       "supervisor": "admin",
-      "branch": "Kampala",
+      "branch": "Customer Service Center",
       "services": null
     },
     "user": {
@@ -526,7 +554,7 @@
   }, {
     "agent": {
       "supervisor": "admin",
-      "branch": "Kampala",
+      "branch": "Customer Service Center",
       "services": null
     },
     "user": {
@@ -537,7 +565,7 @@
   }, {
     "agent": {
       "supervisor": "admin",
-      "branch": "Kampala",
+      "branch": "Customer Service Center",
       "services": null
     },
     "user": {
@@ -548,7 +576,7 @@
   }, {
     "agent": {
       "supervisor": "admin",
-      "branch": "Kampala",
+      "branch": "Customer Service Center",
       "services": null
     },
     "user": {
@@ -559,7 +587,7 @@
   }, {
     "agent": {
       "supervisor": "admin",
-      "branch": "Kampala",
+      "branch": "Customer Service Center",
       "services": null
     },
     "user": {
@@ -570,7 +598,7 @@
   }, {
     "agent": {
       "supervisor": "admin",
-      "branch": "Kampala",
+      "branch": "Customer Service Center",
       "services": null
     },
     "user": {
@@ -581,7 +609,7 @@
   }, {
     "agent": {
       "supervisor": "admin",
-      "branch": "Kampala",
+      "branch": "Customer Service Center",
       "services": null
     },
     "user": {
@@ -592,7 +620,7 @@
   }, {
     "agent": {
       "supervisor": "admin",
-      "branch": "Kampala",
+      "branch": "Customer Service Center",
       "services": null
     },
     "user": {
@@ -603,7 +631,7 @@
   }, {
     "agent": {
       "supervisor": "admin",
-      "branch": "Kampala",
+      "branch": "Customer Service Center",
       "services": null
     },
     "user": {
@@ -611,18 +639,69 @@
       "fullName": "Grace Suubi",
       "email": "gsuubi@nssfug.org"
     }
+  }, {
+    "agent": {
+      "supervisor": "admin",
+      "branch": "Others",
+      "services": null
+    },
+    "user": {
+      "userName": "branch",
+      "fullName": "Branch",
+      "email": "branch@nssfug.org"
+    }
   }],
-  "services": [
-    {"value": "call", "name": "Call"},
-    {"value": "email", "name": "Email"},
-    {"value": "sms", "name": "SMS"},
-    {"value": "chat", "name": "Chat"},
-    {"value": "whatsapp", "name": "Whatsapp"},
-    {"value": "look_and_feel", "name": "Look and Feel"},
-    { "value": "twitter", "name": "Twitter" },
-    { "name": "Mystery call", "value": "mystery_call" },
-    { "name": "Mystery mail", "value": "mystery_mail" },
-    { "name": "OutBound Call", "value": "outbound_call" },
-    { "name": "Facebook", "value": "facebook" }
+  "services": [{
+      "value": "call",
+      "name": "Call"
+    },
+    {
+      "value": "email",
+      "name": "Email"
+    },
+    {
+      "value": "sms",
+      "name": "SMS"
+    },
+    {
+      "value": "chat",
+      "name": "Chat"
+    },
+    {
+      "value": "whatsapp",
+      "name": "Whatsapp"
+    },
+    {
+      "value": "look_and_feel",
+      "name": "Look and Feel"
+    },
+    {
+      "value": "twitter",
+      "name": "Twitter"
+    },
+    {
+      "name": "Mystery call",
+      "value": "mystery_call"
+    },
+    {
+      "name": "Mystery mail",
+      "value": "mystery_mail"
+    },
+    {
+      "name": "OutBound Call",
+      "value": "outbound_call"
+    },
+    {
+      "name": "Facebook",
+      "value": "facebook"
+    },
+    {
+      "name": "10th Floor Look and Feel",
+      "value": "10th_floor_look_and_feel"
+    },
+    {
+      "name": "14th Floor Look and Feel",
+      "value": "14th_floor_look_and_feel"
+    }
   ]
 }
