@@ -35,93 +35,95 @@ import User.Types
   email, fullName, password, role)
 import qualified User.Types as U (UserName(..), userName)
 
+type UserEffs m = (MonadThrowLogger m, ?userModel :: UserModel m)
+
+type UserEffsIO r m =
+  ( UserEffs m
+  , HasSettings r
+  , MonadReader r m
+  , MonadTime m
+  , MonadIO m
+  )
+
 getUserByName
-  :: forall m .(MonadThrowLogger m)
-  => UserModel m
-  -> U.UserName
+  :: UserEffs m
+  => U.UserName
   -> m UserResponse
-getUserByName usModel uName =
-  toUserResponse . view uiUser <$> getUserByName' usModel uName
+getUserByName uName =
+  toUserResponse . view uiUser <$> getUserByName' uName
 
 setPassword
-  :: (MonadThrowLogger m, HasSettings r, MonadReader r m)
-  => UserModel m
-  -> LoggedInUser
+  :: (UserEffs m, HasSettings r, MonadReader r m)
+  => LoggedInUser
   -> U.UserName
   -> Password
   -> m Id
-setPassword usModel logedInUser uName pwd = do
-  (UserWithId user userId) <- getUserByName' usModel uName
-  let mkPassword = hashPassword pwd >>= umSetPassword usModel userId
+setPassword logedInUser uName pwd = do
+  (UserWithId user userId) <- getUserByName' uName
+  let mkPassword = hashPassword pwd >>= umSetPassword ?userModel userId
   runProtectedAction logedInUser (userRole user) uName mkPassword
   pure . Id $ fromSqlKey userId
 
 generateUser
-  :: (HasSettings r, MonadReader r m, MonadTime m, MonadThrowLogger m, MonadIO m)
-  => UserModel m
-  -> LoggedInUser
+  :: UserEffsIO r m
+  => LoggedInUser
   -> UserEdits
   -> m Id
-generateUser usModel logedInUser attrs =
+generateUser logedInUser attrs =
   runProtectedAction
     logedInUser
     (attrs ^. role)
-    (attrs ^. U.userName) $ generateUser_ usModel attrs
+    (attrs ^. U.userName) $ generateUser_  attrs
 
 generateUser_
-  :: (HasSettings r, MonadReader r m, MonadTime m, MonadThrowLogger m, MonadIO m)
-  => UserModel m
-  -> UserEdits
+  :: UserEffsIO r m
+  => UserEdits
   -> m Id
-generateUser_ usModel attrs = do
+generateUser_ attrs = do
   defaultPassword <- liftIO $ randomString' randomASCII (1 % 2) (2 % 3) 7 <&> toText
-  createUser usModel attrs  $ Password defaultPassword
+  createUser attrs $ Password defaultPassword
 
 updateUser
-  :: MonadThrowLogger m
-  => UserModel m
-  -> LoggedInUser
+  :: UserEffs m
+  => LoggedInUser
   -> U.UserName
   -> UserEdits
   -> m UserResponse
-updateUser usModel safeUser@(unSafeUser -> logedInUser) uName edits = do
-  (UserWithId user userId) <- getUserByName' usModel uName
-  let update = toUserResponse <$> umUpdateUser usModel userId edits
+updateUser safeUser@(unSafeUser -> logedInUser) uName edits = do
+  (UserWithId user userId) <- getUserByName' uName
+  let update = toUserResponse <$> umUpdateUser ?userModel userId edits
   if | uName == userName logedInUser -> update
      | otherwise -> runProtectedAction safeUser (userRole user) (userName user) update
 
 listUsers
-  :: Functor m
-  => UserModel m
-  -> m [UserResponse]
-listUsers us = fmap toUserResponse <$> umAllUsers us
+  :: UserEffs m
+  => m [UserResponse]
+listUsers = fmap toUserResponse <$> umAllUsers ?userModel
 
 -- | on signup everyone is a regular member i.e CSO Agent, admin gives out roles
 -- note signup has a default role of CSOAgent from HasRole class
 signupUser
-  :: (HasSettings r, HasCreateUserAttrs attrs, MonadReader r m, MonadTime m, MonadThrowLogger m)
-  => UserModel m
-  -> attrs
+  :: (HasSettings r, HasCreateUserAttrs attrs, MonadReader r m, MonadTime m, UserEffs m)
+  => attrs
   -> m Id
-signupUser usModel attrs = createUser usModel attrs $ attrs ^. password
+signupUser attrs = createUser attrs $ attrs ^. password
 
 loginUser
-  :: (MonadThrowLogger m, MonadIO m)
-  => UserModel m
-  -> CookieSettings
+  :: (UserEffs m, MonadIO m)
+  => CookieSettings
   -> JWTSettings
   -> Login
   -> m UserLoginResponse
-loginUser usModel cs jws loginData = do
+loginUser cs jws loginData = do
    let uemail = loginData ^. email
-   dbUser <- umGetUserByEmail usModel uemail >>= throwInvalidEmail uemail
+   dbUser <- umGetUserByEmail ?userModel uemail >>= throwInvalidEmail uemail
    validUser <- if validatePassword (loginData ^. password) (userPassword dbUser)
                    then pure $ SafeUser @'LoggedOut dbUser
                    else throwSError err401 (IncorrectPassword uemail)
    acceptLogin cs jws validUser
 
    where
-     throwInvalidEmail :: MonadThrowLogger m=> Email -> Maybe User -> m User
+     throwInvalidEmail :: MonadThrowLogger m => Email -> Maybe User -> m User
      throwInvalidEmail uEmail = maybe (throwSError err400 $ UserEmailNotFound uEmail) pure
 
 acceptLogin
@@ -139,16 +141,15 @@ acceptLogin cs jws safeUser@(unSafeUser -> user) = do
                    $ toUserResponse user
 
 createUser
-  :: (HasUserAttrs attrs,  MonadTime m, HasSettings r, MonadReader r m, MonadThrowLogger m)
-  => UserModel m
-  -> attrs
+  :: (HasUserAttrs attrs,  MonadTime m, HasSettings r, MonadReader r m, UserEffs m)
+  => attrs
   -> Password
   -> m Id
-createUser usModel userAttrs pwd = do
+createUser userAttrs pwd = do
   let uName = userAttrs ^. U.userName
   hpwd <- hashPassword pwd
   utcTime <- currentTime
-  mUserId <- umCreateUser usModel $
+  mUserId <- umCreateUser ?userModel $
     User { userRole = userAttrs ^. role
          , userName = uName
          , userFullName = userAttrs ^. fullName
@@ -161,13 +162,13 @@ createUser usModel userAttrs pwd = do
   Id . fromSqlKey <$> maybe (throwUserExists uName) pure mUserId
 
 deleteUser
-  :: MonadThrowLogger m
-  => UserModel m -> LoggedInUser -> U.UserName -> m ()
-deleteUser usModel safeUser uName = do
-  (UserWithId _ userId) <- getUserByName' usModel uName
-  runAdminAction safeUser $ umDeleteUser usModel userId
+  :: UserEffs m
+  => LoggedInUser -> U.UserName -> m ()
+deleteUser safeUser uName = do
+  (UserWithId _ userId) <- getUserByName' uName
+  runAdminAction safeUser $ umDeleteUser ?userModel userId
 
-getUserByName' :: MonadThrowLogger m => UserModel m -> U.UserName -> m UserWithId
-getUserByName' usModel uName = do
-  mUserWithId <- umGetUserByName usModel uName
+getUserByName' :: UserEffs m =>  U.UserName -> m UserWithId
+getUserByName' uName = do
+  mUserWithId <- umGetUserByName ?userModel uName
   maybe (throwInvalidUserName uName) pure mUserWithId

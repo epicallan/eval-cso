@@ -32,11 +32,12 @@ protectedServer
   :: AuthResult LoggedInUser
   -> ServerT ProtectedApi App
 protectedServer (Authenticated user) =
-         getServiceEvaluations evalModel
-    :<|> saveEvaluation evalModel user
-    :<|> deleteEvaluation evalModel user
-    :<|> createParameters evalModel user
-    :<|> getServiceParamters evalModel
+    let ?evalModel = evalModel in
+         getServiceEvaluations
+    :<|> saveEvaluation user
+    :<|> deleteEvaluation user
+    :<|> createParameters user
+    :<|> getServiceParamters
 
 protectedServer _ = throwAll err401
 

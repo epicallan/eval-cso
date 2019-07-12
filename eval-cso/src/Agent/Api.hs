@@ -30,9 +30,11 @@ protectedServer
   :: AuthResult LoggedInUser
   -> ServerT ProtectedApi App
 protectedServer (Authenticated user) =
-         getAgentByUserName agentModel
-    :<|> createAgentProfile agentModel userModel user
-    :<|> updateAgent agentModel user
+    let ?agentModel = agentModel
+        ?userModel  = userModel
+    in getAgentByUserName
+       :<|> createAgentProfile user
+       :<|> updateAgent user
 
 protectedServer _ = throwAll err401
 

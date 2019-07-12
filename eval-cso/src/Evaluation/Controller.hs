@@ -22,14 +22,15 @@ import Evaluation.Types
 import User.Helper (runAdminAction, runEvaluatorAction)
 import User.Model.Types (LoggedInUser)
 
+type EvaluationEffs m = (MonadThrowLogger m, ?evalModel :: EvalModel m)
+
 getServiceEvaluations
-  :: (MonadThrowLogger m)
-  => EvalModel m
-  -> ServiceTypeValue
+  :: EvaluationEffs m
+  => ServiceTypeValue
   -> m [EvalRecord]
-getServiceEvaluations evalModel serviceType = do
-  service <- emGetService evalModel serviceType >>= eitherSError err400
-  evalScores <- emGetEvaluationByService evalModel (service ^. siId)
+getServiceEvaluations serviceType = do
+  service <- emGetService ?evalModel serviceType >>= eitherSError err400
+  evalScores <- emGetEvaluationByService ?evalModel (service ^. siId)
   let evalScoresById :: [[EvaluationScore]] =
         groupBy (\es1 es2 -> es1 ^. esEvaluationId == es2 ^. esEvaluationId) evalScores
   pure $ mapMaybe toEvalRecord evalScoresById
@@ -48,29 +49,29 @@ getServiceEvaluations evalModel serviceType = do
 
 
 createParameters
-  :: MonadThrowLogger m
-  => EvalModel m -> LoggedInUser -> ServiceParameters -> m ()
-createParameters evalModel user sp = runEvaluatorAction user $
-   emCreateParameters evalModel sp >>= eitherSError err400
+  :: EvaluationEffs m
+  => LoggedInUser -> ServiceParameters -> m ()
+createParameters user serviceParams = runEvaluatorAction user $
+   emCreateParameters ?evalModel serviceParams >>= eitherSError err400
 
 getServiceParamters
-  :: MonadThrowLogger m
-  => EvalModel m -> ServiceTypeValue -> m [ParameterAttrs]
-getServiceParamters evalModel serviceType = do
-   parameters <- emGetServiceParameters evalModel serviceType >>= eitherSError err400
+  :: EvaluationEffs m
+  => ServiceTypeValue -> m [ParameterAttrs]
+getServiceParamters serviceType = do
+   parameters <- emGetServiceParameters ?evalModel serviceType >>= eitherSError err400
    pure $ toParameterAttr <$> parameters
 
 deleteEvaluation
-  :: MonadThrowLogger m
-  => EvalModel m -> LoggedInUser -> Id -> m ()
-deleteEvaluation evalModel user eId = runAdminAction user $
-  emDeleteEvaluation evalModel . toSqlKey $ unId eId -- TODO first check evaluation Exists
+  :: EvaluationEffs m
+  => LoggedInUser -> Id -> m ()
+deleteEvaluation user eId = runAdminAction user $
+  emDeleteEvaluation ?evalModel . toSqlKey $ unId eId -- TODO first check evaluation Exists
 
 saveEvaluation
-  :: MonadThrowLogger m
-  => EvalModel m -> LoggedInUser -> CreateEvaluation -> m Id
-saveEvaluation evalModel user ce = runEvaluatorAction  user $ do
-  evalId <- emCreateEvaluation evalModel ce >>= eitherSError err400
+  :: EvaluationEffs m
+  => LoggedInUser -> CreateEvaluation -> m Id
+saveEvaluation user ce = runEvaluatorAction  user $ do
+  evalId <- emCreateEvaluation ?evalModel ce >>= eitherSError err400
   pure . Id $ fromSqlKey evalId
 
 toParameterAttr ::  Parameter -> ParameterAttrs

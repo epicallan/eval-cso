@@ -40,3 +40,4 @@ data UserModel (m :: * -> *) = UserModel
   , umSetPassword :: UserId -> PasswordHash -> m ()
   , umDeleteUser :: UserId -> m ()
   }
+

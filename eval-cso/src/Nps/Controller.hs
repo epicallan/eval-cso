@@ -1,3 +1,4 @@
+{-# LANGUAGE ImplicitParams #-}
 module Nps.Controller
        ( getNpsRecords
        , saveNps
@@ -14,28 +15,29 @@ import Nps.Types (CreateNps, NpsRecord(..))
 import User.Helper (runAdminAction, runEvaluatorAction)
 import User.Model.Types (LoggedInUser, SafeUser(..))
 
+type NpsEff m = (MonadThrowLogger m, ?npsModel :: NpsModel m)
+
 getNpsRecords
-  :: MonadThrowLogger m
-  => NpsModel m
-  -> m [NpsRecord]
-getNpsRecords npsModel = do
-  npsDbRecords <- nmGetNpss npsModel
+  :: NpsEff m
+  => m [NpsRecord]
+getNpsRecords = do
+  npsDbRecords <- nmGetNpss ?npsModel
   pure $ toNpsRecord <$> npsDbRecords
 
 saveNps
-  :: MonadThrowLogger m
-  => NpsModel m -> LoggedInUser -> CreateNps -> m Id
-saveNps npsModel loggedInUser nps = runEvaluatorAction loggedInUser $ do
-  evaluatorId <- nmGetEvaluatorId npsModel (userName user) >>= eitherSError err401
-  nmCreateNps npsModel evaluatorId nps >>= eitherSError err400
+  :: NpsEff m
+  => LoggedInUser -> CreateNps -> m Id
+saveNps loggedInUser nps = runEvaluatorAction loggedInUser $ do
+  evaluatorId <- nmGetEvaluatorId ?npsModel (userName user) >>= eitherSError err401
+  nmCreateNps ?npsModel evaluatorId nps >>= eitherSError err400
   where
     user = unSafeUser loggedInUser
 
 deleteNps
-  :: MonadThrowLogger m
-  => NpsModel m -> LoggedInUser -> Id -> m ()
-deleteNps npsModel user npsId = runAdminAction user $
-  nmDeleteNps npsModel . toSqlKey $ unId npsId
+  :: NpsEff m
+  => LoggedInUser -> Id -> m ()
+deleteNps user npsId = runAdminAction user $
+  nmDeleteNps ?npsModel . toSqlKey $ unId npsId
 
 toNpsRecord :: NpsDbRecord -> NpsRecord
 toNpsRecord NpsDbRecord{..} =

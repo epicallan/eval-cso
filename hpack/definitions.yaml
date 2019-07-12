@@ -26,6 +26,7 @@ _definitions:
         - DeriveGeneric
         - DeriveTraversable
         - EmptyCase
+        - ImplicitParams
         - FlexibleContexts
         - FlexibleInstances
         - FunctionalDependencies

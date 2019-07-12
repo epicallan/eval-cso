@@ -46,23 +46,24 @@ loginHandler
   :: CookieSettings
   -> JWTSettings
   -> ServerT LoginApi App
-loginHandler = loginUser userModel
+loginHandler = let ?userModel = userModel in loginUser
 
 protected
   :: AuthResult LoggedInUser
   -> ServerT ProtectedUserApi App
 protected (Authenticated user) =
-         listUsers userModel
-    :<|> generateUser userModel user
-    :<|> updateUser userModel user
-    :<|> getUserByName userModel
-    :<|> setPassword userModel user
-    :<|> deleteUser userModel user
+    let ?userModel = userModel in
+         listUsers
+    :<|> generateUser user
+    :<|> updateUser  user
+    :<|> getUserByName
+    :<|> setPassword  user
+    :<|> deleteUser user
 
 protected _ = throwAll err401
 
 signupHandler :: ServerT SignupApi App
-signupHandler = signupUser userModel
+signupHandler = let ?userModel = userModel in signupUser
 
 userServer
   :: CookieSettings

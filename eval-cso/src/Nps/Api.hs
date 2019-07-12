@@ -9,8 +9,8 @@ import Common.Types (Id)
 import Foundation (App)
 import Nps.Controller (deleteNps, getNpsRecords, saveNps)
 import Nps.Model.Internal (npsModel)
-import User.Model.Types (LoggedInUser)
 import Nps.Types
+import User.Model.Types (LoggedInUser)
 
 type ProtectedApi =
          Get '[JSON] [NpsRecord]
@@ -23,10 +23,10 @@ protectedServer
   :: AuthResult LoggedInUser
   -> ServerT ProtectedApi App
 protectedServer (Authenticated user) =
-         getNpsRecords npsModel
-    :<|> saveNps npsModel user
-    :<|> deleteNps npsModel user
-
+    let ?npsModel = npsModel in
+         getNpsRecords
+    :<|> saveNps user
+    :<|> deleteNps user
 
 protectedServer _ = throwAll err401
 
