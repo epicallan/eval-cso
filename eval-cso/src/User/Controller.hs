@@ -1,4 +1,5 @@
 {-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE ImplicitParams #-}
 module User.Controller
        ( getUserByName
        , updateUser

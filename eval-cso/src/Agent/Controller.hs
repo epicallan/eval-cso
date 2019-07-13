@@ -1,3 +1,4 @@
+{-# LANGUAGE ImplicitParams #-}
 module Agent.Controller
        ( createAgentProfile
        , createAgentProfile_

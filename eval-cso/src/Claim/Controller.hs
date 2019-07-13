@@ -1,3 +1,4 @@
+{-# LANGUAGE ImplicitParams #-}
 module Claim.Controller
        ( getClaims
        , saveClaim
@@ -16,7 +17,7 @@ import Db.Model (Claim(..), ClaimType(..), User(..))
 import User.Helper (runAdminAction, runEvaluatorAction)
 import User.Model.Types (LoggedInUser, SafeUser(..))
 
-type ClaimEffs m = (MonadThrowLogger m, ?claimModel :: ClaimModel m) 
+type ClaimEffs m = (MonadThrowLogger m, ?claimModel :: ClaimModel m)
 
 getClaims :: ClaimEffs m => m [ClaimRecord]
 getClaims = do

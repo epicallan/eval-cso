@@ -1,3 +1,4 @@
+{-# LANGUAGE ImplicitParams #-}
 module Evaluation.Controller
        ( createParameters
        , saveEvaluation
