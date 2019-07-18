@@ -1,3 +1,4 @@
+{-# LANGUAGE ImplicitParams #-}
 module Claim.Controller
        ( getClaims
        , saveClaim
@@ -16,41 +17,38 @@ import Db.Model (Claim(..), ClaimType(..), User(..))
 import User.Helper (runAdminAction, runEvaluatorAction)
 import User.Model.Types (LoggedInUser, SafeUser(..))
 
-getClaims
-  :: MonadThrowLogger m
-  => ClaimModel m
-  -> m [ClaimRecord]
-getClaims claimModel = do
-  claimScores <- cmGetClaims claimModel
+type ClaimEffs m = (MonadThrowLogger m, ?claimModel :: ClaimModel m)
+
+getClaims :: ClaimEffs m => m [ClaimRecord]
+getClaims = do
+  claimScores <- cmGetClaims ?claimModel
   pure $ toClaimRecord <$> claimScores
 
 saveClaim
-  :: MonadThrowLogger m
-  => ClaimModel m -> LoggedInUser -> CreateClaim -> m Id
-saveClaim claimModel loggedInUser claim = runEvaluatorAction loggedInUser $ do
-  evaluatorId <- cmGetEvaluatorId claimModel (userName user) >>= eitherSError err401
-  cmCreateClaim claimModel evaluatorId claim >>= eitherSError err400
+  :: ClaimEffs m
+  => LoggedInUser -> CreateClaim -> m Id
+saveClaim loggedInUser claim = runEvaluatorAction loggedInUser $ do
+  evaluatorId <- cmGetEvaluatorId ?claimModel (userName user) >>= eitherSError err401
+  cmCreateClaim ?claimModel evaluatorId claim >>= eitherSError err400
   where
     user = unSafeUser loggedInUser
 
-getClaimTypes
-  :: MonadThrowLogger m
-  => ClaimModel m -> m [ClaimTypeRecord]
-getClaimTypes claimModel = do
-  claimTypes <- cmGetClaimtypes claimModel
+getClaimTypes :: ClaimEffs m => m [ClaimTypeRecord]
+getClaimTypes = do
+  claimTypes <- cmGetClaimtypes ?claimModel
   pure $ toClaimTypeRecord <$> claimTypes
 
 saveClaimTypes
-  :: MonadThrowLogger m
-  => ClaimModel m -> LoggedInUser -> [ClaimTypeRecord] -> m ()
-saveClaimTypes claimModel user claimTypes = runAdminAction user $
-  cmCreateClaimtypes claimModel claimTypes
+  :: ClaimEffs m
+  => LoggedInUser -> [ClaimTypeRecord] -> m ()
+saveClaimTypes user claimTypes = runAdminAction user $
+  cmCreateClaimtypes ?claimModel claimTypes
 
 deleteClaim
-  :: MonadThrowLogger m
-  => ClaimModel m -> LoggedInUser -> Id -> m ()
-deleteClaim claimModel user cId = runAdminAction user $
-  cmDeleteClaim claimModel . toSqlKey $ unId cId
+  :: ClaimEffs m
+  => LoggedInUser -> Id -> m ()
+deleteClaim user cId = runAdminAction user $
+  cmDeleteClaim ?claimModel . toSqlKey $ unId cId
 
 toClaimTypeRecord :: ClaimType -> ClaimTypeRecord
 toClaimTypeRecord ClaimType {..} = ClaimTypeRecord

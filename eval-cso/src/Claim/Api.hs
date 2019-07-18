@@ -29,11 +29,12 @@ protectedServer
   :: AuthResult LoggedInUser
   -> ServerT ProtectedApi App
 protectedServer (Authenticated user) =
-         getClaims claimModel
-    :<|> saveClaim claimModel user
-    :<|> deleteClaim claimModel user
-    :<|> saveClaimTypes claimModel user
-    :<|> getClaimTypes claimModel
+    let ?claimModel = claimModel in
+         getClaims
+    :<|> saveClaim user
+    :<|> deleteClaim user
+    :<|> saveClaimTypes user
+    :<|> getClaimTypes
 
 
 protectedServer _ = throwAll err401

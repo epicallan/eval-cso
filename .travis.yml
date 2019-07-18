@@ -26,8 +26,8 @@ install:
   stack build --only-dependencies --no-terminal
 script:
 - stack build --test --bench --no-run-benchmarks --no-terminal --ghc-options=-Werror
-- curl -sSL https://raw.github.com/ndmitchell/neil/master/misc/travis.sh | sh -s --
-  hlint .
+#- curl -sSL https://raw.github.com/ndmitchell/neil/master/misc/travis.sh | sh -s --
+#  hlint .
 - stack install
 - mkdir deploy
 - mv ~/.local/bin/eval-ex deploy/

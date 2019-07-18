@@ -9,6 +9,7 @@ module User.Model.Types
        , LoggedOutUser
        ) where
 import Data.Aeson (FromJSON, ToJSON)
+import Data.Kind (Type)
 import Lens.Micro.Platform (makeClassy)
 import Servant.Auth.Server (FromJWT, ToJWT)
 
@@ -30,7 +31,7 @@ data UserWithId = UserWithId
   }
 makeClassy ''UserWithId
 
-data UserModel (m :: * -> *) = UserModel
+data UserModel (m :: Type -> Type) = UserModel
   { umCreateUser :: User -> m (Maybe UserId) -- TODO: should return Either
   , umAllUsers :: m [User]
   , umGetUserByEmail :: Email -> m (Maybe User)

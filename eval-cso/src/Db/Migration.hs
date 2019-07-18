@@ -76,10 +76,14 @@ mkBranches :: CanMigrate m r => [BranchName] -> m ()
 mkBranches = mapM_ (amCreateBranch agentModel)
 
 mkAdminUser :: (CanMigrate m r, HasSettings r) => AdminUser -> m ()
-mkAdminUser us = signupUser userModel us >> pass
+mkAdminUser adminUser =
+  let ?userModel = userModel in signupUser adminUser >> pass
 
 mkAgents :: (CanMigrate m r, HasSettings r) => [CreateAgent] -> m ()
-mkAgents = mapM_ (createAgentProfile_ agentModel userModel)
+mkAgents agents =
+  let ?agentModel = agentModel
+      ?userModel  = userModel
+  in mapM_ createAgentProfile_ agents
 
 mkServices :: CanMigrate m r => [ServiceAttrs] -> m ()
 mkServices = mapM_ (emCreateService evalModel)
