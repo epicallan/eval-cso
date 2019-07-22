@@ -15,7 +15,7 @@ import Evaluation.Types
 
 data EvaluationScore = EvaluationScore
   { _esEvaluation :: Evaluation
-  , _esParameter :: Parameter
+  , _esParameter :: Maybe Parameter
   , _esEvaluator :: User
   , _esAgent :: User
   , _esSupervisor :: Maybe User
