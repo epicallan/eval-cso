@@ -112,7 +112,7 @@ data NpsRecord = NpsRecord
   , nrWaitTime :: WaitTime
   , nrDuration :: Duration
   , nrIssueResolved :: Bool
-  , nrFurtherInformationGinven :: Bool
+  , nrFurtherInformationGiven :: Bool
   , nrRatingReason :: Maybe RatingReason
   , nrCrmCaptureCorrect :: CrmCaptureCorrect
   , nrCrmCaptureReason :: Maybe CRMCaptureReason
