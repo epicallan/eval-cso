@@ -39,7 +39,7 @@ getServiceEvaluations serviceType = do
     toEvalRecord :: [EvaluationScore] -> Maybe EvalRecord
     toEvalRecord groupScores@(firstScore : _) =
       let _erEvalAttrs = toEvalAttr serviceType firstScore
-          _erParameters = toParameterAttr . view esParameter <$> groupScores
+          _erParameters = catMaybes $ fmap toParameterAttr . view esParameter <$> groupScores
           totalScore =  sum $ view paWeight <$> _erParameters
           isZeroRated = any (\para -> para ^. paCategory == ZeroRated) _erParameters
           _erScore = if isZeroRated then 0 else 100 - totalScore

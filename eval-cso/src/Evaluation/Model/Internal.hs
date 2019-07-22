@@ -16,7 +16,7 @@ import qualified User.Types as U (UserName)
 
 type EvaluationScoreTuple =
   ( Entity Evaluation
-  , Entity Parameter
+  , Maybe (Entity Parameter)
   , Entity User
   , Maybe (Entity Branch)
   , Maybe (Entity User)
@@ -47,8 +47,8 @@ evalModel = EvalModel
   , emGetEvaluationByService = \serviceId -> do
      evalData :: [EvaluationScoreTuple] <- runInDb $
        select $
-         from $ \(service `InnerJoin` evaluation `InnerJoin` parameterScore
-                 `InnerJoin` parameter `InnerJoin` agent `InnerJoin` agentProfile
+         from $ \(service `InnerJoin` evaluation `LeftOuterJoin` parameterScore
+                 `LeftOuterJoin` parameter `InnerJoin` agent `InnerJoin` agentProfile
                  `InnerJoin` branch `InnerJoin` supervisor `InnerJoin` evaluator
                  ) -> do
             on (evaluator ^. UserId ==. evaluation ^. EvaluationEvaluator)
@@ -56,8 +56,8 @@ evalModel = EvalModel
             on (agentProfile ^. AgentBranch ==. branch ?. BranchId)
             on (agent ^. UserId ==. agentProfile ^. AgentUserId)
             on (agent ^. UserId ==. evaluation ^. EvaluationAgent)
-            on (parameter ^. ParameterId ==. parameterScore ^. ParameterScoreParameter)
-            on (parameterScore ^. ParameterScoreEvaluation ==. evaluation ^. EvaluationId)
+            on (just (parameterScore ?. ParameterScoreParameter) ==. just (parameter ?. ParameterId) )
+            on (just (evaluation ^. EvaluationId) ==. parameterScore ?. ParameterScoreEvaluation)
             on (service ^. ServiceId  ==. evaluation ^. EvaluationServiceType)
             where_ (service ^. ServiceId ==. val serviceId)
             where_ (evaluation ^. EvaluationDeleted ==.  val (Just False))
@@ -165,7 +165,7 @@ evalModel = EvalModel
     toEvaluationScore :: EvaluationScoreTuple -> EvaluationScore
     toEvaluationScore (evaluation, parameter, agent, branch, supervisor, evaluator) = EvaluationScore
        { _esEvaluation = entityVal evaluation
-       , _esParameter = entityVal parameter
+       , _esParameter = entityVal <$> parameter
        , _esAgent = entityVal agent
        , _esEvaluator = entityVal evaluator
        , _esSupervisor = entityVal <$> supervisor
