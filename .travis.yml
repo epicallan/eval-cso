@@ -8,8 +8,8 @@ cache:
   - "$TRAVIS_BUILD_DIR/.stack-work"
 matrix:
   include:
-  - ghc: 8.6.4
-    env: GHCVER='8.6.4' STACK_YAML="$TRAVIS_BUILD_DIR/stack.yaml"
+  - ghc: 8.4.4
+    env: GHCVER='8.4.4' STACK_YAML="$TRAVIS_BUILD_DIR/stack.yaml"
     os: linux
     addons:
       apt:
@@ -21,10 +21,10 @@ install:
   export PATH="$HOME/.local/bin:$PATH"
   travis_retry curl -L 'https://www.stackage.org/stack/linux-x86_64' | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
   stack --version
-  stack setup --no-terminal --install-cabal 2.2.0.1
   stack ghc -- --version
-  stack build --only-dependencies --no-terminal
 script:
+- stack setup
+- stack update
 - stack build --test --bench --no-run-benchmarks --no-terminal --ghc-options=-Werror
 #- curl -sSL https://raw.github.com/ndmitchell/neil/master/misc/travis.sh | sh -s --
 #  hlint .

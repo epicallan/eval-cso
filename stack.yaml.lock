@@ -5,12 +5,12 @@
 
 packages:
 - completed:
-    hackage: base-noprelude-4.12.0.0@sha256:dcd5ece10257f79fa16e207d558b31ab3467b205adae5d1976abdee28b1c8b4a,6845
+    hackage: base-noprelude-4.11.1.0@sha256:f85e44cb50a0d0b2320baf9677d764beb1d247a3c15d1b97e3404ff7e7efd00b,7036
     pantry-tree:
       size: 158
-      sha256: 1e4118716a2078385341d7df2f876b616744c3a8f945247766e60f48e32b3d1d
+      sha256: c102629c3d833f43c0961a34a33f94397a7477a15b7fe4fb10386ea575cc7d79
   original:
-    hackage: base-noprelude-4.12.0.0
+    hackage: base-noprelude-4.11.1.0
 - completed:
     hackage: aeson-options-0.1.0@sha256:2d0c25afbb2d038bd5b57de8d042e319ea1a5ec7d7b92810d8a0cf0777882b6a,1244
     pantry-tree:
@@ -19,12 +19,12 @@ packages:
   original:
     hackage: aeson-options-0.1.0
 - completed:
-    hackage: esqueleto-2.7.0@sha256:4cbb7136ec67d7cedd0439dd6932bb091c346ab27ed3fdf659228b73fb619896,5205
+    hackage: esqueleto-2.6.0@sha256:e4672cd3baec100ef8597224abae4e030795e8a1f80abb6e0c3e2570f213a258,5154
     pantry-tree:
-      size: 1044
-      sha256: 76fce11d7548356fc0d7fdb93ced98cd2b8ec11d519f2051671551ab6cb89b13
+      size: 941
+      sha256: c6af6dfb4de2e9eb75b61d84a3d429749422f6a511fb810b9fe3737104e5f9fc
   original:
-    hackage: esqueleto-2.7.0
+    hackage: esqueleto-2.6.0@sha256:e4672cd3baec100ef8597224abae4e030795e8a1f80abb6e0c3e2570f213a258
 - completed:
     hackage: random-strings-0.1.1.0@sha256:935a7a23dab45411960df77636a29b44ce42b89eeb15f2b1e809d771491fa677,2517
     pantry-tree:
@@ -34,7 +34,7 @@ packages:
     hackage: random-strings-0.1.1.0@sha256:935a7a23dab45411960df77636a29b44ce42b89eeb15f2b1e809d771491fa677
 snapshots:
 - completed:
-    size: 498155
-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/13/19.yaml
-    sha256: b9367a80d4393d02e58a46b8a9fdfbd7bc19f59c0c2bbf90034ba15cf52cf213
-  original: lts-13.19
+    size: 509471
+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/12/26.yaml
+    sha256: 95f014df58d0679b1c4a2b7bf2b652b61da8d30de5f571abb0d59015ef678646
+  original: lts-12.26

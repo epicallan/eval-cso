@@ -19,7 +19,7 @@ runApp = bracket initEnv shutdownApp startApp
 
 startApp :: Config -> IO ()
 startApp conf = do
-  forkServer "127.0.0.1" 8080
+  when (conf ^. cEnvironment == Development) (void $ forkServer "127.0.0.1" 8080)
   putTextLn $ "starting " <> conf ^. sAppName <> " on port " <> show (conf ^. sPort)
   app conf >>= run (fromIntegral $ conf ^. sPort) . middleware . appCors
   where

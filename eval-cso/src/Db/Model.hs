@@ -62,7 +62,7 @@ share
 
   Evaluation sql=evaluation
     evaluator      UserId
-    agent          UserId        
+    agent          UserId
     serviceType    ServiceId
     reason         E.Reason             sqltype=text
     comment        E.Comment     Maybe  sqltype=text
