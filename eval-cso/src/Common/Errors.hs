@@ -1,3 +1,4 @@
+{-# LANGUAGE DeriveAnyClass, DerivingStrategies #-}
 module Common.Errors
        ( throwSError
        , eitherSError
@@ -10,13 +11,11 @@ import Servant (ServantErr(..))
 
 type MonadThrowLogger m = (MonadLogger m, MonadThrow m)
 
-
 data JSONError = JSONError
   { status :: Int
   , message :: Text
   } deriving (Generic, Show)
-
-instance ToJSON JSONError
+    deriving anyclass ToJSON
 
 throwSError
   :: (Exception e, MonadThrowLogger m)

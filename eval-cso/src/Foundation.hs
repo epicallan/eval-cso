@@ -1,3 +1,4 @@
+{-# LANGUAGE InstanceSigs #-}
 module Foundation
        ( initEnv
        , filterLogs

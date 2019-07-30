@@ -1,4 +1,5 @@
 {-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE DeriveAnyClass, DerivingStrategies #-}
 module Settings
        ( DbConf (..)
        , HasDbConf (..)
@@ -47,8 +48,7 @@ data PartialSettings = PartialSettings
 
 newtype SettingsError = SettingsError Text
  deriving Show
-
-instance Exception SettingsError
+ deriving anyclass Exception
 
 instance Semigroup PartialSettings where
   x <> y = PartialSettings
