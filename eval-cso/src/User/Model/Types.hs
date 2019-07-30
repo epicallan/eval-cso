@@ -22,6 +22,7 @@ newtype SafeUser (a :: UserState) = SafeUser { unSafeUser :: User }
   deriving (Show, Generic)
   deriving anyclass (ToJSON, FromJSON, ToJWT, FromJWT)
 
+
 type LoggedInUser = SafeUser 'LoggedIn
 type LoggedOutUser = SafeUser 'LoggedOut
 

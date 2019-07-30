@@ -1,3 +1,4 @@
+{-# LANGUAGE DeriveAnyClass, DerivingStrategies #-}
 module Db.Migration
         ( runSeeder
         , runDbMigrations
@@ -29,8 +30,7 @@ import User.Types
 
 newtype ReadSeedFileError = ReadSeedFileError Text
   deriving (Show)
-
-instance Exception ReadSeedFileError
+  deriving anyclass Exception
 
 type CanMigrate m r = (CanDb m r, MonadThrowLogger m, MonadTime m)
 

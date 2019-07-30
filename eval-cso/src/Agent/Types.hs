@@ -1,3 +1,4 @@
+{-# LANGUAGE DeriveAnyClass, DerivingStrategies #-}
 module Agent.Types
        ( AgentErrors (..)
        , AgentResponse(..)
@@ -21,8 +22,7 @@ data AgentErrors =
     BranchNameNotFound BranchName
   | AgentUserNameNotFound UserName
   deriving Show
-
-instance Exception AgentErrors
+  deriving anyclass Exception
 
 data AgentAttrs = AgentAttrs
   { _aaSupervisor :: Maybe UserName

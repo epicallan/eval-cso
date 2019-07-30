@@ -90,10 +90,10 @@ updateUser
   -> U.UserName
   -> UserEdits
   -> m UserResponse
-updateUser safeUser@(unSafeUser -> logedInUser) uName edits = do
+updateUser safeUser@(unSafeUser -> (userName -> loggedInName)) uName edits = do
   (UserWithId user userId) <- getUserByName' uName
   let update = toUserResponse <$> umUpdateUser ?userModel userId edits
-  if | uName == userName logedInUser -> update
+  if | uName == loggedInName -> update
      | otherwise -> runProtectedAction safeUser (userRole user) (userName user) update
 
 listUsers

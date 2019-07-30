@@ -48,8 +48,8 @@ runAdminAction
   => LoggedInUser
   -> m a -- ^ action to run
   -> m a
-runAdminAction (unSafeUser -> user) action =
-  case userRole user of
+runAdminAction (unSafeUser -> user@(userRole -> role)) action =
+  case role of
     Admin -> action
     _     -> throwUserNotAuthorized $ userEmail user
 
