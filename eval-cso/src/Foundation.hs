@@ -21,8 +21,8 @@ import Lens.Micro.Platform (Lens', makeClassy)
 import Servant.Auth.Server (ThrowAll(..))
 
 import Settings
-  (DbConf(..), HasDbConf(..), HasSettings(..), Settings(..), lookupOption,
-  parseSettings)
+  (DbConf(..), HasDbConf(..), HasSettings(..), Settings(..), Settings',
+  lookupOption, parseSettings)
 
 -- | Right now, we're distinguishing between three environments
 data Environment
@@ -33,7 +33,7 @@ data Environment
 
 data Config = Config
     { _cPool  :: ConnectionPool
-    , _cSettings :: Settings
+    , _cSettings :: Settings'
     , _cEnvironment :: Environment
     }
 
@@ -51,7 +51,7 @@ class HasEnvironment a where
 instance HasEnvironment Config where
   environment = cEnvironment
 
-instance HasSettings Config where
+instance HasSettings Config Identity where
   settings = cSettings
 
 newtype AppT m a = AppT { runApp :: ReaderT Config m a }
@@ -72,7 +72,7 @@ initEnv = do
     _cPool  <- makePool _cEnvironment $ _cSettings ^. sDbConf
     pure Config{..}
     where
-      getSettings :: Environment -> m Settings
+      getSettings :: Environment -> m Settings'
       getSettings = \case
          Development -> parseSettings "./config/dev.yaml"
          Test -> parseSettings "./config/test.yaml"
