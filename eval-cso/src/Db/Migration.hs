@@ -75,11 +75,11 @@ readSeedJson = do
 mkBranches :: CanMigrate m r => [BranchName] -> m ()
 mkBranches = mapM_ (amCreateBranch agentModel)
 
-mkAdminUser :: (CanMigrate m r, HasSettings r) => AdminUser -> m ()
+mkAdminUser :: (CanMigrate m r, HasSettings r Identity) => AdminUser -> m ()
 mkAdminUser adminUser =
   let ?userModel = userModel in signupUser adminUser >> pass
 
-mkAgents :: (CanMigrate m r, HasSettings r) => [CreateAgent] -> m ()
+mkAgents :: (CanMigrate m r, HasSettings r Identity) => [CreateAgent] -> m ()
 mkAgents agents =
   let ?agentModel = agentModel
       ?userModel  = userModel
