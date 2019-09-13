@@ -40,7 +40,7 @@ type UserEffs m = (MonadThrowLogger m, ?userModel :: UserModel m)
 
 type UserEffsIO r m =
   ( UserEffs m
-  , HasSettings r
+  , HasSettings r Identity
   , MonadReader r m
   , MonadTime m
   , MonadIO m
@@ -54,7 +54,7 @@ getUserByName uName =
   toUserResponse . view uiUser <$> getUserByName' uName
 
 setPassword
-  :: (UserEffs m, HasSettings r, MonadReader r m)
+  :: (UserEffs m, HasSettings r Identity, MonadReader r m)
   => LoggedInUser
   -> U.UserName
   -> Password
@@ -104,7 +104,7 @@ listUsers = fmap toUserResponse <$> umAllUsers ?userModel
 -- | on signup everyone is a regular member i.e CSO Agent, admin gives out roles
 -- note signup has a default role of CSOAgent from HasRole class
 signupUser
-  :: (HasSettings r, HasCreateUserAttrs attrs, MonadReader r m, MonadTime m, UserEffs m)
+  :: (HasSettings r Identity, HasCreateUserAttrs attrs, MonadReader r m, MonadTime m, UserEffs m)
   => attrs
   -> m Id
 signupUser attrs = createUser attrs $ attrs ^. password
@@ -142,7 +142,7 @@ acceptLogin cs jws safeUser@(unSafeUser -> user) = do
                    $ toUserResponse user
 
 createUser
-  :: (HasUserAttrs attrs,  MonadTime m, HasSettings r, MonadReader r m, UserEffs m)
+  :: (HasUserAttrs attrs,  MonadTime m, HasSettings r Identity, MonadReader r m, UserEffs m)
   => attrs
   -> Password
   -> m Id

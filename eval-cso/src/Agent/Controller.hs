@@ -33,7 +33,7 @@ type AgentEffs m =
 
 type AgentEffsIO r m =
   ( AgentEffs m
-  , HasSettings r
+  , HasSettings r Identity
   , MonadReader r m
   , MonadTime m
   , MonadIO m

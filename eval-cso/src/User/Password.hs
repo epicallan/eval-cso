@@ -26,7 +26,7 @@ newtype Password = Password {unPassword :: Text }
 $(deriveJSON AO.defaultOptions { unwrapUnaryRecords = True } ''Password)
 
 hashPassword
-  :: (HasSettings r, MonadReader r m)
+  :: (HasSettings r Identity, MonadReader r m)
   => Password
   -> m PasswordHash
 hashPassword (Password str) = do
