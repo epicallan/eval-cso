@@ -4,7 +4,7 @@
 _definitions:
   _top-level:
     - &meta
-        version:            '2.0.2'
+        version:            '2.4'
         description:        'Please see the README on Github at <https://github.com/epicallan/eval-cso#readme>'
         homepage:           'https://github.com/epicallan/eval-cso#readme'
         bug-reports:        https://github.com/epicallan/eval-cso/issues
