@@ -48,9 +48,11 @@ startApp conf = do
     errorLogger _ e = putStrLn $ "Internal Error: " <> show @Text e
 
     middleware :: Middleware
-    middleware = appCors . errorMwDefJson . case conf ^. cEnvironment of
-      Production -> logStdout . gzip def
-      _          -> logStdoutDev
+    middleware =
+      let logMw = case conf ^. cEnvironment of
+                    Production -> logStdout
+                    _          -> logStdoutDev
+      in gzip def . logMw . errorMwDefJson . appCors
 
     appCors :: Middleware
     appCors = cors (const $ Just policy)
